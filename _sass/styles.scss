@@ -10,4 +10,5 @@ h1, h2, h3, h4, h5, h6, p, blockquote, pre, ul, ol, dl, figure {
   font-family: 'Nanum Gothic', sans-serif;
 }
 
-
+/* Import Highlight */
+@import "../assets/css/syntax.css";
