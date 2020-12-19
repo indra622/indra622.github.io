@@ -1,5 +1,6 @@
 ---
 layout: default
+published: true
 ---
 
 <!-- Page Header -->
@@ -36,6 +37,15 @@ layout: default
 
         <hr>
 
+        {% if page.comments %}
+        <script src="https://utteranc.es/client.js"
+        repo="indra622/blog-replies"
+        issue-term="[ENTER TERM HERE]"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+		</script>
+        {% endif %}
         <div class="clearfix">
 
           {% if page.previous.url %}
