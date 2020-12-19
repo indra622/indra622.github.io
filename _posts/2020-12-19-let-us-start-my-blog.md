@@ -1,7 +1,7 @@
 ---
 published: true
 layout: post
-subtitle: 언어 모델 성능 측정 지표
+title: 블로그를 
 date: '2020-12-19 10:45:13 -0400'
 background: /img/posts/06.jpg
 comments: true
