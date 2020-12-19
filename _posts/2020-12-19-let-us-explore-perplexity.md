@@ -144,4 +144,4 @@ $$
 
 ### Reference
 
-https://towardsdatascience.com/perplexity-intuition-and-derivation-105dd481c8f3
+[Perplexity Intuition](https://towardsdatascience.com/perplexity-intuition-and-derivation-105dd481c8f3)
