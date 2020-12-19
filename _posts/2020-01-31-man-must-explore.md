@@ -1,7 +1,7 @@
 ---
 layout: post
-title: Perplexity에 대해 알아봅시다.
-subtitle: testfortest
+title: 2020-12-19-Perplexity에 대해 알아봅시다.md
+subtitle: 언어 모델 성능 측정 지표
 date: '2020-01-31 10:45:13 -0400'
 background: /img/posts/06.jpg
 published: true
@@ -144,10 +144,3 @@ $$
 
 
 짧게 하고 싶었는데 엔트로피 한다고 많이 길어졌네요. 다음엔 좀 더 다듬어 보겠습니다. 감사합니다.
-
-
-
-
-
-
-
