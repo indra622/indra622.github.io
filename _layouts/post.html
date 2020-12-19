@@ -36,7 +36,16 @@ published: true
         {{ content }}
 
         <hr>
-
+		
+        {% if page.comments %}
+		<script src="https://utteranc.es/client.js"
+        	repo="indra622/blog-replies"
+        	issue-term="title"
+        	theme="github-light"
+        	crossorigin="anonymous"
+        	async>
+		</script>
+        {% endif %}
 
         <div class="clearfix">
 
@@ -50,15 +59,7 @@ published: true
           {% endif %}
 
         </div>
-		{% if page.comments %}
-		<script src="https://utteranc.es/client.js"
-        	repo="indra622/blog-replies"
-        	issue-term="title"
-        	theme="github-light"
-        	crossorigin="anonymous"
-        	async>
-		</script>
-        {% endif %}
+		
       </div>
     </div>
   </div>
