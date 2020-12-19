@@ -2,7 +2,7 @@
 layout: post
 title: Perplexity에 대해 알아봅시다
 subtitle: 언어 모델 성능 측정 지표
-date: '2020-01-31 10:45:13 -0400'
+date: '2020-12-19 10:45:13 -0400'
 background: /img/posts/06.jpg
 published: true
 comments: true
