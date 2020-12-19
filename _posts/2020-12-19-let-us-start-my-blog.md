@@ -2,7 +2,6 @@
 published: true
 layout: post
 title: 블로그를 시작하면서
-date: '2020-12-19 10:45:13 -0400'
 background: /img/posts/06.jpg
 comments: true
 ---
