@@ -142,6 +142,10 @@ $$
 
 짧게 하고 싶었는데 엔트로피 한다고 많이 길어졌네요. 다음엔 좀 더 다듬어 보겠습니다. 감사합니다.
 
+<br/><br/>
+
+---------------------------------------------------------------------------------------------
+
 ### Reference
 
 [Perplexity Intuition](https://towardsdatascience.com/perplexity-intuition-and-derivation-105dd481c8f3)
