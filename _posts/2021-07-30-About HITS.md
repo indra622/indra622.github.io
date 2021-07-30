@@ -1,7 +1,7 @@
 ---
 published: True
 title: 싸이월드마냥 방문자 숫자를 표시해주는 사이트
-comments: True
+comment: True
 ---
 ## 싸이월드마냥 방문자 숫자를 표시해주는 사이트
 
