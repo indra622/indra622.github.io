@@ -1,7 +1,7 @@
 ---
 published: True
 ---
-## A New Post
+## 싸이월드마냥 방문자 숫자를 표시해주는 사이트
 
 [HITS](https://hits.seeyoufarm.com/)라는 곳인데, 사이트 url만 치면 굉장히 쉽고 빠르게 해당 페이지의 방문자를 표시해줄 수 있는 모듈을 만들 수 있다.
 
