@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 layout: post
 background: /img/posts/06.jpg
 comments: true
