@@ -3,6 +3,7 @@ published: true
 layout: post
 background: /img/posts/06.jpg
 comments: true
+title: 연구실 서버 여러 대 상태 웹사이트로 한번에 보기
 ---
 # 모티
 
