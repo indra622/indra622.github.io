@@ -80,6 +80,6 @@ npx http-server
 
 중개 서버 ip랑 포트 입력(기본 8080일거임)
 
-![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/62d9b283-2723-4db9-af35-edd041e1b2ea/Untitled.png)
+<img width="1497" alt="image" src="https://user-images.githubusercontent.com/7467605/146536309-0caa98e0-d4dc-42cc-8e7e-d6542257a5b7.png">
 
 삽가능
