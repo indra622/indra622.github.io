@@ -1,4 +1,15 @@
 ---
+published: true
+layout: post
+background: /img/posts/06.jpg
+comments: true
+
+title: <% tp.file.title %>
+created:  <% tp.file.creation_date() %>
+tag: blog
+---
+
+# <% tp.file.title %>---
 layout: post
 title: Perplexity에 대해 알아봅시다
 subtitle: 언어 모델 성능 측정 지표
