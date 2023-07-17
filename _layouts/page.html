@@ -17,7 +17,26 @@ layout: default
             <!--{% if page.description %}
             <span class="subheading">{{ page.description }}</span>
             {% endif %}-->
-
+            {% if page.description %}
+            <div class="container">
+                <div class="block">
+                    <h3>제목 1</h3>
+                    <ul>
+                        <li>항목 1</li>
+                        <li>항목 2</li>
+                        <li>항목 3</li>
+                    </ul>
+                </div>
+                <div class="block">
+                    <h3>제목 2</h3>
+                    <ul>
+                        <li>항목 1</li>
+                        <li>항목 2</li>
+                        <li>항목 3</li>
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
             <!--<div style="width:200px; height:150px; border:1px solid red; float:left;">
               첫번째 영역:
               왼쪽에 위치시킴 =>  float:left
