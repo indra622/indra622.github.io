@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markdown Renderer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 20px;
+    }
+    #content {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      background-color: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+  <h1>Markdown Renderer</h1>
+  <div id="content"></div>
+
+  <script>
+    // 마크다운 텍스트를 HTML로 렌더링하는 함수
+    function renderMarkdown() {
+      const markdown = `
+# 천 국 여단 내전
+### 제 1회 볼매붕가 보험사기배 서밋대회
+
+- 2024년 12월 2일 ~ 12월 8일 23:59 (결과 공유 기준)
+- 경기 후, 승자가 크레스니크에게 개인톡으로 결과 공유
+- 경기 중 리플 공유 금지 (사유: 전력 노출)
+
+
+### 상금
+얼마더라 볼매한테 물어보고 옴
+
+
+
+
+### 대진표
+
+짱루팀 vs 사니팀
+선봉 분평 으막 vs 사니
+중견 눈밭 짱 vs 쿵
+대장 트윈 크크 vs 볼매
+
+이슈팀 vs 짱루팀
+선봉 계류 영어 vs 으막
+중견 트윈 이슈 vs 짱
+대장 용암 류 vs 크크
+
+이슈팀 vs 사니팀
+선봉 눈밭 영어 vs 사니
+중견 동굴 이슈 vs 볼붕
+대장 계류 류 vs 쿵
+
+화이팅~
+
+      `;
+      
+      const content = document.getElementById('content');
+      content.innerHTML = marked(markdown); // marked.js로 변환
+    }
+
+    // marked.js를 로드하고 렌더링 실행
+    const script = document.createElement('script');
+    script.src = "https://cdn.jsdelivr.net/npm/marked/marked.min.js";
+    script.onload = renderMarkdown;
+    document.head.appendChild(script);
+  </script>
+</body>
+</html>
