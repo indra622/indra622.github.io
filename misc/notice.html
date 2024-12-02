@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>천 국여단 볼매붕가배 서밋</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/switchery/0.8.2/switchery.min.css">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -26,33 +27,24 @@
       background-color: #333;
       border-color: #555;
     }
-    #toggleButton {
+    #toggleSwitchContainer {
       margin-top: 10px;
-      padding: 10px;
-      cursor: pointer;
-      border: none;
-      background-color: #007bff;
-      color: #fff;
-      font-size: 16px;
-      border-radius: 5px;
-      transition: background-color 0.3s;
-    }
-    #toggleButton:hover {
-      background-color: #0056b3;
     }
   </style>
 </head>
 <body>
   <div id="content"></div>
-
-  <button id="toggleButton">다크모드 전환</button>
+  <div id="toggleSwitchContainer">
+    <label for="toggleSwitch">다크모드 전환</label>
+    <input type="checkbox" id="toggleSwitch">
+  </div>
 
   <script>
     async function renderMarkdown() {
       // 마크다운 텍스트
       const markdown = `
 # 천 국 여단 내전
-## 제 1회 볼매붕가 보험사기배 서밋대회
+### 제 1회 볼매붕가 보험사기배 서밋대회
 
 - 2024년 12월 2일 ~ 12월 8일 23:59 (결과 공유 기준)
 - 경기 후, 승자가 크레스니크에게 개인톡으로 결과 공유
@@ -65,17 +57,17 @@
 짱루팀 vs 사니팀  
 선봉 분평 으막 vs 사니  
 중견 눈밭 짱 vs 쿵  
-대장 트윈 크크 vs 볼매  (12/1 20:00)
+대장 트윈 크크 vs 볼매  
 
 이슈팀 vs 짱루팀  
 선봉 계류 영어 vs 으막  
 중견 트윈 이슈 vs 짱  
-대장 용암 류 vs 크크  (잠정 12/4 업무시간)
+대장 용암 류 vs 크크  
 
 이슈팀 vs 사니팀  
 선봉 눈밭 영어 vs 사니  
 중견 동굴 이슈 vs 볼붕  
-대장 계류 류 vs 쿵  (12/2 18:00)
+대장 계류 류 vs 쿵  
 
 화이팅~
       `;
@@ -91,11 +83,17 @@
     script.onload = renderMarkdown; // 라이브러리 로드 후 실행
     document.head.appendChild(script);
 
-        // 다크모드 전환 기능 추가
-    const toggleButton = document.getElementById('toggleButton');
-    toggleButton.addEventListener('click', () => {
+    // 다크모드 전환 스위치 기능 추가
+    const toggleSwitch = document.getElementById('toggleSwitch');
+    toggleSwitch.addEventListener('change', () => {
       document.body.classList.toggle('dark-mode');
     });
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/switchery/0.8.2/switchery.min.js"></script>
+  <script>
+    // 스위치 스타일 적용
+    const toggleSwitchElement = document.getElementById('toggleSwitch');
+    const switchery = new Switchery(toggleSwitchElement, { color: '#007bff', secondaryColor: '#ccc', jackColor: '#fff' });
   </script>
 </body>
 </html>
