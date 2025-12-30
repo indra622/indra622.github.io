@@ -1,0 +1,168 @@
+// Dark Mode Support
+// 시스템 설정 연동 + 수동 토글 지원
+
+:root {
+  // Light mode (default)
+  --bg-color: #fff;
+  --bg-secondary: #f8f9fa;
+  --text-color: #212529;
+  --text-muted: #6c757d;
+  --heading-color: #343a40;
+  --link-color: #0085A1;
+  --link-hover: #00657a;
+  --border-color: #dee2e6;
+  --card-bg: #fff;
+  --code-bg: #282c34;
+  --overlay-color: rgba(0, 0, 0, 0.5);
+  --navbar-bg: #fff;
+  --footer-bg: #f8f9fa;
+}
+
+[data-theme="dark"] {
+  --bg-color: #1a1a2e;
+  --bg-secondary: #16213e;
+  --text-color: #e4e4e4;
+  --text-muted: #a0a0a0;
+  --heading-color: #ffffff;
+  --link-color: #4db8ff;
+  --link-hover: #80caff;
+  --border-color: #3a3a5c;
+  --card-bg: #1f1f3a;
+  --code-bg: #0d0d1a;
+  --overlay-color: rgba(0, 0, 0, 0.7);
+  --navbar-bg: #16213e;
+  --footer-bg: #0f0f23;
+}
+
+// Apply CSS variables
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+// Headings
+h1, h2, h3, h4, h5, h6 {
+  color: var(--heading-color);
+}
+
+// Links
+a {
+  color: var(--link-color);
+
+  &:hover {
+    color: var(--link-hover);
+  }
+}
+
+// Navbar
+#mainNav {
+  background-color: var(--navbar-bg);
+  transition: background-color 0.3s ease;
+
+  .navbar-brand,
+  .nav-link {
+    color: var(--text-color) !important;
+  }
+}
+
+// Footer
+footer {
+  background-color: var(--footer-bg);
+
+  .copyright {
+    color: var(--text-muted);
+  }
+}
+
+// Cards and containers
+.post-preview,
+.card {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+// Text muted
+.text-muted {
+  color: var(--text-muted) !important;
+}
+
+// Masthead overlay adjustment for dark mode
+[data-theme="dark"] .masthead .overlay {
+  background-color: var(--overlay-color);
+}
+
+// Code blocks - keep dark in both modes but adjust slightly
+[data-theme="dark"] .highlight,
+[data-theme="dark"] pre.highlight {
+  background: var(--code-bg);
+  border: 1px solid var(--border-color);
+}
+
+// Form controls
+[data-theme="dark"] {
+  .form-control {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-color);
+
+    &:focus {
+      background-color: var(--bg-secondary);
+      color: var(--text-color);
+    }
+  }
+
+  .btn-primary {
+    background-color: var(--link-color);
+    border-color: var(--link-color);
+  }
+}
+
+// Dark mode toggle button
+.theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  color: var(--text-color);
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  .fa-sun {
+    display: none;
+  }
+
+  .fa-moon {
+    display: inline-block;
+  }
+}
+
+[data-theme="dark"] .theme-toggle {
+  .fa-sun {
+    display: inline-block;
+  }
+
+  .fa-moon {
+    display: none;
+  }
+}
+
+// Smooth transitions for theme switching
+* {
+  transition: background-color 0.3s ease,
+              border-color 0.3s ease,
+              color 0.2s ease;
+}
+
+// Exclude images and specific elements from transitions
+img, video, iframe, .highlight *, code * {
+  transition: none;
+}
