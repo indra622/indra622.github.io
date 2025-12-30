@@ -1,0 +1,22 @@
+# 학력 정보 (Education Information)
+# 이 파일을 수정하여 학력 정보를 업데이트하세요
+
+ko:
+  title: "학력"
+  items:
+    - year: "2023"
+      degree: "서강대학교 컴퓨터공학과 박사"
+    - year: "2018"
+      degree: "서강대학교 컴퓨터공학과 석사"
+    - year: "2016"
+      degree: "한동대학교 전산전자공학부 학사"
+
+en:
+  title: "Education"
+  items:
+    - year: "2023"
+      degree: "Computer Science & Engineering, Ph.D, Sogang University"
+    - year: "2018"
+      degree: "Computer Science & Engineering, MS, Sogang University"
+    - year: "2016"
+      degree: "Computer Science & Engineering, BS, Handong Global University"

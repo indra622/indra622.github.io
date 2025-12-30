@@ -1,0 +1,30 @@
+# 경력 정보 (Career Information)
+# 이 파일을 수정하여 경력 정보를 업데이트하세요
+
+ko:
+  title: "경력"
+  items:
+    - year: "2025-"
+      position: "KB국민은행 금융AI2센터"
+    - year: "2024"
+      position: "KB금융지주 금융AI센터"
+    - year: "2023"
+      position: "KB국민은행 금융AI센터"
+    - year: "2015"
+      position: "Naver Labs 인턴"
+    - year: "2013~2014"
+      position: "Microsoft Student Partner"
+
+en:
+  title: "Experiences"
+  items:
+    - year: "2025-"
+      position: "KB Financial AI Center 2, KB Kookmin Bank"
+    - year: "2024"
+      position: "KB AI Research, KB Financial Group"
+    - year: "2023"
+      position: "KB AI Research, KB Kookmin Bank"
+    - year: "2015"
+      position: "Naver Labs Intern"
+    - year: "2013~2014"
+      position: "Microsoft Student Partner"
