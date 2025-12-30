@@ -1,0 +1,211 @@
+// Scroll Reveal Animations
+// 스크롤 시 요소가 부드럽게 나타나는 효과
+
+// Fade in animation keyframes
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Animation classes for scroll reveal
+.animate-on-scroll {
+  opacity: 0;
+}
+
+.animate-on-scroll.animated {
+  animation-duration: 0.6s;
+  animation-fill-mode: both;
+  animation-timing-function: ease-out;
+}
+
+.fade-in-up.animated {
+  animation-name: fadeInUp;
+}
+
+.fade-in.animated {
+  animation-name: fadeIn;
+}
+
+.slide-in-left.animated {
+  animation-name: slideInLeft;
+}
+
+.slide-in-right.animated {
+  animation-name: slideInRight;
+}
+
+// Stagger animation delays
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+.delay-5 { animation-delay: 0.5s; }
+
+// Post preview hover effect
+.post-preview {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  a {
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+}
+
+// Button hover effects
+.btn {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 133, 161, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Masthead animations
+.masthead {
+  .page-heading,
+  .post-heading,
+  .site-heading {
+    h1 {
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .subheading,
+    span.subheading {
+      animation: fadeInUp 0.8s ease-out 0.2s both;
+    }
+
+    .meta {
+      animation: fadeIn 0.8s ease-out 0.4s both;
+    }
+  }
+}
+
+// Container animations on page load
+.container_my {
+  .block_my {
+    animation: fadeInUp 0.6s ease-out;
+
+    &:nth-child(1) {
+      animation-delay: 0.1s;
+    }
+    &:nth-child(2) {
+      animation-delay: 0.3s;
+    }
+  }
+}
+
+// Footer social icons hover
+footer .fa-stack {
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px) scale(1.1);
+  }
+}
+
+// Navbar link underline animation
+#mainNav .nav-link {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background-color: var(--link-color);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+  }
+
+  &:hover::after {
+    width: 80%;
+  }
+}
+
+// Smooth scroll behavior
+html {
+  scroll-behavior: smooth;
+}
+
+// Image hover effect in posts
+article img {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 4px;
+
+  &:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  }
+}
+
+// Reduced motion preference
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}

@@ -1,0 +1,17 @@
+# 사이트 설정 (Site Settings)
+# 하드코딩된 값들을 여기서 관리합니다
+
+# Utterances 댓글 시스템 설정
+utterances:
+  repo: "indra622/blog-replies"
+  issue_term: "title"
+  theme: "github-light"
+
+# MathJax 설정
+mathjax:
+  enabled: true
+  version: "3"  # 2 또는 3 선택 가능
+
+# 외부 서비스 URL
+external:
+  cv_url: "/misc/Hosung_CV.pdf"

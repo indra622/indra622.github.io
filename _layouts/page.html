@@ -20,21 +20,19 @@ layout: default
             {% if page.description %}
             <div class="container_my">
                 <div class="block_my">
-                    <h3>경력</h3>
+                    <h3>{{ site.data.career.ko.title }}</h3>
                     <ul>
-                        <li>2025- KB국민은행 금융AI2센터</li>
-                        <li>2024 KB금융지주 금융AI센터</li>
-                        <li>2023 KB국민은행 금융AI센터</li>
-                        <li>2015 Naver Labs 인턴</li>
-                        <li>2013~2014 Microsoft Student Partner</li>
+                        {% for item in site.data.career.ko.items %}
+                        <li>{{ item.year }} {{ item.position }}</li>
+                        {% endfor %}
                     </ul>
                 </div>
                 <div class="block_my">
-                    <h3>학력</h3>
+                    <h3>{{ site.data.education.ko.title }}</h3>
                     <ul>
-                        <li>2023 서강대학교 컴퓨터공학과 박사</li>
-                        <li>2018 서강대학교 컴퓨터공학과 석사</li>
-                        <li>2016 한동대학교 전산전자공학부 학사</li>
+                        {% for item in site.data.education.ko.items %}
+                        <li>{{ item.year }} {{ item.degree }}</li>
+                        {% endfor %}
                     </ul>
                 </div>
             </div>
@@ -42,21 +40,19 @@ layout: default
             {% if page.description_eng %}
             <div class="container_my">
                 <div class="block_my">
-                    <h3>Experiences</h3>
+                    <h3>{{ site.data.career.en.title }}</h3>
                     <ul>
-                        <li>2025 KB financial AI Center 2 KB Kookmin Bank</li>
-                        <li>2024 KB AI Research, KB Financial Group</li>
-                        <li>2023 KB AI Research, KB Kookmin Bank</li>
-                        <li>2015 Naver Labs Intern</li>
-                        <li>2013~2014 Microsoft Student Partner</li>
+                        {% for item in site.data.career.en.items %}
+                        <li>{{ item.year }} {{ item.position }}</li>
+                        {% endfor %}
                     </ul>
                 </div>
                 <div class="block_my">
-                    <h3>Education</h3>
+                    <h3>{{ site.data.education.en.title }}</h3>
                     <ul>
-                        <li>2023 Computer Science & Engineering, Ph.D, Sogang University</li>
-                        <li>2018 Computer Science & Engineering, MS, Sogang University</li>
-                        <li>2016 Computer Science & Engineering, BS, Handong Global University</li>
+                        {% for item in site.data.education.en.items %}
+                        <li>{{ item.year }} {{ item.degree }}</li>
+                        {% endfor %}
                     </ul>
                 </div>
             </div>
