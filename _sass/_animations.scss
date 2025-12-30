@@ -115,30 +115,13 @@
   }
 }
 
-// Masthead animations
-.masthead {
-  .page-heading,
-  .post-heading,
-  .site-heading {
-    h1 {
-      animation: fadeInUp 0.8s ease-out;
-    }
-
-    .subheading,
-    span.subheading {
-      animation: fadeInUp 0.8s ease-out 0.2s both;
-    }
-
-    .meta {
-      animation: fadeIn 0.8s ease-out 0.4s both;
-    }
-  }
-}
+// Masthead - no animation to ensure readability
+// 배경 위 텍스트는 애니메이션 없이 바로 표시
 
 // Container animations on page load
 .container_my {
   .block_my {
-    animation: fadeInUp 0.6s ease-out;
+    animation: fadeInUp 0.6s ease-out forwards;
 
     &:nth-child(1) {
       animation-delay: 0.1s;
