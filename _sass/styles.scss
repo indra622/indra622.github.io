@@ -18,3 +18,30 @@ h1, h2, h3, h4, h5, h6, p, blockquote, pre, ul, ol, dl, figure {
 
 /* Import Animations */
 @import "animations";
+
+/* About Me Content Styling */
+.about-content {
+  p {
+    font-size: 20px;
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+    color: var(--text-color, #212529);
+    opacity: 1;
+    font-weight: 400;
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &:last-child {
+      margin-bottom: 2rem;
+    }
+  }
+}
+
+/* Dark mode support for about-content */
+[data-theme="dark"] .about-content {
+  p {
+    color: var(--text-color);
+  }
+}
