@@ -100,3 +100,51 @@ footer {
   padding-top: 3rem;
   padding-bottom: 3rem;
 }
+
+/* Center alignment utility */
+.center {
+  text-align: center;
+}
+
+/* Styled HR divider */
+hr {
+  margin: 3rem 0;
+  border: 0;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--border-color, #dee2e6), transparent);
+  opacity: 0.6;
+}
+
+/* CV/Resume button styling */
+.cv-link {
+  display: inline-block;
+  padding: 1rem 2.5rem;
+  background: linear-gradient(135deg, #0085A1 0%, #00657a 100%);
+  color: white !important;
+  border-radius: 50px;
+  text-decoration: none !important;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 133, 161, 0.3);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 133, 161, 0.4);
+    color: white !important;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+/* Dark mode support for CV button */
+[data-theme="dark"] .cv-link {
+  background: linear-gradient(135deg, #4db8ff 0%, #80caff 100%);
+  box-shadow: 0 4px 15px rgba(77, 184, 255, 0.3);
+
+  &:hover {
+    box-shadow: 0 6px 20px rgba(77, 184, 255, 0.4);
+  }
+}
