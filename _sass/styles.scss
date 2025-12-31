@@ -1,13 +1,10 @@
 // Import Core Clean Blog SCSS
 @import "../assets/vendor/startbootstrap-clean-blog/scss/clean-blog.scss";
 
-/* Import Google Web Font */
-@import url(https://fonts.googleapis.com/css?family=Nanum+Gothic:400,700);
-
-/* Style Blog Font */
+/* Style Blog Font - Using Pretendard for modern look */
 h1, h2, h3, h4, h5, h6, p, blockquote, pre, ul, ol, dl, figure {
   margin-bottom: 15px;
-  font-family: 'Nanum Gothic', sans-serif;
+  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
 }
 
 /* Import Highlight */
@@ -44,4 +41,62 @@ h1, h2, h3, h4, h5, h6, p, blockquote, pre, ul, ol, dl, figure {
   p {
     color: var(--text-color);
   }
+}
+
+/* Modern UI Improvements */
+/* Rounded buttons for modern look */
+.btn {
+  border-radius: 8px !important;
+  transition: all 0.3s ease;
+}
+
+/* Smoother post preview cards */
+.post-preview {
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+/* Rounded form inputs */
+.form-control {
+  border-radius: 8px;
+}
+
+/* Improved spacing for modern look */
+.container {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+/* More generous spacing in content area */
+article, section {
+  margin-bottom: 3rem;
+}
+
+/* Better paragraph spacing */
+p {
+  margin-bottom: 1.5rem;
+}
+
+/* Improved masthead spacing */
+.masthead {
+  padding-top: 8rem;
+  padding-bottom: 8rem;
+
+  .page-heading,
+  .post-heading,
+  .site-heading {
+    padding: 2rem 0;
+  }
+}
+
+/* More breathing room for post previews */
+.post-preview {
+  padding: 2rem 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Footer spacing */
+footer {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
 }
