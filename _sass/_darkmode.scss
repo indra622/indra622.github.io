@@ -41,9 +41,16 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-// Headings
+// Headings (except in masthead where they should stay white)
 h1, h2, h3, h4, h5, h6 {
   color: var(--heading-color);
+}
+
+// Masthead text should always be white
+.masthead {
+  h1, h2, h3, p, span, .subheading {
+    color: #ffffff !important;
+  }
 }
 
 // Links

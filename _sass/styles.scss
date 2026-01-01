@@ -82,19 +82,30 @@ p {
   padding-top: 8rem;
   padding-bottom: 8rem;
 
+  /* Overlay should be behind text */
+  .overlay {
+    z-index: 1;
+  }
+
   .page-heading,
   .post-heading,
   .site-heading {
+    position: relative;
+    z-index: 2;
     padding: 2rem 0;
 
     h1 {
-      color: white !important;
+      color: #ffffff !important;
       font-weight: 700;
       letter-spacing: -0.5px;
     }
 
-    h3, ul, li {
-      color: white;
+    .subheading {
+      color: #ffffff !important;
+    }
+
+    h2, h3, p, span, ul, li {
+      color: #ffffff !important;
     }
   }
 }
@@ -159,53 +170,18 @@ hr {
   }
 }
 
-/* Enhanced Navbar Visibility when Fixed */
-#mainNav.is-fixed {
+/* Navbar - Always fixed at top with smooth background transition */
+#mainNav {
   position: fixed !important;
   top: 0 !important;
-  background-color: rgba(0, 133, 161, 0.95) !important;
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  border-bottom: 1px solid rgba(0, 133, 161, 0.3) !important;
-  transition: all 0.3s ease;
-
-  .navbar-brand {
-    color: white !important;
-    &:focus,
-    &:hover {
-      color: rgba(255, 255, 255, 0.8) !important;
-    }
-  }
-
-  .navbar-nav {
-    > li.nav-item {
-      > a {
-        color: white !important;
-        &:focus,
-        &:hover {
-          color: rgba(255, 255, 255, 0.8) !important;
-        }
-      }
-    }
-  }
-
-  .theme-toggle {
-    color: white !important;
-  }
-}
-
-/* Dark mode support for fixed navbar */
-[data-theme="dark"] #mainNav.is-fixed {
-  background-color: rgba(0, 101, 122, 0.95) !important;
-  border-bottom: 1px solid rgba(0, 133, 161, 0.3) !important;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
-}
-
-/* Reduce navbar height for cleaner look */
-#mainNav {
+  left: 0;
+  right: 0;
+  z-index: 1030;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, border-bottom 0.3s ease;
+  /* Override the slide-in animation */
+  transform: none !important;
 
   .navbar-brand {
     font-size: 1.1rem;
@@ -218,6 +194,78 @@ hr {
         font-size: 0.85rem;
       }
     }
+  }
+
+  /* Scrolled state - add background */
+  &.is-fixed {
+    position: fixed !important;
+    top: 0 !important;
+    transform: none !important;
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+
+    .navbar-brand {
+      color: #212529 !important;
+      &:focus,
+      &:hover {
+        color: #0085A1 !important;
+      }
+    }
+
+    .navbar-nav {
+      > li.nav-item {
+        > a {
+          color: #212529 !important;
+          &:focus,
+          &:hover {
+            color: #0085A1 !important;
+          }
+        }
+      }
+    }
+
+    .theme-toggle {
+      color: #212529 !important;
+    }
+  }
+
+  /* Remove the is-visible transform animation */
+  &.is-visible {
+    transform: none !important;
+  }
+}
+
+/* Dark mode support for navbar */
+[data-theme="dark"] #mainNav.is-fixed {
+  background-color: rgba(30, 30, 30, 0.95) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+
+  .navbar-brand {
+    color: #fff !important;
+    &:focus,
+    &:hover {
+      color: #4db8ff !important;
+    }
+  }
+
+  .navbar-nav {
+    > li.nav-item {
+      > a {
+        color: #fff !important;
+        &:focus,
+        &:hover {
+          color: #4db8ff !important;
+        }
+      }
+    }
+  }
+
+  .theme-toggle {
+    color: #fff !important;
   }
 }
 

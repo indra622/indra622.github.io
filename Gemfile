@@ -17,3 +17,11 @@ gem "wdm", "~> 0.1.1" if Gem.win_platform?
 
 # GitHub Pages compatibility
 gem "webrick", "~> 1.8"
+
+# Ruby 4.0+ compatibility
+gem "logger"
+gem "bigdecimal"
+gem "mutex_m"
+gem "ostruct"
+gem "csv"
+gem "base64"
