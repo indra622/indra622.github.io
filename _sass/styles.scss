@@ -88,6 +88,7 @@ p {
     padding: 2rem 0;
 
     h1 {
+      color: white !important;
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8),
                    0 4px 16px rgba(0, 0, 0, 0.6);
       font-weight: 700;
@@ -235,12 +236,9 @@ hr {
       border: 1px solid rgba(255, 255, 255, 0.3);
       border-radius: 16px;
       padding: 2rem 2.5rem;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
       transition: all 0.3s ease;
 
       &:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
         background: rgba(255, 255, 255, 0.2);
       }
 
