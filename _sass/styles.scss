@@ -77,7 +77,7 @@ p {
   margin-bottom: 1.5rem;
 }
 
-/* Improved masthead spacing */
+/* Improved masthead spacing and text visibility */
 .masthead {
   padding-top: 8rem;
   padding-bottom: 8rem;
@@ -86,6 +86,18 @@ p {
   .post-heading,
   .site-heading {
     padding: 2rem 0;
+
+    h1 {
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8),
+                   0 4px 16px rgba(0, 0, 0, 0.6);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    h3, ul, li {
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7),
+                   0 2px 8px rgba(0, 0, 0, 0.5);
+    }
   }
 }
 
@@ -147,4 +159,20 @@ hr {
   &:hover {
     box-shadow: 0 6px 20px rgba(77, 184, 255, 0.4);
   }
+}
+
+/* Enhanced Navbar Visibility when Fixed */
+#mainNav.is-fixed {
+  background-color: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Dark mode support for fixed navbar */
+[data-theme="dark"] #mainNav.is-fixed {
+  background-color: rgba(33, 37, 41, 0.98) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
