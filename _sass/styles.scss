@@ -280,20 +280,6 @@ hr {
   }
 }
 
-/* Dark mode support for About Me boxes */
-[data-theme="dark"] .page-heading {
-  .container_my {
-    .block_my {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-
-      &:hover {
-        background: rgba(255, 255, 255, 0.15);
-      }
-    }
-  }
-}
-
 /* Contact page styling - Email focused design */
 .contact-main {
   max-width: 700px;
