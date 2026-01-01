@@ -5,6 +5,8 @@ ko:
   title: "경력"
   items:
     - year: "2025-"
+      position: "삼성화재 AI추진팀 AI개발파트"
+    - year: "2025"
       position: "KB국민은행 금융AI2센터"
     - year: "2024"
       position: "KB금융지주 금융AI센터"
@@ -19,6 +21,8 @@ en:
   title: "Experiences"
   items:
     - year: "2025-"
+      position: "Dept. of AI Dev., Samsung Fire&Marine Insurance"
+    - year: "2025"
       position: "KB Financial AI Center 2, KB Kookmin Bank"
     - year: "2024"
       position: "KB AI Research, KB Financial Group"
