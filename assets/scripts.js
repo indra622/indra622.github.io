@@ -6,36 +6,36 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-// Navbar Scroll Effect (replaces clean-blog.js functionality)
+// Navbar Scroll Effect - Simple and smooth
 (function() {
-  if (window.innerWidth > 992) {
-    const mainNav = document.getElementById('mainNav');
-    if (!mainNav) return;
+  const mainNav = document.getElementById('mainNav');
+  if (!mainNav) return;
 
-    const navHeight = mainNav.offsetHeight;
-    let previousTop = 0;
+  let ticking = false;
 
-    window.addEventListener('scroll', function() {
-      const currentTop = window.pageYOffset || document.documentElement.scrollTop;
+  function updateNavbar() {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
-      if (currentTop < previousTop) {
-        // Scrolling up
-        if (currentTop > 0 && mainNav.classList.contains('is-fixed')) {
-          mainNav.classList.add('is-visible');
-        } else {
-          mainNav.classList.remove('is-visible', 'is-fixed');
-        }
-      } else if (currentTop > previousTop) {
-        // Scrolling down
-        mainNav.classList.remove('is-visible');
-        if (currentTop > navHeight && !mainNav.classList.contains('is-fixed')) {
-          mainNav.classList.add('is-fixed');
-        }
-      }
+    if (scrollTop > 100) {
+      mainNav.classList.add('is-fixed');
+      mainNav.classList.add('is-visible');
+    } else {
+      mainNav.classList.remove('is-fixed');
+      mainNav.classList.remove('is-visible');
+    }
 
-      previousTop = currentTop;
-    });
+    ticking = false;
   }
+
+  window.addEventListener('scroll', function() {
+    if (!ticking) {
+      window.requestAnimationFrame(updateNavbar);
+      ticking = true;
+    }
+  });
+
+  // Initial check
+  updateNavbar();
 })();
 
 // Dark Mode Toggle
