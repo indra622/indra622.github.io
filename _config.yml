@@ -6,10 +6,10 @@ baseurl:            "/"
 url:                "https://indra622.github.io"
 
 # Social Profiles
-twitter_username:   
+twitter_username:
 github_username:    indra622
-facebook_username:  hosungpark
-instagram_username: kresnik_00
+threads_username:   kresnik00
+huggingface_username: kresnik
 linkedin_username:  indra622
 
 # Add your google-analytics ID here to activate google analytics
