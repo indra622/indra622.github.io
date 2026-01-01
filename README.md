@@ -1,23 +1,16 @@
-# 박호성 개인 블로그
+# 박호성 개인 소개 페이지
 
-AI 개발자 박호성의 기술 블로그입니다.
+AI 개발자 박호성의 개인 소개 페이지입니다.
 
 🔗 **사이트**: [https://indra622.github.io](https://indra622.github.io)
 
 ## 소개
 
-음성인식과 자연어처리(NLP)를 전문으로 하는 AI 개발자의 기술 블로그입니다.
+음성인식과 자연어처리(NLP)를 전문으로 하는 AI 개발자입니다.
 
 - 현재: 삼성화재 AI개발파트
 - 이전: KB국민은행 금융AI센터
 - 학력: 서강대학교 음성인식 전공 박사
-
-## 주요 내용
-
-- 음성인식 및 NLP 관련 기술 포스트
-- AI 개발 경험 및 인사이트
-- 오픈소스 프로젝트 기여 내용
-- 연구 및 프로젝트 수행 이력
 
 ## 기술 스택
 
@@ -73,7 +66,7 @@ bundle exec jekyll build
 
 ## 연락처
 
-- Email: hosungpark@sogang.ac.kr
+- Email: indra622@gmail.com
 - GitHub: [@indra622](https://github.com/indra622)
 - LinkedIn: [indra622](https://www.linkedin.com/in/indra622)
 
