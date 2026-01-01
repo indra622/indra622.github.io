@@ -6,6 +6,38 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
+// Navbar Scroll Effect (replaces clean-blog.js functionality)
+(function() {
+  if (window.innerWidth > 992) {
+    const mainNav = document.getElementById('mainNav');
+    if (!mainNav) return;
+
+    const navHeight = mainNav.offsetHeight;
+    let previousTop = 0;
+
+    window.addEventListener('scroll', function() {
+      const currentTop = window.pageYOffset || document.documentElement.scrollTop;
+
+      if (currentTop < previousTop) {
+        // Scrolling up
+        if (currentTop > 0 && mainNav.classList.contains('is-fixed')) {
+          mainNav.classList.add('is-visible');
+        } else {
+          mainNav.classList.remove('is-visible', 'is-fixed');
+        }
+      } else if (currentTop > previousTop) {
+        // Scrolling down
+        mainNav.classList.remove('is-visible');
+        if (currentTop > navHeight && !mainNav.classList.contains('is-fixed')) {
+          mainNav.classList.add('is-fixed');
+        }
+      }
+
+      previousTop = currentTop;
+    });
+  }
+})();
+
 // Dark Mode Toggle
 (function() {
   const THEME_KEY = 'theme';

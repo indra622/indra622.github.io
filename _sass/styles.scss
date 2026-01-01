@@ -1,13 +1,10 @@
 // Import Core Clean Blog SCSS
 @import "../assets/vendor/startbootstrap-clean-blog/scss/clean-blog.scss";
 
-/* Import Google Web Font */
-@import url(https://fonts.googleapis.com/css?family=Nanum+Gothic:400,700);
-
-/* Style Blog Font */
+/* Style Blog Font - Using Pretendard for modern look */
 h1, h2, h3, h4, h5, h6, p, blockquote, pre, ul, ol, dl, figure {
   margin-bottom: 15px;
-  font-family: 'Nanum Gothic', sans-serif;
+  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
 }
 
 /* Import Highlight */
@@ -18,3 +15,136 @@ h1, h2, h3, h4, h5, h6, p, blockquote, pre, ul, ol, dl, figure {
 
 /* Import Animations */
 @import "animations";
+
+/* About Me Content Styling */
+.about-content {
+  p {
+    font-size: 20px;
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+    color: var(--text-color, #212529);
+    opacity: 1;
+    font-weight: 400;
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &:last-child {
+      margin-bottom: 2rem;
+    }
+  }
+}
+
+/* Dark mode support for about-content */
+[data-theme="dark"] .about-content {
+  p {
+    color: var(--text-color);
+  }
+}
+
+/* Modern UI Improvements */
+/* Rounded buttons for modern look */
+.btn {
+  border-radius: 8px !important;
+  transition: all 0.3s ease;
+}
+
+/* Smoother post preview cards */
+.post-preview {
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+/* Rounded form inputs */
+.form-control {
+  border-radius: 8px;
+}
+
+/* Improved spacing for modern look */
+.container {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+/* More generous spacing in content area */
+article, section {
+  margin-bottom: 3rem;
+}
+
+/* Better paragraph spacing */
+p {
+  margin-bottom: 1.5rem;
+}
+
+/* Improved masthead spacing */
+.masthead {
+  padding-top: 8rem;
+  padding-bottom: 8rem;
+
+  .page-heading,
+  .post-heading,
+  .site-heading {
+    padding: 2rem 0;
+  }
+}
+
+/* More breathing room for post previews */
+.post-preview {
+  padding: 2rem 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Footer spacing */
+footer {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+/* Center alignment utility */
+.center {
+  text-align: center;
+}
+
+/* Styled HR divider */
+hr {
+  margin: 3rem 0;
+  border: 0;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--border-color, #dee2e6), transparent);
+  opacity: 0.6;
+}
+
+/* CV/Resume button styling */
+.cv-link {
+  display: inline-block;
+  padding: 1rem 2.5rem;
+  background: linear-gradient(135deg, #0085A1 0%, #00657a 100%);
+  color: white !important;
+  border-radius: 50px;
+  text-decoration: none !important;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 133, 161, 0.3);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 133, 161, 0.4);
+    color: white !important;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+/* Dark mode support for CV button */
+[data-theme="dark"] .cv-link {
+  background: linear-gradient(135deg, #4db8ff 0%, #80caff 100%);
+  box-shadow: 0 4px 15px rgba(77, 184, 255, 0.3);
+
+  &:hover {
+    box-shadow: 0 6px 20px rgba(77, 184, 255, 0.4);
+  }
+}
