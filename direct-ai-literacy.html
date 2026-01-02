@@ -1,0 +1,249 @@
+---
+layout: page
+title: Direct AI Literacy
+description: 직접 쓰는 AI 교양
+background: '/img/bg-index.jpg'
+---
+
+<section class="ai-literacy-content">
+  <!-- Intro -->
+  <div class="section-intro">
+    <h2>Direct AI Literacy</h2>
+    <h3>직접 쓰는 AI 교양</h3>
+
+    <p>AI 논문, 기술 리포트, 제품 문서를<br>
+    직접 읽고, 이해한 뒤, 내 언어로 한 줄 요약하는 개인 연재입니다.</p>
+
+    <p>번역이나 요약이 아니라,</p>
+
+    <p class="emphasis">"이게 왜 나왔고, 어떤 선택을 강요하는가"<br>
+    를 중심으로 읽습니다.</p>
+
+    <ul class="intro-points">
+      <li>거의 매일 업데이트</li>
+      <li>주관적인 관점과 해석을 유지합니다</li>
+      <li>사고의 과정을 기록하는 데 목적이 있습니다</li>
+    </ul>
+  </div>
+
+  <hr>
+
+  <!-- How I Read -->
+  <div class="section-how-i-read">
+    <h3>How I Read</h3>
+    <ul>
+      <li>유행하는 키워드보다 의도와 구조를 먼저 봅니다</li>
+      <li>성능보다 맥락과 사용 시나리오를 중요하게 생각합니다</li>
+      <li>"이 기술이 현장에서 어떤 결정을 바꾸는가?"를 묻습니다</li>
+    </ul>
+    <p class="reading-philosophy">이 연재는 정답을 정리하는 글이 아니라<br>
+    생각하는 방식을 드러내는 기록입니다.</p>
+  </div>
+
+  <hr>
+
+  <!-- Selected Readings -->
+  <div class="section-selected-readings">
+    <h3>Selected Readings</h3>
+    <p class="readings-note">아래는 지금까지의 연재 중 대표적으로 참고할 만한 글들입니다.</p>
+    <p class="readings-note">전체 기록은 계속 업데이트되며, 이 목록은 선별·교체됩니다.</p>
+
+    <ul class="readings-list-simple">
+      <li>(TBD) MCP는 왜 단순한 규약이 아닌가</li>
+      <li>(TBD) AgentCore가 겨냥하는 진짜 병목</li>
+      <li>(TBD) Solar-Open-100B를 보고 든 솔직한 인상</li>
+      <li>(TBD) RAG가 자주 실패하는 구조적 이유</li>
+      <li>(TBD) Hybrid Search에 대한 오해</li>
+    </ul>
+
+    <p class="readings-note-max">(※ 최대 10–15개 유지)</p>
+  </div>
+
+  <hr>
+
+  <!-- Ongoing Series -->
+  <div class="section-ongoing-series">
+    <h3>Ongoing Series</h3>
+    <p>이 연재는 Threads에서 실시간으로 이어지고 있습니다.</p>
+    <div class="threads-link-container">
+      <a href="#" class="threads-link" target="_blank">
+        <i class="fab fa-threads"></i> 👉 전체 연재 보기: (TBD) Threads 링크
+      </a>
+    </div>
+    <p class="archive-note">개인적인 아카이브는 별도로 관리하며,<br>
+    이 페이지에는 대표적인 관점만 정리합니다.</p>
+  </div>
+
+</section>
+
+<style>
+.ai-literacy-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.section-intro h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--heading-color, #212529);
+}
+
+.section-intro h3 {
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin-bottom: 2rem;
+  color: var(--heading-color, #212529);
+}
+
+.section-intro p {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+
+.section-intro .emphasis {
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.8;
+  margin: 1.5rem 0;
+  padding-left: 1rem;
+  border-left: 3px solid var(--primary-color, #0085A1);
+}
+
+.intro-points {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 1.5rem;
+}
+
+.intro-points li {
+  font-size: 1rem;
+  line-height: 1.8;
+  margin-bottom: 0.5rem;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.intro-points li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--primary-color, #0085A1);
+  font-weight: bold;
+}
+
+.section-how-i-read h3,
+.section-selected-readings h3,
+.section-ongoing-series h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--heading-color, #212529);
+}
+
+.section-how-i-read ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.section-how-i-read li {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  margin-bottom: 0.5rem;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.section-how-i-read li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--primary-color, #0085A1);
+  font-weight: bold;
+}
+
+.reading-philosophy {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  margin-top: 1.5rem;
+  font-style: italic;
+  color: var(--text-color, #333);
+}
+
+.readings-note {
+  font-size: 0.95rem;
+  color: var(--text-muted, #6c757d);
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.readings-note-max {
+  font-size: 0.9rem;
+  color: var(--text-muted, #6c757d);
+  margin-top: 1rem;
+  font-style: italic;
+}
+
+.readings-list-simple {
+  list-style: none;
+  padding-left: 0;
+  margin: 1.5rem 0;
+}
+
+.readings-list-simple li {
+  font-size: 1.05rem;
+  line-height: 2;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.readings-list-simple li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--primary-color, #0085A1);
+  font-weight: bold;
+}
+
+.threads-link-container {
+  text-align: center;
+  margin-top: 1.5rem;
+}
+
+.threads-link {
+  display: inline-block;
+  padding: 1rem 2rem;
+  background-color: var(--primary-color, #0085A1);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.threads-link:hover {
+  background-color: var(--primary-hover, #006d84);
+  transform: translateY(-2px);
+  color: white;
+}
+
+.threads-link i {
+  margin-right: 0.5rem;
+}
+
+.archive-note {
+  font-size: 0.95rem;
+  color: var(--text-muted, #6c757d);
+  margin-top: 1.5rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
+hr {
+  margin: 2.5rem 0;
+  border: 0;
+  border-top: 1px solid var(--hr-color, #dee2e6);
+}
+</style>
