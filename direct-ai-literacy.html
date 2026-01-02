@@ -1,14 +1,14 @@
 ---
 layout: page
-title: Direct AI Literacy
+title: Hand-Written AI Literacy
 background: '/img/bg-index.jpg'
 ---
 
 <section class="ai-literacy-content">
   <!-- Intro -->
   <div class="section-intro">
-    <h2>Direct AI Literacy</h2>
-    <h3>직접 쓰는 AI 교양</h3>
+    <h2>Hand-Written AI Literacy</h2>
+    <h3>직접 쓰는 AI교양</h3>
 
     <p>AI 논문, 테크리포트, 서비스 출시 소식 등등을<br>
     AI를 활용하지 않는 상태로 직접 읽고 나만의 언어로 요약하는 개인 연재입니다.</p>
@@ -47,19 +47,69 @@ background: '/img/bg-index.jpg'
     <p class="readings-note">아래는 지금까지의 연재 중 대표적으로 참고할 만한 글들입니다.</p>
     <p class="readings-note">전체 기록은 계속 업데이트되며, 이 목록은 선별·교체됩니다.</p>
 
-    <ul class="readings-list-simple">
-      <li>구글에서 gemma3의 전 제품군의 작동과정을 볼 구
-수 있는 gemma-scope-2를 공개했습니다. AI는 블랙박스일 수 밖에 없다는 편견에 대한 도전인 것 같고, 안전을 중요시 여기는 기업에서 상세 분석하기 너무 좋은 툴 같네요. Pretrained model을 직접 만들 인프라가 없는 기업에서 참고하기 좋아보여요
-https://deepmind.google/blog/gemma-scope-2-helping-the-ai-safety-community-deepen-understanding-of-complex-language-model-behavior/</li>
-      <li>안드레이 카파시가 AI와 함께하는 개발에 대한 본인의 의견을 내비쳤습니다. 단시간에 벌어지는 개발자의 역할에 대한 급격한 변화에 어느 정도 두려움이 있는 것으로 보여요. 저는 오히려 제 혼란을 공감받은 것 같아 안심이 되면서도, 계속 긴장하고 공부해 나가야 한다고 생각했습니다.
-https://x.com/i/status/2004607146781278521</li>
-      <li>요청을 단순히 여러 번 하는 걸로도 성능이 증가되는걸 확인했다는 논문입니다. 저와 이 논문을 같이 읽으신 분이 한 말씀이 인상적이었어요. "이걸 우리는 퓨샷이라고 하기로 했어요"
-https://arxiv.org/abs/2512.14982</li>
-      <li>오토리그레시브의 품질과, 디퓨전의 속도를 동시에 가져가보겠다는 욕심 가득한 발상이 기반인 nvidia의 논문입니다. 토큰 후보들을 뽑는건 디퓨전 방식으로 뽑고, 최종 출력은 순차적으로 뽑아낸다는 아이디어인데요, 모델을 두 가지 모드에 대해 각각 학습시키고, feed forward는 한 번에 하는 방식입니다. 
-https://arxiv.org/abs/2511.08923</li>
-      <li>(비정형 데이터를 기반으로 리트리벌을 만들고, 하이브리드 서치와 graphRAG를 지원하며, 리액트와 도구호출이 가능한 에이전트를 만들 수 있는 텐센트의 레포가 공개되었습니다. 이런 류의 레포가 튜토리얼만 돌아가는 경우가 많은데, 텐센트가 잘 정리해준 것 같습니다. 
-https://github.com/Tencent/WeKnora</li>
-    </ul>
+    <div class="readings-list">
+      <div class="reading-item">
+        <p class="reading-text">
+          구글에서 gemma3의 전 제품군의 작동과정을 볼 수 있는 gemma-scope-2를 공개했습니다.
+          AI는 블랙박스일 수 밖에 없다는 편견에 대한 도전인 것 같고,
+          안전을 중요시 여기는 기업에서 상세 분석하기 너무 좋은 툴 같네요.
+          Pretrained model을 직접 만들 인프라가 없는 기업에서 참고하기 좋아보여요.
+        </p>
+        <a href="https://deepmind.google/blog/gemma-scope-2-helping-the-ai-safety-community-deepen-understanding-of-complex-language-model-behavior/"
+           class="reading-link" target="_blank">
+          🔗 Gemma Scope 2 - DeepMind Blog
+        </a>
+      </div>
+
+      <div class="reading-item">
+        <p class="reading-text">
+          안드레이 카파시가 AI와 함께하는 개발에 대한 본인의 의견을 내비쳤습니다.
+          단시간에 벌어지는 개발자의 역할에 대한 급격한 변화에 어느 정도 두려움이 있는 것으로 보여요.
+          저는 오히려 제 혼란을 공감받은 것 같아 안심이 되면서도,
+          계속 긴장하고 공부해 나가야 한다고 생각했습니다.
+        </p>
+        <a href="https://x.com/i/status/2004607146781278521"
+           class="reading-link" target="_blank">
+          🔗 Andrej Karpathy on X
+        </a>
+      </div>
+
+      <div class="reading-item">
+        <p class="reading-text">
+          요청을 단순히 여러 번 하는 걸로도 성능이 증가되는걸 확인했다는 논문입니다.
+          저와 이 논문을 같이 읽으신 분이 한 말씀이 인상적이었어요.
+          "이걸 우리는 퓨샷이라고 하기로 했어요"
+        </p>
+        <a href="https://arxiv.org/abs/2512.14982"
+           class="reading-link" target="_blank">
+          🔗 arXiv Paper 2512.14982
+        </a>
+      </div>
+
+      <div class="reading-item">
+        <p class="reading-text">
+          오토리그레시브의 품질과, 디퓨전의 속도를 동시에 가져가보겠다는 욕심 가득한 발상이 기반인 NVIDIA의 논문입니다.
+          토큰 후보들을 뽑는건 디퓨전 방식으로 뽑고, 최종 출력은 순차적으로 뽑아낸다는 아이디어인데요,
+          모델을 두 가지 모드에 대해 각각 학습시키고, feed forward는 한 번에 하는 방식입니다.
+        </p>
+        <a href="https://arxiv.org/abs/2511.08923"
+           class="reading-link" target="_blank">
+          🔗 arXiv Paper 2511.08923
+        </a>
+      </div>
+
+      <div class="reading-item">
+        <p class="reading-text">
+          비정형 데이터를 기반으로 리트리벌을 만들고, 하이브리드 서치와 GraphRAG를 지원하며,
+          리액트와 도구호출이 가능한 에이전트를 만들 수 있는 텐센트의 레포가 공개되었습니다.
+          이런 류의 레포가 튜토리얼만 돌아가는 경우가 많은데, 텐센트가 잘 정리해준 것 같습니다.
+        </p>
+        <a href="https://github.com/Tencent/WeKnora"
+           class="reading-link" target="_blank">
+          🔗 WeKnora - Tencent GitHub
+        </a>
+      </div>
+    </div>
   </div>
 
   <hr>
@@ -187,25 +237,43 @@ https://github.com/Tencent/WeKnora</li>
   font-style: italic;
 }
 
-.readings-list-simple {
-  list-style: none;
-  padding-left: 0;
+.readings-list {
   margin: 1.5rem 0;
 }
 
-.readings-list-simple li {
-  font-size: 1.05rem;
-  line-height: 2;
-  padding-left: 1.5rem;
-  position: relative;
+.reading-item {
+  margin-bottom: 2rem;
+  padding: 1.25rem;
+  background-color: var(--card-bg, #f8f9fa);
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-color, #0085A1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.readings-list-simple li::before {
-  content: "•";
-  position: absolute;
-  left: 0;
+.reading-item:hover {
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.reading-text {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  margin-bottom: 0.75rem;
+  color: var(--text-color, #333);
+}
+
+.reading-link {
+  display: inline-block;
+  font-size: 0.95rem;
   color: var(--primary-color, #0085A1);
-  font-weight: bold;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.reading-link:hover {
+  color: var(--primary-hover, #006d84);
+  text-decoration: underline;
 }
 
 .threads-link-container {
