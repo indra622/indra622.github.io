@@ -1,0 +1,232 @@
+---
+layout: page
+title: Books That Left Thoughts
+background: '/img/bg-index.jpg'
+---
+
+<section class="books-content">
+  <!-- Hero Section -->
+  <div class="section-hero">
+    <h2>책이 남긴 생각</h2>
+    <p class="subtitle">독서 이후의 생각 기록</p>
+  </div>
+
+  <hr>
+
+  <!-- Intro Section -->
+  <div class="section-intro">
+    <p><strong>책이 남긴 생각</strong>은<br>
+    책을 소개하기보다,<br>
+    책을 지나며 내 안에 남은 생각을 기록하는 연재입니다.</p>
+
+    <p>어떤 책은 관점을 바꿔주고,<br>
+    어떤 책은 질문을 남기고,<br>
+    어떤 책은 지금의 나를 이해하게 합니다.</p>
+
+    <p>이 페이지에는<br>
+    그렇게 책을 통과하며 남겨진 생각들을 모아두었습니다.</p>
+  </div>
+
+  <hr>
+
+  <!-- Posts Section -->
+  <div class="section-posts">
+    <h3>연재 글 목록</h3>
+    <p class="posts-note">아래는 책을 읽고 남긴 생각들의 기록입니다.</p>
+    <p class="posts-note">계속 업데이트될 예정입니다.</p>
+
+    <div class="posts-list">
+      <!-- 첫 번째 글 예시 -->
+      <div class="post-item">
+        <h4 class="post-title">첫 번째 생각 기록</h4>
+        <p class="post-date">2026년 1월</p>
+        <p class="post-excerpt">
+          책을 읽고 난 후 남은 생각을 이곳에 기록합니다. 
+          이 섹션은 실제 글이 작성되면 업데이트됩니다.
+        </p>
+        <a href="#" class="post-link" target="_blank">
+          🔗 전문 읽기
+        </a>
+      </div>
+
+      <!-- 추가 글은 여기에 같은 형식으로 추가하면 됩니다 -->
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- Footer Note -->
+  <div class="section-footer-note">
+    <p>이 연재는 X(트위터)에도 함께 연재됩니다.</p>
+    <div class="x-link-container">
+      <a href="https://x.com/Kresnik_00" class="x-link" target="_blank">
+        <i class="fab fa-x-twitter"></i> 👉 X에서 연재 보기
+      </a>
+    </div>
+  </div>
+
+</section>
+
+<style>
+.books-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Hero Section */
+.section-hero h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--heading-color, #212529);
+  text-align: center;
+}
+
+.section-hero .subtitle {
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: var(--text-muted, #6c757d);
+  text-align: center;
+  margin-bottom: 2rem;
+  font-style: italic;
+}
+
+/* Intro Section */
+.section-intro p {
+  font-size: 1.15rem;
+  line-height: 2;
+  margin-bottom: 1.5rem;
+  color: var(--text-color, #333);
+}
+
+.section-intro p:first-child strong {
+  font-weight: 600;
+  color: var(--primary-color, #0085A1);
+}
+
+/* Posts Section */
+.section-posts h3 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--heading-color, #212529);
+}
+
+.posts-note {
+  font-size: 0.95rem;
+  color: var(--text-muted, #6c757d);
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.posts-list {
+  margin: 2rem 0;
+}
+
+.post-item {
+  margin-bottom: 2.5rem;
+  padding: 1.5rem;
+  background-color: var(--card-bg, #f8f9fa);
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-color, #0085A1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.post-item:hover {
+  transform: translateX(4px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.post-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--heading-color, #212529);
+}
+
+.post-date {
+  font-size: 0.9rem;
+  color: var(--text-muted, #6c757d);
+  margin-bottom: 1rem;
+}
+
+.post-excerpt {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  margin-bottom: 1rem;
+  color: var(--text-color, #333);
+}
+
+.post-link {
+  display: inline-block;
+  font-size: 0.95rem;
+  color: var(--primary-color, #0085A1);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.post-link:hover {
+  color: var(--primary-hover, #006d84);
+  text-decoration: underline;
+}
+
+/* Footer Note */
+.section-footer-note {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.section-footer-note p {
+  font-size: 1.05rem;
+  color: var(--text-color, #333);
+  margin-bottom: 1.5rem;
+}
+
+.x-link-container {
+  margin-top: 1.5rem;
+}
+
+.x-link {
+  display: inline-block;
+  padding: 1rem 2rem;
+  background-color: var(--primary-color, #0085A1);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.x-link:hover {
+  background-color: var(--primary-hover, #006d84);
+  transform: translateY(-2px);
+  color: white;
+}
+
+.x-link i {
+  margin-right: 0.5rem;
+}
+
+hr {
+  margin: 2.5rem 0;
+  border: 0;
+  border-top: 1px solid var(--hr-color, #dee2e6);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .section-hero h2 {
+    font-size: 2rem;
+  }
+  
+  .section-intro p {
+    font-size: 1.05rem;
+  }
+  
+  .post-title {
+    font-size: 1.2rem;
+  }
+}
+</style>
