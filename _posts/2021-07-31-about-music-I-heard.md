@@ -1,7 +1,8 @@
 ---
 published: true
-comments: true
+layout: post
 title: 음악 듣는 습관에 대해
+comments: true
 ---
 저는 음악을 들을 때, 그 때 생각했던 생각이나 장소, 사물 등이 떠오르는 것을 좋아합니다.
 

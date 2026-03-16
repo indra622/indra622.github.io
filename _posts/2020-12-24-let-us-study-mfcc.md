@@ -1,5 +1,7 @@
 ---
 published: false
+layout: post
+title: MFCC 추출 과정
 subtitle: 더이상 미룰 수 없다.
 ---
 ### 잡설

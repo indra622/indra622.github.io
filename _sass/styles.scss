@@ -16,6 +16,9 @@ h1, h2, h3, h4, h5, h6, p, blockquote, pre, ul, ol, dl, figure {
 /* Import Animations */
 @import "animations";
 
+/* Import shared feature/page styles */
+@import "feature-pages";
+
 /* About Me Content Styling */
 .about-content {
   p {
@@ -122,9 +125,25 @@ footer {
   padding-bottom: 3rem;
 }
 
+/* Shared page layout helpers */
+.container_my {
+  display: flex;
+  flex-direction: column;
+}
+
+.block_my {
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+
 /* Center alignment utility */
 .center {
   text-align: center;
+}
+
+.masthead--with-bg {
+  background-image: var(--masthead-bg);
 }
 
 /* Styled HR divider */

@@ -1,5 +1,7 @@
 ---
 published: true
+layout: post
+title: Warm-up 방식
 ---
 ## Warm-up 방식
 

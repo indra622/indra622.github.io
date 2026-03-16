@@ -1,5 +1,6 @@
 ---
-published: True
+published: true
+layout: post
 title: 싸이월드마냥 방문자 숫자를 표시해주는 사이트
 comments: true
 ---
