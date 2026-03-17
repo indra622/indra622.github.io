@@ -9,7 +9,7 @@
         <ul class="list-inline text-center">
           {% if site.email %}
           <li class="list-inline-item">
-            <a href="mailto:{{ site.email | encode_email }}">
+            <a href="mailto:{{ site.email | encode_email }}" aria-label="Email {{ site.author | escape }}">
               <span class="fa-stack fa-lg">
                 <i class="fas fa-circle fa-stack-2x"></i>
                 <i class="far fa-envelope fa-stack-1x fa-inverse"></i>
@@ -19,7 +19,7 @@
           {% endif %}
           {% if site.twitter_username %}
           <li class="list-inline-item">
-            <a href="https://twitter.com/{{ site.twitter_username }}">
+            <a href="https://twitter.com/{{ site.twitter_username }}" aria-label="Twitter profile">
               <span class="fa-stack fa-lg">
                 <i class="fas fa-circle fa-stack-2x"></i>
                 <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
@@ -29,7 +29,7 @@
           {% endif %}
           {% if site.threads_username %}
           <li class="list-inline-item">
-            <a href="https://www.threads.net/@{{ site.threads_username }}">
+            <a href="https://www.threads.net/@{{ site.threads_username }}" aria-label="Threads profile">
               <span class="fa-stack fa-lg">
                 <i class="fas fa-circle fa-stack-2x"></i>
                 <i class="fab fa-threads fa-stack-1x fa-inverse"></i>
@@ -39,7 +39,7 @@
           {% endif %}
           {% if site.linkedin_username %}
           <li class="list-inline-item">
-            <a href="https://www.linkedin.com/in/{{ site.linkedin_username }}">
+            <a href="https://www.linkedin.com/in/{{ site.linkedin_username }}" aria-label="LinkedIn profile">
               <span class="fa-stack fa-lg">
                 <i class="fas fa-circle fa-stack-2x"></i>
                 <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
@@ -49,7 +49,7 @@
           {% endif %}
           {% if site.github_username %}
           <li class="list-inline-item">
-            <a href="https://github.com/{{ site.github_username }}">
+            <a href="https://github.com/{{ site.github_username }}" aria-label="GitHub profile">
               <span class="fa-stack fa-lg">
                 <i class="fas fa-circle fa-stack-2x"></i>
                 <i class="fab fa-github fa-stack-1x fa-inverse"></i>
@@ -59,7 +59,7 @@
           {% endif %}
           {% if site.huggingface_username %}
           <li class="list-inline-item">
-            <a href="https://huggingface.co/{{ site.huggingface_username }}">
+            <a href="https://huggingface.co/{{ site.huggingface_username }}" aria-label="Hugging Face profile">
               <span class="fa-stack fa-lg">
                 <i class="fas fa-circle fa-stack-2x"></i>
                 <i class="fas fa-face-smile fa-stack-1x fa-inverse"></i>

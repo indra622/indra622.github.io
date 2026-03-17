@@ -27,6 +27,27 @@ class SiteRegressionTest < Minitest::Test
     assert_match(/\{\% endif \%\}\s*\z/, analytics)
   end
 
+  def test_head_meta_description_prefers_explicit_page_descriptions
+    head = ROOT.join('_includes/head.html').read(encoding: 'UTF-8')
+
+    assert_includes head, "page.description | default: page.description_eng | default: page.excerpt | default: site.description"
+  end
+
+  def test_primary_pages_define_explicit_descriptions
+    {
+      'index.html' => 'AI Developer specializing in speech recognition and NLP',
+      'about-en.html' => 'English profile for Hosung Min, covering AI engineering, speech recognition, and NLP work.',
+      'contact.html' => 'Contact links for Hosung Min, including email and public social profiles.',
+      'books-that-left-thoughts.html' => 'Reading notes and reflections from books that left a lasting impression.',
+      'personal-ai-literacy.html' => 'A practical AI literacy series with personal notes on using AI tools well.'
+    }.each do |relative_path, expected_description|
+      front_matter = ROOT.join(relative_path).read(encoding: 'UTF-8')[/\A---\n(.*?)\n---\n/m, 1]
+      parsed = YAML.safe_load(front_matter, permitted_classes: [Date, Time], aliases: true)
+
+      assert_equal expected_description, parsed['description'], "unexpected description in #{relative_path}"
+    end
+  end
+
   def test_target_pages_no_longer_embed_style_blocks
     [
       ROOT.join('_layouts/default.html'),

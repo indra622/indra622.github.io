@@ -14,10 +14,11 @@ layout: default
         <div class="col-lg-8 col-md-10 mx-auto">
           <div class="page-heading">
             <h1>{{ page.title }}</h1>
-            <!--{% if page.description %}
-            <span class="subheading">{{ page.description }}</span>
-            {% endif %}-->
-            {% if page.description %}
+            {% assign page_subheading = page.description | default: page.description_eng %}
+            {% if page_subheading %}
+            <span class="subheading">{{ page_subheading }}</span>
+            {% endif %}
+            {% if page.show_profile_summary_ko %}
             <div class="container_my">
                 <div class="block_my">
                     <h3>{{ site.data.career.ko.title }}</h3>
@@ -37,7 +38,7 @@ layout: default
                 </div>
             </div>
             {% endif %}
-            {% if page.description_eng %}
+            {% if page.show_profile_summary_en %}
             <div class="container_my">
                 <div class="block_my">
                     <h3>{{ site.data.career.en.title }}</h3>

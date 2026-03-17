@@ -25,3 +25,7 @@ gem "mutex_m"
 gem "ostruct"
 gem "csv"
 gem "base64"
+
+group :test do
+  gem "minitest", "~> 5.25"
+end
