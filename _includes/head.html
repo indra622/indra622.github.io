@@ -9,6 +9,10 @@
   </title>
 
   <meta name="description" content="{{ page.description | default: page.description_eng | default: page.excerpt | default: site.description | strip_html | normalize_whitespace | truncate: 160 | escape }}">
+  {% seo title=false %}
+  <meta property="og:image" content="{{ '/img/bg-index.jpg' | absolute_url }}">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="{{ '/favicon.svg' | relative_url }}" type="image/svg+xml">
 
   <!-- Pretendard Font - Modern Korean/Latin Font -->
   <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />

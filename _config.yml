@@ -1,9 +1,10 @@
 title:              Hosung Park 박호성
 email:              indra622@gmail.com
-description:        박호성의 자기소개 페이지
+description:        Speech and NLP AI engineer working on production RAG, real-time interpretation, and speech recognition systems.
 author:             Hosung Park
 baseurl:            "/"
 url:                "https://indra622.github.io"
+logo:               "/favicon.svg"
 
 # Social Profiles
 twitter_username:
@@ -23,3 +24,4 @@ plugins:
   - jekyll-feed
   - jekyll-paginate
   - jekyll-sitemap ## Uncomment this line to silently generate a sitemaps.org compliant sitemap for your Jekyll site
+  - jekyll-seo-tag

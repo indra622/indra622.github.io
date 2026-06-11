@@ -35,9 +35,9 @@ class SiteRegressionTest < Minitest::Test
 
   def test_primary_pages_define_explicit_descriptions
     {
-      'index.html' => 'AI Developer specializing in speech recognition and NLP',
-      'about-en.html' => 'English profile for Hosung Min, covering AI engineering, speech recognition, and NLP work.',
-      'contact.html' => 'Contact links for Hosung Min, including email and public social profiles.',
+      'index.html' => 'AI engineer building production RAG, real-time interpretation, and speech recognition systems across finance and insurance.',
+      'about-en.html' => 'English profile for Hosung Park, covering AI engineering, speech recognition, and NLP work.',
+      'contact.html' => 'Contact links for Hosung Park, including email and public social profiles.',
       'books-that-left-thoughts.html' => 'Reading notes and reflections from books that left a lasting impression.',
       'personal-ai-literacy.html' => 'A practical AI literacy series with personal notes on using AI tools well.'
     }.each do |relative_path, expected_description|

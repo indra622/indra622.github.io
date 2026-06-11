@@ -9,22 +9,22 @@
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav ms-auto">
         <li class="nav-item">
-          <a class="nav-link" href="{{"/" | relative_url }}">About Me</a>
+          <a class="nav-link{% if page.url == '/' %} active{% endif %}" href="{{"/" | relative_url }}"{% if page.url == '/' %} aria-current="page"{% endif %}>About Me</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{{"/about-en" | relative_url }}">About Me (English)</a>
+          <a class="nav-link{% if page.url contains '/about-en' %} active{% endif %}" href="{{"/about-en" | relative_url }}"{% if page.url contains '/about-en' %} aria-current="page"{% endif %}>English</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{{"/personal-ai-literacy" | relative_url }}">직접 쓰는 AI교양</a>
+          <a class="nav-link{% if page.url contains '/personal-ai-literacy' %} active{% endif %}" href="{{"/personal-ai-literacy" | relative_url }}"{% if page.url contains '/personal-ai-literacy' %} aria-current="page"{% endif %}>직접 쓰는 AI교양</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{{"/books-that-left-thoughts" | relative_url }}">책이 남긴 생각</a>
+          <a class="nav-link{% if page.url contains '/books-that-left-thoughts' %} active{% endif %}" href="{{"/books-that-left-thoughts" | relative_url }}"{% if page.url contains '/books-that-left-thoughts' %} aria-current="page"{% endif %}>책이 남긴 생각</a>
         </li>
         <!--<li class="nav-item">
           <a class="nav-link" href="{{ "/posts" | relative_url }}">Posts</a>
         </li>-->
         <li class="nav-item">
-          <a class="nav-link" href="{{"/contact" | relative_url }}">Contact</a>
+          <a class="nav-link{% if page.url contains '/contact' %} active{% endif %}" href="{{"/contact" | relative_url }}"{% if page.url contains '/contact' %} aria-current="page"{% endif %}>Contact</a>
         </li>
         <li class="nav-item">
           <button class="theme-toggle nav-link" id="themeToggle" aria-label="Toggle dark mode">
