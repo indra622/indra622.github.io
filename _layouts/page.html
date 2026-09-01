@@ -21,7 +21,7 @@ layout: default
             {% if page.show_profile_summary_ko %}
             <div class="container_my">
                 <div class="block_my">
-                    <h3>{{ site.data.career.ko.title }}</h3>
+                    <h2 class="block_my-title">{{ site.data.career.ko.title }}</h2>
                     <ul>
                         {% for item in site.data.career.ko.items %}
                         <li>{{ item.year }} {{ item.position }}</li>
@@ -29,7 +29,7 @@ layout: default
                     </ul>
                 </div>
                 <div class="block_my">
-                    <h3>{{ site.data.education.ko.title }}</h3>
+                    <h2 class="block_my-title">{{ site.data.education.ko.title }}</h2>
                     <ul>
                         {% for item in site.data.education.ko.items %}
                         <li>{{ item.year }} {{ item.degree }}</li>
@@ -41,7 +41,7 @@ layout: default
             {% if page.show_profile_summary_en %}
             <div class="container_my">
                 <div class="block_my">
-                    <h3>{{ site.data.career.en.title }}</h3>
+                    <h2 class="block_my-title">{{ site.data.career.en.title }}</h2>
                     <ul>
                         {% for item in site.data.career.en.items %}
                         <li>{{ item.year }} {{ item.position }}</li>
@@ -49,7 +49,7 @@ layout: default
                     </ul>
                 </div>
                 <div class="block_my">
-                    <h3>{{ site.data.education.en.title }}</h3>
+                    <h2 class="block_my-title">{{ site.data.education.en.title }}</h2>
                     <ul>
                         {% for item in site.data.education.en.items %}
                         <li>{{ item.year }} {{ item.degree }}</li>

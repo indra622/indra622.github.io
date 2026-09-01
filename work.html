@@ -1,0 +1,39 @@
+---
+layout: page
+title: Work
+description: Selected work by Hosung Park, including a CEO agent, sales process improvement, and VoxDelta.
+lang: ko
+background: '/img/bg-index.jpg'
+---
+
+<section class="portfolio-section work-intro" aria-labelledby="work-intro-title">
+  <div class="section-kicker">Work</div>
+  <h2 id="work-intro-title">지금 하고 있는 일</h2>
+  <p>업무를 쓰는 사람에게 직접 듣고, 그 방식을 시스템이 따를 수 있는 기준으로 옮기는 일을 하고 있다. 아래는 현재 진행 중이거나 최근에 마무리한 작업이다.</p>
+</section>
+
+<section class="portfolio-section" aria-label="작업 목록">
+  <div class="work-list">
+    {% for item in site.data.work.items %}
+    <article class="work-item{% if item.status == 'draft' %} work-item--draft{% endif %}" id="{{ item.id }}">
+      {% if item.meta %}<div class="work-meta">{{ item.meta }}</div>{% endif %}
+      <h3>{{ item.title }}</h3>
+      {% if item.summary %}<p>{{ item.summary }}</p>{% endif %}
+      {% if item.details and item.details.size > 0 %}
+      <ul>
+        {% for detail in item.details %}
+        <li>{{ detail }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      {% if item.note %}<p class="work-note">{{ item.note }}</p>{% endif %}
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="portfolio-section" aria-labelledby="work-background-title">
+  <div class="section-kicker">Background</div>
+  <h2 id="work-background-title">이전 경력</h2>
+  <p>이전에는 금융 도메인에서 RAG 기반 상담 챗봇과 실시간 통역 시스템을 개발했고, 그 전에는 음성인식을 전공해 박사학위를 받았다. 자세한 내용은 <a href="{{ '/about' | relative_url }}">About</a>에 정리해 두었다.</p>
+</section>

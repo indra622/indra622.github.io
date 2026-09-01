@@ -26,6 +26,10 @@
 
   <link rel="stylesheet" href="{{"/assets/main.css" | relative_url }}">
   <link rel="canonical" href="{{ page.url | replace:'index.html','' | absolute_url }}">
+  {% if page.alternate_url %}
+  <link rel="alternate" hreflang="{{ page.lang | default: 'ko' }}" href="{{ page.url | replace:'index.html','' | absolute_url }}">
+  <link rel="alternate" hreflang="{{ page.alternate_lang }}" href="{{ page.alternate_url | absolute_url }}">
+  {% endif %}
   <link rel="alternate" type="application/rss+xml" title="{{ site.title | escape }}" href="{{ "/feed.xml" | relative_url }}">
 
 

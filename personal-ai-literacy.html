@@ -126,4 +126,22 @@ background: '/img/bg-index.jpg'
 
   </div>
 
+  <hr>
+
+  <!-- Other Series -->
+  <div class="section-other-series">
+    <h3>다른 연재</h3>
+    <ul class="other-series-list">
+      {% for item in site.data.writing.series %}
+        {% unless item.url == '/personal-ai-literacy' %}
+      <li>
+        <a href="{{ item.url | relative_url }}">{{ item.title }}</a>
+        {% unless item.has_public_posts %}<span class="series-status">공개 글 준비 중</span>{% endunless %}
+        <span class="series-summary">{{ item.summary }}</span>
+      </li>
+        {% endunless %}
+      {% endfor %}
+    </ul>
+  </div>
+
 </section>

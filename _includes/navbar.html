@@ -1,30 +1,38 @@
 <!-- Navigation -->
+{% assign current_url = page.url | remove: 'index.html' %}
+{% if page.lang == 'en' %}
+  {% assign lang_switch = site.data.navigation.language.ko %}
+{% else %}
+  {% assign lang_switch = site.data.navigation.language.en %}
+{% endif %}
+
 <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
   <div class="container">
-    <a class="navbar-brand" href="{{"/" | relative_url }}">{{ site.title | escape }}</a>
+    <a class="navbar-brand" href="{{ "/" | relative_url }}">{{ site.title | escape }}</a>
     <button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
       Menu
       <i class="fas fa-bars"></i>
     </button>
     <div class="collapse navbar-collapse" id="navbarResponsive">
       <ul class="navbar-nav ms-auto">
+        {% for item in site.data.navigation.main %}
+          {% assign is_active = false %}
+          {% for path in item.match %}
+            {% assign path_html = path | append: '.html' %}
+            {% assign path_slash = path | append: '/' %}
+            {% if current_url == path or current_url == path_html or current_url == path_slash %}
+              {% assign is_active = true %}
+            {% endif %}
+          {% endfor %}
         <li class="nav-item">
-          <a class="nav-link{% if page.url == '/' %} active{% endif %}" href="{{"/" | relative_url }}"{% if page.url == '/' %} aria-current="page"{% endif %}>About Me</a>
+          <a class="nav-link{% if is_active %} active{% endif %}" href="{{ item.url | relative_url }}"{% if is_active %} aria-current="page"{% endif %}>{{ item.title }}</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link{% if page.url contains '/about-en' %} active{% endif %}" href="{{"/about-en" | relative_url }}"{% if page.url contains '/about-en' %} aria-current="page"{% endif %}>English</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link{% if page.url contains '/personal-ai-literacy' %} active{% endif %}" href="{{"/personal-ai-literacy" | relative_url }}"{% if page.url contains '/personal-ai-literacy' %} aria-current="page"{% endif %}>직접 쓰는 AI교양</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link{% if page.url contains '/books-that-left-thoughts' %} active{% endif %}" href="{{"/books-that-left-thoughts" | relative_url }}"{% if page.url contains '/books-that-left-thoughts' %} aria-current="page"{% endif %}>책이 남긴 생각</a>
-        </li>
-        <!--<li class="nav-item">
-          <a class="nav-link" href="{{ "/posts" | relative_url }}">Posts</a>
-        </li>-->
-        <li class="nav-item">
-          <a class="nav-link{% if page.url contains '/contact' %} active{% endif %}" href="{{"/contact" | relative_url }}"{% if page.url contains '/contact' %} aria-current="page"{% endif %}>Contact</a>
+        {% endfor %}
+        <li class="nav-item nav-item--lang">
+          <a class="nav-link lang-toggle" href="{{ lang_switch.url | relative_url }}" lang="{{ lang_switch.lang }}" hreflang="{{ lang_switch.lang }}" aria-label="{% if lang_switch.lang == 'en' %}Read this site in English{% else %}한국어 페이지로 이동{% endif %}">
+            <i class="fas fa-globe" aria-hidden="true"></i>
+            <span>{{ lang_switch.label }}</span>
+          </a>
         </li>
         <li class="nav-item">
           <button class="theme-toggle nav-link" id="themeToggle" aria-label="Toggle dark mode">

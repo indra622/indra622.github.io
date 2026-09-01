@@ -1,0 +1,12 @@
+# 연재 목록 (Writing series)
+# has_public_posts: 공개된 글이 있는 연재만 true. 주 메뉴 Writing 은 공개 연재로 연결된다.
+
+series:
+  - title: "직접 쓰는 AI교양"
+    url: "/personal-ai-literacy"
+    summary: "AI 논문과 테크리포트를 직접 읽고 내 언어로 정리하는 연재."
+    has_public_posts: true
+  - title: "책이 남긴 생각"
+    url: "/books-that-left-thoughts"
+    summary: "책을 읽고 남은 질문과 생각을 기록하는 연재."
+    has_public_posts: false

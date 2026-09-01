@@ -1,0 +1,41 @@
+# 주 메뉴 (Main navigation)
+# match: page.url 과 정확히 비교할 경로 목록 (.html / 슬래시 변형은 자동 처리)
+
+main:
+  - title: "Work"
+    url: "/work"
+    match:
+      - "/work"
+  - title: "Teaching"
+    url: "/teaching"
+    match:
+      - "/teaching"
+  # Writing 은 현재 공개 연재인 '직접 쓰는 AI교양'으로 직접 연결한다.
+  # 다른 연재에 공개 글이 생기면 _data/writing.yml 의 has_public_posts 를 true 로 바꾸고,
+  # 필요하면 아래 url 을 바꾸거나 match 에 경로를 추가한다.
+  - title: "Writing"
+    url: "/personal-ai-literacy"
+    match:
+      - "/personal-ai-literacy"
+      - "/books-that-left-thoughts"
+  # 영문 About 페이지에서도 About 메뉴가 현재 위치로 표시되도록 한다.
+  - title: "About"
+    url: "/about"
+    match:
+      - "/about"
+      - "/about-en"
+  - title: "Contact"
+    url: "/contact"
+    match:
+      - "/contact"
+
+# 언어 전환 (메뉴 항목이 아니라 언어 토글로 노출)
+language:
+  ko:
+    label: "한국어"
+    url: "/about"
+    lang: "ko"
+  en:
+    label: "English"
+    url: "/about-en"
+    lang: "en"

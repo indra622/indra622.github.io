@@ -10,6 +10,18 @@
   text-align: left;
 }
 
+/* Heading level stays h2 so the masthead does not skip from h1 to h3,
+   while keeping the size these labels had as h3. */
+.block_my-title {
+  font-size: calc(1.3rem + 0.6vw);
+}
+
+@media (min-width: 1200px) {
+  .block_my-title {
+    font-size: 1.75rem;
+  }
+}
+
 /* Books That Left Thoughts */
 .books-content {
   max-width: 800px;

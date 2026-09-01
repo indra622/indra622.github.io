@@ -391,6 +391,76 @@ hr {
   }
 }
 
+/* Work items still waiting on confirmed public detail */
+.work-item--draft {
+  background: var(--bg-secondary, #f8f9fa);
+  border-left-style: dashed;
+}
+
+.work-note {
+  margin: 1rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--text-muted, #6c757d);
+}
+
+.selected-work-section .work-item h3 a {
+  color: inherit;
+  text-decoration: none;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--link-color, #0085A1);
+    text-decoration: underline;
+  }
+}
+
+/* Language toggle in the navbar (a switch, not a menu entry) */
+.nav-item--lang .lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  padding: 0.25rem 0.85rem !important;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Other writing series listed from _data/writing.yml */
+.other-series-list {
+  list-style: none;
+  padding-left: 0;
+
+  li {
+    margin-bottom: 0.75rem;
+    line-height: 1.7;
+  }
+}
+
+.series-status {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  background: var(--bg-secondary, #f8f9fa);
+  border: 1px solid var(--border-color, #dee2e6);
+  font-size: 0.75rem;
+  color: var(--text-muted, #6c757d);
+}
+
+.series-summary {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--text-muted, #6c757d);
+}
+
+.series-backlink {
+  font-size: 0.95rem;
+}
+
 @media (max-width: 768px) {
   .expertise-grid {
     grid-template-columns: 1fr;
@@ -398,6 +468,11 @@ hr {
 
   .portfolio-section {
     margin: 3rem 0;
+  }
+
+  .nav-item--lang .lang-toggle {
+    display: inline-flex;
+    margin: 0.35rem 0;
   }
 }
 
