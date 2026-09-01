@@ -42,7 +42,7 @@ class SiteRegressionTest < Minitest::Test
       'about-en.html' => 'English profile for Hosung Park, covering AI engineering, speech recognition, and NLP work.',
       'contact.html' => 'Contact links for Hosung Park, including email and public social profiles.',
       'books-that-left-thoughts.html' => 'Reading notes and reflections from books that left a lasting impression.',
-      'personal-ai-literacy.html' => 'A practical AI literacy series with personal notes on using AI tools well.'
+      'personal-ai-literacy.html' => 'Notes from 직접 쓰는 AI교양, a series reading AI papers and tech reports firsthand.'
     }.each do |relative_path, expected_description|
       front_matter = ROOT.join(relative_path).read(encoding: 'UTF-8')[/\A---\n(.*?)\n---\n/m, 1]
       parsed = YAML.safe_load(front_matter, permitted_classes: [Date, Time], aliases: true)
@@ -76,7 +76,7 @@ class SiteRegressionTest < Minitest::Test
   def test_main_navigation_matches_approved_information_architecture
     nav = YAML.safe_load(ROOT.join('_data/navigation.yml').read(encoding: 'UTF-8'))
 
-    assert_equal %w[Work Teaching Writing About Contact],
+    assert_equal %w[About Work Teaching Writing Contact],
                  nav['main'].map { |item| item['title'] },
                  'main navigation no longer matches the approved Work/Teaching/Writing/About/Contact structure'
 

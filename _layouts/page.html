@@ -14,9 +14,12 @@ layout: default
         <div class="col-lg-8 col-md-10 mx-auto">
           <div class="page-heading">
             <h1>{{ page.title }}</h1>
-            {% assign page_subheading = page.description | default: page.description_eng %}
-            {% if page_subheading %}
-            <span class="subheading">{{ page_subheading }}</span>
+            {% comment %}
+              page.description 는 검색엔진용 메타 문구라 화면에는 쓰지 않는다.
+              머리말에 문장을 띄우고 싶으면 front matter 에 subheading 을 따로 적는다.
+            {% endcomment %}
+            {% if page.subheading %}
+            <span class="subheading">{{ page.subheading }}</span>
             {% endif %}
             {% if page.show_profile_summary_ko %}
             <div class="container_my">

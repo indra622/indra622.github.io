@@ -168,47 +168,24 @@ footer {
   background-image: var(--masthead-bg);
 }
 
-/* Styled HR divider */
+/* Divider */
 hr {
   margin: 3rem 0;
   border: 0;
-  height: 2px;
-  background: linear-gradient(to right, transparent, var(--border-color, #dee2e6), transparent);
-  opacity: 0.6;
+  height: 1px;
+  background: var(--border-color, #dee2e6);
+  opacity: 1;
 }
 
-/* CV/Resume button styling */
+/* CV link - a plain link with a comfortable tap target */
+.cv-note {
+  margin-bottom: 0;
+}
+
 .cv-link {
   display: inline-block;
-  padding: 1rem 2.5rem;
-  background: linear-gradient(135deg, #0085A1 0%, #00657a 100%);
-  color: white !important;
-  border-radius: 50px;
-  text-decoration: none !important;
+  padding: 0.5rem 0;
   font-weight: 600;
-  font-size: 1.1rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 133, 161, 0.3);
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 133, 161, 0.4);
-    color: white !important;
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-}
-
-/* Dark mode support for CV button */
-[data-theme="dark"] .cv-link {
-  background: linear-gradient(135deg, #4db8ff 0%, #80caff 100%);
-  box-shadow: 0 4px 15px rgba(77, 184, 255, 0.3);
-
-  &:hover {
-    box-shadow: 0 6px 20px rgba(77, 184, 255, 0.4);
-  }
 }
 
 /* Navbar - Always fixed at top with smooth background transition */

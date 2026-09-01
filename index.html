@@ -1,6 +1,6 @@
 ---
 layout: page
-title: AI 엔지니어 박호성
+title: 박호성
 description: AI engineer at Samsung Fire & Marine Insurance, working on agents, process improvement, and internal AI education.
 lang: ko
 alternate_url: /about-en
@@ -9,49 +9,38 @@ background: '/img/bg-index.jpg'
 ---
 
 <section class="about-content">
-  <p>삼성화재 AI개발파트에서 AI 개발 업무를 하고 있다. 업무를 실제로 하는 사람에게 직접 듣고, 그 방식을 시스템이 따를 수 있는 요구사항과 판단 기준으로 옮기는 일을 한다.</p>
+  <p>삼성화재 AI개발파트에서 AI 개발을 한다. 요구사항 문서보다 그 일을 실제로 하는 사람에게 먼저 듣고, 들은 방식을 시스템이 따를 수 있는 요구사항과 판단 기준으로 옮기는 일이 대부분이다.</p>
 
-  <p>사내에서는 AI 사내교수로 교육을 맡고 있고, 서강대학교에서 음성인식 전공으로 박사학위를 받았다.</p>
+  <p>사내에서는 AI 사내교수를 맡아 교육도 한다. 서강대학교에서 음성인식으로 박사학위를 받았다.</p>
 </section>
 
 <section class="portfolio-section selected-work-section" aria-labelledby="selected-work-title">
-  <div class="section-kicker">Work</div>
-  <h2 id="selected-work-title">지금 하고 있는 일</h2>
+  <h2 id="selected-work-title">작업</h2>
   <div class="work-list">
     {% for item in site.data.work.items %}
     <article class="work-item{% if item.status == 'draft' %} work-item--draft{% endif %}">
-      {% if item.meta %}<div class="work-meta">{{ item.meta }}</div>{% endif %}
       <h3><a href="{{ '/work' | relative_url }}#{{ item.id }}">{{ item.title }}</a></h3>
+      {% if item.meta %}<div class="work-meta">{{ item.meta }}</div>{% endif %}
       {% if item.summary %}<p>{{ item.summary | strip_html | truncate: 140 }}</p>{% endif %}
     </article>
     {% endfor %}
   </div>
-  <div class="writing-actions">
-    <a href="{{ '/work' | relative_url }}">작업 전체 보기</a>
-  </div>
+  <p class="section-more"><a href="{{ '/work' | relative_url }}">작업 자세히 보기</a></p>
 </section>
 
 <section class="portfolio-section" aria-labelledby="home-teaching-title">
-  <div class="section-kicker">Teaching</div>
   <h2 id="home-teaching-title">교육</h2>
-  <p>AI 사내교수로 사내 AI 교육을 맡고 있고, 경영진 대상 Claude Code 교육과 음성인식 전문가 과정 강의를 진행했다.</p>
-  <div class="writing-actions">
-    <a href="{{ '/teaching' | relative_url }}">교육 경험 보기</a>
-  </div>
+  <p>AI 사내교수로 사내 교육을 맡고 있다. CEO, CFO, CAIO를 대상으로 Claude Code 사용 교육을 진행했고, 그 전에는 음성인식 전문가 과정을 강의했다.</p>
+  <p class="section-more"><a href="{{ '/teaching' | relative_url }}">교육 자세히 보기</a></p>
 </section>
 
-<section class="portfolio-section writing-section" aria-labelledby="writing-title">
-  <div class="section-kicker">Writing</div>
-  <h2 id="writing-title">기술을 이해 가능한 언어로 정리합니다</h2>
-  <p>Threads에서 '직접 쓰는 AI교양'을 연재하고 있다.</p>
-  <div class="writing-actions">
-    <a href="{{ '/personal-ai-literacy' | relative_url }}">직접 쓰는 AI교양 보기</a>
-  </div>
+<section class="portfolio-section" aria-labelledby="writing-title">
+  <h2 id="writing-title">연재</h2>
+  <p>Threads에 '직접 쓰는 AI교양'을 쓰고 있다. AI 논문과 테크리포트를 AI 도움 없이 직접 읽고 내 언어로 정리하는 기록이다.</p>
+  <p class="section-more"><a href="{{ '/personal-ai-literacy' | relative_url }}">직접 쓰는 AI교양</a></p>
 </section>
 
 <hr>
-<div class='center'>
-  <a href="{{ site.data.site.external.cv_url | relative_url }}" target="_blank" rel="noopener noreferrer" class="cv-link">
-    <i class="fas fa-file-pdf"></i> 이력서 다운로드
-  </a>
-</div>
+<p class="cv-note">
+  <a href="{{ site.data.site.external.cv_url | relative_url }}" target="_blank" rel="noopener noreferrer" class="cv-link">이력서 (PDF)</a>
+</p>

@@ -4,7 +4,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
   <title>
-    {% if page.title %}{{ page.title | escape }} - {{ site.title | escape }}
+    {% comment %}
+      홈처럼 page.title 이 site.title 에 이미 들어 있으면 이름이 두 번 나오지 않게 site.title 만 쓴다.
+    {% endcomment %}
+    {% if page.title and site.title contains page.title %}{{ site.title | escape }}
+    {% elsif page.title %}{{ page.title | escape }} - {{ site.title | escape }}
     {% else %}{{ site.title | escape }}{% endif %}
   </title>
 

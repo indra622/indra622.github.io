@@ -2,6 +2,12 @@
 # match: page.url 과 정확히 비교할 경로 목록 (.html / 슬래시 변형은 자동 처리)
 
 main:
+  # 영문 About 페이지에서도 About 메뉴가 현재 위치로 표시되도록 한다.
+  - title: "About"
+    url: "/about"
+    match:
+      - "/about"
+      - "/about-en"
   - title: "Work"
     url: "/work"
     match:
@@ -18,12 +24,6 @@ main:
     match:
       - "/personal-ai-literacy"
       - "/books-that-left-thoughts"
-  # 영문 About 페이지에서도 About 메뉴가 현재 위치로 표시되도록 한다.
-  - title: "About"
-    url: "/about"
-    match:
-      - "/about"
-      - "/about-en"
   - title: "Contact"
     url: "/contact"
     match:
