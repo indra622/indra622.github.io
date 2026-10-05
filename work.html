@@ -30,6 +30,15 @@ background: '/img/bg-index.jpg'
   </div>
 </section>
 
+<section class="portfolio-section" aria-labelledby="work-projects-title">
+  <h2 id="work-projects-title">연구·개인 프로젝트</h2>
+  <ul class="project-list">
+    {% for project in site.data.work.projects %}
+    <li id="{{ project.id }}"><strong>{% if project.url %}<a href="{{ project.url }}" target="_blank" rel="noopener noreferrer">{{ project.title }}</a>{% else %}{{ project.title }}{% endif %}</strong> — {{ project.summary }}</li>
+    {% endfor %}
+  </ul>
+</section>
+
 <section class="portfolio-section" aria-labelledby="work-background-title">
   <h2 id="work-background-title">그 전에 한 일</h2>
   <p>금융 도메인에서 RAG 기반 상담 챗봇과 실시간 통역 시스템을 만들었고, 그 전에는 음성인식으로 박사학위를 받았다. <a href="{{ '/about' | relative_url }}">About</a>에 적어 두었다.</p>

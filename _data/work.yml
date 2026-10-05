@@ -33,5 +33,27 @@ items:
 
   - id: "voxdelta"
     title: "VoxDelta"
-    status: "draft"
-    note: "아직 소개를 쓰지 않았다. 정리되는 대로 여기에 올린다."
+    status: "published"
+    summary: >-
+      한국어 통화 음성의 감정 변화를 분석하는 로컬 우선 음성 AI 프로젝트.
+
+# Work 페이지 아래쪽 '연구·개인 프로젝트'에 제목과 한 줄 설명만 짧게 적는 항목.
+# 홈 화면에는 노출하지 않는다. url 은 공개 저장소일 때만 적는다.
+projects:
+  - id: "timesfm3-test"
+    title: "TimesFM 3 성능 비교"
+    summary: "실제 데이터셋에서 시계열 예측 모델의 성능을 비교한 재현 가능한 실험."
+    url: "https://github.com/indra622/timesfm3-test"
+
+  - id: "tcp-eval"
+    title: "TCP_eval"
+    summary: "적절성·명확성 등 평가 기준으로 대화 품질을 자동 평가하는 시스템."
+
+  - id: "qwen-hybrid-interpretability"
+    title: "Qwen Hybrid Interpretability"
+    summary: "Qwen 하이브리드 모델의 층별 표현과 인과적 기여를 분석하는 연구 프로젝트."
+
+  - id: "threads-to-naver-drafts"
+    title: "Threads → Naver Blog Drafts"
+    summary: "Threads 게시물을 네이버 블로그 임시저장으로 옮기는 macOS 자동화 도구."
+    url: "https://github.com/indra622/threads-to-naver-drafts"

@@ -109,6 +109,19 @@ class SiteRegressionTest < Minitest::Test
 
       refute_empty item['note'].to_s, "draft work item #{item['title']} must explain what is still missing"
     end
+
+    assert_equal ['TimesFM 3 성능 비교', 'TCP_eval', 'Qwen Hybrid Interpretability', 'Threads → Naver Blog Drafts'],
+                 work['projects'].map { |item| item['title'] }
+
+    public_repos = %w[
+      https://github.com/indra622/timesfm3-test
+      https://github.com/indra622/threads-to-naver-drafts
+    ]
+    work['projects'].each do |item|
+      next if item['url'].nil?
+
+      assert_includes public_repos, item['url'], "only public repositories may be linked (#{item['title']})"
+    end
   end
 
   def test_books_series_stays_out_of_the_main_menu_until_it_has_public_posts
