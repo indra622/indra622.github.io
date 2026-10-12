@@ -39,41 +39,18 @@ document.addEventListener('DOMContentLoaded', function() {
 })();
 
 // Dark Mode Toggle
+// 초기 테마는 _includes/head.html 의 window.siteTheme 가 첫 페인트 전에 정한다.
 (function() {
-  const THEME_KEY = 'theme';
-  const DARK = 'dark';
-  const LIGHT = 'light';
+  const theme = window.siteTheme;
+  if (!theme) return;
 
-  // Get saved theme or detect system preference
-  function getPreferredTheme() {
-    const savedTheme = localStorage.getItem(THEME_KEY);
-    if (savedTheme) {
-      return savedTheme;
-    }
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK : LIGHT;
-  }
-
-  // Apply theme to document
-  function applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem(THEME_KEY, theme);
-  }
-
-  // Initialize theme on page load
-  function initTheme() {
-    const theme = getPreferredTheme();
-    applyTheme(theme);
-  }
-
-  // Toggle between dark and light
+  // Toggle between dark and light; only an explicit choice is saved
   function toggleTheme() {
     const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === DARK ? LIGHT : DARK;
-    applyTheme(newTheme);
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    theme.apply(newTheme);
+    theme.save(newTheme);
   }
-
-  // Apply theme immediately (before DOM ready) to prevent flash
-  initTheme();
 
   // Set up toggle button after DOM loads
   document.addEventListener('DOMContentLoaded', function() {
@@ -83,13 +60,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Listen for system theme changes
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
-    // Only auto-switch if user hasn't manually set preference
-    if (!localStorage.getItem(THEME_KEY)) {
-      applyTheme(e.matches ? DARK : LIGHT);
-    }
-  });
+  // Follow system theme changes until the user picks one
+  if (theme.media && theme.media.addEventListener) {
+    theme.media.addEventListener('change', function() {
+      if (!theme.saved()) {
+        theme.apply(theme.system());
+      }
+    });
+  }
 })();
 
 // Scroll Reveal Animation using Intersection Observer

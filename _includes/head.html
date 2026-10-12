@@ -3,6 +3,35 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
+  {% comment %}
+    테마는 첫 페인트 전에 정한다. 저장값은 사용자가 토글을 눌렀을 때만 생기고,
+    없거나 잘못된 값이면 OS 설정을 따른다. 토글·OS 변경 처리는 assets/scripts.js 가 이 객체를 쓴다.
+  {% endcomment %}
+  <script>
+    (function () {
+      var KEY = 'theme';
+      var root = document.documentElement;
+      var media = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+      var chosen = null; // 저장소를 못 쓸 때도 이번 페이지에서 고른 값은 유지한다
+      function valid(t) { return t === 'light' || t === 'dark'; }
+      var siteTheme = {
+        media: media,
+        saved: function () {
+          try { var t = window.localStorage.getItem(KEY); if (valid(t)) return t; } catch (e) {}
+          return chosen;
+        },
+        system: function () { return media && media.matches ? 'dark' : 'light'; },
+        apply: function (t) { root.setAttribute('data-theme', t); },
+        save: function (t) {
+          chosen = t;
+          try { window.localStorage.setItem(KEY, t); } catch (e) {}
+        }
+      };
+      siteTheme.apply(siteTheme.saved() || siteTheme.system());
+      window.siteTheme = siteTheme;
+    })();
+  </script>
+
   <title>
     {% comment %}
       홈처럼 page.title 이 site.title 에 이미 들어 있으면 이름이 두 번 나오지 않게 site.title 만 쓴다.

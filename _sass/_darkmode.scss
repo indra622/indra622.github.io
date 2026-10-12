@@ -16,6 +16,9 @@
   --overlay-color: rgba(0, 0, 0, 0.5);
   --navbar-bg: #fff;
   --footer-bg: #f8f9fa;
+  // 카드 위 작은 링크용. #fff 위 5.27:1, hover 7.95:1 (WCAG AA 4.5:1 이상)
+  --reading-link-color: #00768f;
+  --reading-link-hover: #00596b;
 }
 
 [data-theme="dark"] {
@@ -32,6 +35,9 @@
   --overlay-color: rgba(0, 0, 0, 0.7);
   --navbar-bg: #16213e;
   --footer-bg: #0f0f23;
+  // #1f1f3a 카드 위 7.31:1, hover 8.98:1
+  --reading-link-color: #4db8ff;
+  --reading-link-hover: #80caff;
 }
 
 // Apply CSS variables
@@ -70,6 +76,16 @@ a {
   .navbar-brand,
   .nav-link {
     color: var(--text-color) !important;
+  }
+
+  // Clean Blog 기본값($gray-800)은 다크 내비게이션에서 MENU 글자가 묻힌다
+  .navbar-toggler {
+    color: var(--text-color);
+    border-color: var(--border-color);
+
+    &:focus-visible {
+      box-shadow: 0 0 0 0.2rem var(--link-color);
+    }
   }
 }
 

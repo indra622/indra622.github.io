@@ -21,7 +21,8 @@ background: '/img/bg-index.jpg'
     <article class="work-item{% if item.status == 'draft' %} work-item--draft{% endif %}">
       <h3><a href="{{ '/work' | relative_url }}#{{ item.id }}">{{ item.title }}</a></h3>
       {% if item.meta %}<div class="work-meta">{{ item.meta }}</div>{% endif %}
-      {% if item.summary %}<p>{{ item.summary | strip_html | truncate: 140 }}</p>{% endif %}
+      {% assign home_summary = item.home_summary | default: item.summary %}
+      {% if home_summary %}<p>{{ home_summary | strip_html }}</p>{% endif %}
     </article>
     {% endfor %}
   </div>

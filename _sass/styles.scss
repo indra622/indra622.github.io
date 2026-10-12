@@ -168,6 +168,37 @@ footer {
   background-image: var(--masthead-bg);
 }
 
+/* 내부 페이지(front matter compact_header: true)는 사진 높이만 줄여 본문이 첫 화면에 보이게 한다.
+   padding-top 은 고정 내비게이션 높이만큼 남겨 제목과 겹치지 않게 한다. */
+header.masthead.masthead--compact {
+  padding-top: 4.5rem;
+  padding-bottom: 0.5rem;
+  margin-bottom: 2rem;
+
+  .page-heading {
+    padding: 1.75rem 0;
+
+    h1 {
+      font-size: 2.5rem;
+      word-break: keep-all;
+    }
+  }
+
+  @media only screen and (min-width: 992px) {
+    padding-top: 6.5rem;
+    padding-bottom: 1.5rem;
+    margin-bottom: 3rem;
+
+    .page-heading {
+      padding: 2.5rem 0;
+
+      h1 {
+        font-size: 3.5rem;
+      }
+    }
+  }
+}
+
 /* Divider */
 hr {
   margin: 3rem 0;

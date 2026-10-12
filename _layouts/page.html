@@ -4,9 +4,9 @@ layout: default
 
 <!-- Page Header -->
 {% if page.background %}
-<header class="masthead masthead--with-bg" style="--masthead-bg: url('{{ page.background | prepend: site.baseurl | replace: '//', '/' }}'); background-image: var(--masthead-bg)">
+<header class="masthead masthead--with-bg{% if page.compact_header %} masthead--compact{% endif %}" style="--masthead-bg: url('{{ page.background | prepend: site.baseurl | replace: '//', '/' }}'); background-image: var(--masthead-bg)">
   {% else %}
-  <header class="masthead">
+  <header class="masthead{% if page.compact_header %} masthead--compact{% endif %}">
     {% endif %}
     <div class="overlay"></div>
     <div class="container">
