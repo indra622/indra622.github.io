@@ -110,12 +110,13 @@ class SiteRegressionTest < Minitest::Test
       refute_empty item['note'].to_s, "draft work item #{item['title']} must explain what is still missing"
     end
 
-    assert_equal ['TimesFM 3 성능 비교', 'TCP_eval', 'Qwen Hybrid Interpretability', 'Threads → Naver Blog Drafts'],
+    assert_equal ['TimesFM 3 성능 비교', 'TCP_eval', 'Qwen Hybrid Interpretability',
+                  'Simplenote·Threads → Naver Blog Drafts', 'System One·Jev 모델 스터디'],
                  work['projects'].map { |item| item['title'] }
 
     public_repos = %w[
       https://github.com/indra622/timesfm3-test
-      https://github.com/indra622/threads-to-naver-drafts
+      https://github.com/indra622/simplenote-to-naver-drafts
     ]
     work['projects'].each do |item|
       next if item['url'].nil?

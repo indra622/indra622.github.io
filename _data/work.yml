@@ -42,7 +42,7 @@ items:
 projects:
   - id: "timesfm3-test"
     title: "TimesFM 3 성능 비교"
-    summary: "실제 데이터셋에서 시계열 예측 모델의 성능을 비교한 재현 가능한 실험."
+    summary: "METR-LA·M5와 FEV-Bench 일부 과제에서 예측 모델을 비교하고, 결과를 연구 보고서와 공개 코드로 정리한 실험."
     url: "https://github.com/indra622/timesfm3-test"
 
   - id: "tcp-eval"
@@ -51,9 +51,13 @@ projects:
 
   - id: "qwen-hybrid-interpretability"
     title: "Qwen Hybrid Interpretability"
-    summary: "Qwen 하이브리드 모델의 층별 표현과 인과적 기여를 분석하는 연구 프로젝트."
+    summary: "Qwen3.5-0.8B의 층별 표현과 인과적 기여를 분석하고, 확인 실험 결과와 한계를 보고서로 정리한 연구."
 
   - id: "threads-to-naver-drafts"
-    title: "Threads → Naver Blog Drafts"
-    summary: "Threads 게시물을 네이버 블로그 임시저장으로 옮기는 macOS 자동화 도구."
-    url: "https://github.com/indra622/threads-to-naver-drafts"
+    title: "Simplenote·Threads → Naver Blog Drafts"
+    summary: "Simplenote 노트와 Threads 게시물을 원문 그대로 네이버 블로그 임시저장으로 옮기는 macOS 도구."
+    url: "https://github.com/indra622/simplenote-to-naver-drafts"
+
+  - id: "system-one-jev-study"
+    title: "System One·Jev 모델 스터디"
+    summary: "Jev·AgentJev·Laya의 동작 방식과 공개 벤치마크의 한계를 검토해 보고서와 스터디 자료로 정리한 활동."
