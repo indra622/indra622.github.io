@@ -38,8 +38,8 @@ class SiteRegressionTest < Minitest::Test
       'index.html' => 'AI engineer at Samsung Fire & Marine Insurance, working on agents, process improvement, and internal AI education.',
       'work.html' => 'Selected work by Hosung Park, including a CEO agent, sales process improvement, and VoxDelta.',
       'teaching.html' => 'Internal AI teaching by Hosung Park, including Claude Code sessions for executives and speech recognition courses.',
-      'about.html' => 'Profile of Hosung Park, covering current role, career, how he works, and teaching experience.',
-      'about-en.html' => 'English profile for Hosung Park, covering AI engineering, speech recognition, and NLP work.',
+      'about.html' => 'Profile of Hosung Park, covering AI engineering, OpenClaw contributions, career, and teaching experience.',
+      'about-en.html' => 'English profile for Hosung Park, covering AI engineering, OpenClaw contributions, speech recognition, and NLP work.',
       'contact.html' => 'Contact links for Hosung Park, including email and public social profiles.',
       'books-that-left-thoughts.html' => 'Reading notes and reflections from books that left a lasting impression.',
       'personal-ai-literacy.html' => 'Notes from 직접 쓰는 AI교양, a series reading AI papers and tech reports firsthand.'
@@ -110,11 +110,12 @@ class SiteRegressionTest < Minitest::Test
       refute_empty item['note'].to_s, "draft work item #{item['title']} must explain what is still missing"
     end
 
-    assert_equal ['TimesFM 3 성능 비교', 'TCP_eval', 'Qwen Hybrid Interpretability',
+    assert_equal ['OpenClaw Contributor', 'TimesFM 3 성능 비교', 'TCP_eval', 'Qwen Hybrid Interpretability',
                   'Simplenote·Threads → Naver Blog Drafts', 'System One·Jev 모델 스터디'],
                  work['projects'].map { |item| item['title'] }
 
     public_repos = %w[
+      https://github.com/openclaw/openclaw/pull/181592
       https://github.com/indra622/timesfm3-test
       https://github.com/indra622/simplenote-to-naver-drafts
     ]
