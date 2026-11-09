@@ -1,1 +1,131 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="strict-origin-when-cross-origin"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src https://i.ytimg.com; frame-src https://www.youtube-nocookie.com; base-uri 'none'; form-action 'none'"><title>호성튜브 | AI교양 추천</title><link rel="stylesheet" href="./assets/220f59e1cf51787b4adf012f/style.css"><script type="module" src="./assets/220f59e1cf51787b4adf012f/app.mjs"></script></head><body><header><a href="#">호성튜브</a><span>AI교양과 함께 보는 영상</span></header><main><p id="notice" role="status"></p><section class="intro"><p class="eyebrow">직접 쓰는 AI교양</p><h1>글에서 이어지는<br>다음 영상 한 편.</h1><p>근거를 확인해 고른 영상입니다. 추천 이유와 확인하지 못한 범위도 함께 읽어 보세요.</p><p id="dates"></p></section><section aria-labelledby="dailyTitle"><h2 id="dailyTitle">오늘의 추천</h2><p>같은 날짜에는 같은 순서로 시작합니다. 다른 추천은 후보를 한 바퀴 돌 때까지 반복하지 않습니다.</p><label><input type="checkbox" id="exclude" checked> 이 브라우저에서 열어 본 영상 제외</label><div id="daily"></div><button id="another">다른 추천 보기</button><button id="showOpened" hidden>열어 본 추천도 다시 보기</button></section><section id="watch" hidden></section><section><h2>추천 목록</h2><div class="controls"><input id="search" type="search" aria-label="추천 검색" placeholder="제목이나 추천 이유 검색"><select id="category" aria-label="분야"><option value="">모든 분야</option><option value="ai">AI</option><option value="dev">개발</option><option value="science">과학</option></select><select id="channel" aria-label="채널"><option value="">모든 채널</option></select><select id="shelf" aria-label="모아보기"><option value="all">모든 추천</option><option value="favorites">즐겨찾기</option><option value="history">열어 본 기록</option></select></div><p id="count" aria-live="polite"></p><div id="grid"></div></section><details><summary>이 브라우저의 기록과 백업</summary><p>열어 본 기록은 시청 완료를 뜻하지 않습니다. 저장소를 쓸 수 없으면 이 창에서만 유지됩니다. 같은 사이트의 다른 경로와 저장소가 격리되지는 않으므로 민감한 정보를 넣지 마세요.</p><button id="export">백업 저장</button><label>백업 가져오기 <input type="file" id="import" accept=".json,application/json"></label></details></main><footer><p>마지막 확인 데이터로 제공하는 정적 공개판입니다. 새 글이나 수정 사항은 다음 배포 때 반영됩니다. 로그인이나 온라인 편집 기능은 없습니다.</p><p>YouTube 썸네일과 플레이어는 외부 통신을 사용합니다. 재생이 막히면 YouTube에서 열어 주세요.</p><small id="release"></small></footer></body></html>
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0f0e0c">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>호성튜브</title>
+  <link rel="stylesheet" href="assets/c4954a7221843fd06829f461/style.css">
+  <script type="module" src="assets/c4954a7221843fd06829f461/app.mjs"></script>
+</head>
+<body>
+  <a class="skip" href="#main">본문으로 건너뛰기</a>
+
+  <header class="top">
+    <div class="top-inner">
+      <a class="brand" href="#/" aria-label="호성튜브 처음 화면">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-name">호성튜브</span>
+        <span class="brand-sub">AI교양으로 고른 영상</span>
+      </a>
+      <form class="search" role="search" id="searchForm">
+        <label class="sr-only" for="q">제목·채널·추천 이유 검색</label>
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M10.5 3a7.5 7.5 0 0 1 5.9 12.1l4.7 4.7-1.4 1.4-4.7-4.7A7.5 7.5 0 1 1 10.5 3Zm0 2a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11Z"/></svg>
+        <input id="q" type="search" placeholder="제목·채널·추천 이유 검색" autocomplete="off" enterkeyhint="search">
+        <kbd class="hint" aria-hidden="true">/</kbd>
+      </form>
+      <div class="top-actions">
+        <button class="btn btn-accent" id="tvBtn" type="button" title="TV 모드 (T)">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-6v2h3v2H7v-2h3v-2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Zm0 2v9h16V7H4Zm6 1.5 5 3-5 3v-6Z"/></svg>
+          <span>TV 모드</span>
+        </button>
+        <button class="btn" id="manageBtn" type="button" aria-haspopup="dialog">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6V5Z"/></svg>
+          <span>백업·복원</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div id="storageNotice" class="notice" hidden role="status"></div>
+
+  <main id="main" tabindex="-1">
+    <section id="evidenceStatus" class="evidence-status" aria-label="추천 근거 확인 상태" aria-live="polite"></section>
+    <section id="watch" class="watch" hidden aria-label="재생 중인 영상"></section>
+
+    <section class="library" aria-labelledby="libTitle">
+      <h1 id="libTitle" class="sr-only">영상 목록</h1>
+      <div class="controls">
+        <div class="shelves" role="group" aria-label="모아보기" id="shelves"></div>
+        <div class="filters">
+          <div class="chips" role="group" aria-label="분야" id="cats"></div>
+          <div class="selects">
+            <label class="select"><span>채널</span>
+              <select id="channelSel"><option value="all">모든 채널</option></select>
+            </label>
+            <label class="select"><span>정렬</span>
+              <select id="sortSel">
+                <option value="default">기본 순서</option>
+                <option value="title">제목 가나다순</option>
+              </select>
+            </label>
+            <button class="btn btn-ghost" id="resetBtn" type="button">필터 초기화</button>
+          </div>
+        </div>
+        <p class="count" id="count" aria-live="polite"></p>
+        <div class="rotation-tools row" aria-label="오늘의 추천"><span id="dailyTitle">오늘의 추천</span><a id="dailyLink" class="btn btn-ghost" href="#/">불러오는 중</a><button id="another" class="btn btn-ghost" type="button">다른 추천</button><label><input type="checkbox" id="exclude" checked> 열어 본 영상 제외</label><button id="showOpened" class="btn btn-ghost" hidden>열어 본 추천 다시 보기</button></div>
+      </div>
+      <div id="grid" class="grid" aria-busy="true">
+        <p class="loading">목록을 불러오는 중입니다…</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p id="provenance">데이터 정보를 불러오는 중입니다.</p>
+    <p>나중에 볼 목록·즐겨찾기·열어 본 기록·직접 추가한 영상은 <strong>이 브라우저에만</strong> 저장됩니다. 로그인과 서버 기록은 없습니다.</p>
+    <p class="keys">단축키: <kbd>/</kbd> 검색 · <kbd>T</kbd> TV 모드 · TV 모드에서 <kbd>←</kbd>/<kbd>→</kbd> 이전·다음, <kbd>S</kbd> 섞기, <kbd>K</kbd> 또는 <kbd>Space</kbd> 일시정지, <kbd>Esc</kbd> 닫기</p>
+  </footer>
+
+  <!-- TV 모드 -->
+  <div id="tv" class="tv" hidden role="dialog" aria-modal="true" aria-labelledby="tvTitle">
+    <div class="tv-stage">
+      <div id="tvPlayer" class="tv-player"></div>
+      <div id="tvCatch" class="tv-catch" hidden title="눌러서 재생/일시정지"></div>
+      <div id="tvMsg" class="tv-msg" hidden role="status"></div>
+    </div>
+    <div class="tv-bar">
+      <div class="tv-info">
+        <p class="tv-kicker" id="tvPos"></p>
+        <h2 id="tvTitle" class="tv-title"></h2>
+        <p id="tvMeta" class="tv-meta"></p>
+      </div>
+      <div class="tv-ctrls" role="group" aria-label="TV 모드 조작">
+        <button class="tbtn" id="tvPrev" type="button" aria-label="이전 영상 (←)"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6h2v12H6V6Zm3.5 6L18 6v12l-8.5-6Z"/></svg></button>
+        <button class="tbtn" id="tvPlay" type="button" aria-label="재생/일시정지 (K)"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z"/></svg></button>
+        <button class="tbtn" id="tvNext" type="button" aria-label="다음 영상 (→)"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M16 6h2v12h-2V6ZM6 6l8.5 6L6 18V6Z"/></svg></button>
+        <button class="tbtn" id="tvShuffle" type="button" aria-pressed="false" aria-label="섞어서 보기 (S)"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M14 4h6v6l-2.3-2.3-3.9 3.9-1.4-1.4 3.9-3.9L14 4ZM4 5.4 5.4 4 20 18.6 18.6 20 4 5.4ZM20 14v6h-6l2.3-2.3-2.8-2.8 1.4-1.4 2.8 2.8L20 14Z"/></svg></button>
+        <a class="tbtn" id="tvOpen" href="#" target="_blank" rel="noopener noreferrer" aria-label="YouTube에서 열기"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M14 3h7v7h-2V6.4l-9.3 9.3-1.4-1.4L17.6 5H14V3ZM5 5h6v2H5v12h12v-6h2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"/></svg></a>
+        <button class="tbtn tbtn-text" id="tvClose" type="button">닫기 <kbd>Esc</kbd></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 백업·복원 -->
+  <dialog id="manage" class="manage" aria-labelledby="manageTitle">
+    <div class="m-head">
+      <h2 id="manageTitle">백업·복원</h2>
+      <button class="btn btn-ghost icon" type="button" id="manageClose" aria-label="닫기">✕</button>
+    </div>
+    <section role="tabpanel" id="pane-data" aria-label="백업·복원" class="m-pane">
+      <h3>내보내기</h3>
+      <p class="help">직접 추가한 영상, 나중에 볼 목록, 즐겨찾기, 열어 본 기록을 JSON 파일 하나로 저장합니다. 추천으로 만난 영상을 저장해 두었다면 그 영상의 제목·채널 같은 재생 정보도 함께 저장합니다(추천 이유는 저장하지 않음).</p>
+      <button class="btn" type="button" id="exportBtn">JSON으로 내보내기</button>
+      <h3>가져오기</h3>
+      <p class="help">호성튜브에서 내보낸 JSON 파일을 고르면 지금 데이터에 합칩니다. 형식이 맞지 않는 항목은 건너뜁니다.</p>
+      <label class="file"><span class="btn">파일 고르기</span><input type="file" id="importFile" accept="application/json,.json"></label>
+      <div id="importResult" class="m-result" aria-live="polite"></div>
+      <h3>지우기</h3>
+      <p class="help">열어 본 기록만 지우거나, 이 브라우저에 저장된 호성튜브 데이터를 모두 지웁니다.</p>
+      <div class="row">
+        <button class="btn" type="button" id="clearHistory">열어 본 기록 지우기</button>
+        <button class="btn btn-danger" type="button" id="clearAll">모두 지우기</button>
+      </div>
+    </section>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
