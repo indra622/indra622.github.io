@@ -129,6 +129,23 @@ class SiteRegressionTest < Minitest::Test
     end
   end
 
+  def test_home_hides_only_items_marked_show_on_home_false
+    work = YAML.safe_load(ROOT.join('_data/work.yml').read(encoding: 'UTF-8'))
+    hidden = work['items'].select { |item| item['show_on_home'] == false }.map { |item| item['title'] }
+
+    assert_equal ['VoxDelta'], hidden, 'only VoxDelta should be hidden from the home page'
+    assert_includes ROOT.join('index.html').read(encoding: 'UTF-8'), 'item.show_on_home == false'
+  end
+
+  def test_teaching_links_to_static_workshop_lecture_sample
+    sample_path = 'lectures/harness-engineering-workshop-v25.html'
+    sample = ROOT.join(sample_path)
+
+    assert sample.file?, "missing lecture sample #{sample_path}"
+    refute sample.read(encoding: 'UTF-8').start_with?('---'), 'lecture sample must stay a static file without front matter'
+    assert_includes ROOT.join('teaching.html').read(encoding: 'UTF-8'), "'/#{sample_path}' | relative_url"
+  end
+
   def test_books_series_stays_out_of_the_main_menu_until_it_has_public_posts
     nav = YAML.safe_load(ROOT.join('_data/navigation.yml').read(encoding: 'UTF-8'))
     writing = YAML.safe_load(ROOT.join('_data/writing.yml').read(encoding: 'UTF-8'))

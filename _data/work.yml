@@ -6,6 +6,7 @@
 #     내용이 확정되면 details 를 채우고 status 를 published 로 바꾸면 된다.
 # note: 아직 확인되지 않은 내용에 대한 안내 문구. 비워두면 노출되지 않는다.
 # home_summary: 홈 화면용 짧은 설명(선택). 없으면 summary 를 그대로 쓴다. 문장으로 끝나게 쓴다.
+# show_on_home: false 로 두면 홈 화면에서는 빼고 Work 페이지에만 보여 준다. 적지 않으면 홈에도 보인다.
 
 items:
   - id: "ceo-agent"
@@ -38,6 +39,7 @@ items:
   - id: "voxdelta"
     title: "VoxDelta"
     status: "published"
+    show_on_home: false
     summary: >-
       한국어 통화 음성의 감정 변화를 분석하는 로컬 우선 음성 AI 프로젝트.
 
