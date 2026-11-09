@@ -7,8 +7,8 @@
   <meta name="theme-color" content="#0f0e0c">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>호성튜브</title>
-  <link rel="stylesheet" href="assets/e21da6ffacb2af4101af1ada/style.css">
-  <script type="module" src="assets/e21da6ffacb2af4101af1ada/app.mjs"></script>
+  <link rel="stylesheet" href="assets/31053cb05657ea96d702e34c/style.css">
+  <script type="module" src="assets/31053cb05657ea96d702e34c/app.mjs"></script>
 </head>
 <body>
   <a class="skip" href="#main">본문으로 건너뛰기</a>
@@ -35,6 +35,15 @@
           <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6V5Z"/></svg>
           <span>백업·복원</span>
         </button>
+      </div>
+      <div class="global-playback">
+        <button id="privacyPlayback" class="playback-switch" type="button" role="switch" aria-checked="false" aria-label="개인정보 보호 재생" aria-describedby="playbackState">
+          <span class="switch-track" aria-hidden="true"></span><span>개인정보 보호 재생</span><strong id="playbackState">꺼짐</strong>
+        </button>
+        <details class="playback-help">
+          <summary>재생 설정 안내</summary>
+          <p>꺼짐: YouTube 로그인 연동(기본). YouTube 쿠키를 사용할 수 있으며 로그인은 YouTube에서 관리합니다. Premium 혜택은 로그인 계정과 브라우저 쿠키 설정에 따라 달라집니다. 켜짐: 개인정보 보호 재생(youtube-nocookie.com). 브라우저 시크릿 모드가 아니며 광고 없는 재생을 보장하지 않습니다. 모든 영상에 적용하고 이 브라우저에 저장합니다. 전환 시 재생 위치를 읽지 못하면 처음부터 시작합니다. TV에서는 닫은 뒤 이 설정을 바꿔 주세요.</p>
+        </details>
       </div>
     </div>
   </header>
@@ -86,7 +95,7 @@
       <div id="tvCatch" class="tv-catch" hidden title="눌러서 재생/일시정지"></div>
       <div id="tvMsg" class="tv-msg" hidden role="status"></div>
     </div>
-    <div id="tvPlaybackSettings" class="tv-playback-settings"></div>
+    <p class="tv-playback-note">재생 설정은 TV를 닫은 뒤 화면 위에서 바꿀 수 있습니다.</p>
     <div class="tv-bar">
       <div class="tv-info">
         <p class="tv-kicker" id="tvPos"></p>
