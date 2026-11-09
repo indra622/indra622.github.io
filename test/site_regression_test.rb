@@ -110,12 +110,15 @@ class SiteRegressionTest < Minitest::Test
       refute_empty item['note'].to_s, "draft work item #{item['title']} must explain what is still missing"
     end
 
-    assert_equal ['OpenClaw Contributor', 'TimesFM 3 성능 비교', 'TCP_eval', 'Qwen Hybrid Interpretability',
+    assert_equal ['OpenClaw Contributor', 'Local Second Brain', 'Docling 문서 기여',
+                  'TimesFM 3 성능 비교', 'TCP_eval', 'Qwen Hybrid Interpretability',
                   'Simplenote·Threads → Naver Blog Drafts', 'System One·Jev 모델 스터디'],
                  work['projects'].map { |item| item['title'] }
 
     public_repos = %w[
       https://github.com/openclaw/openclaw/pull/181592
+      https://github.com/indra622/local-second-brain
+      https://github.com/docling-project/docling/pull/5212
       https://github.com/indra622/timesfm3-test
       https://github.com/indra622/simplenote-to-naver-drafts
     ]
