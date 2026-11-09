@@ -7,8 +7,8 @@
   <meta name="theme-color" content="#0f0e0c">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>호성튜브</title>
-  <link rel="stylesheet" href="assets/980302f24bce37b8e68e56fb/style.css">
-  <script type="module" src="assets/980302f24bce37b8e68e56fb/app.mjs"></script>
+  <link rel="stylesheet" href="assets/d66f9c6f65062c533e8f0007/style.css">
+  <script type="module" src="assets/d66f9c6f65062c533e8f0007/app.mjs"></script>
 </head>
 <body>
   <a class="skip" href="#main">본문으로 건너뛰기</a>
@@ -51,12 +51,11 @@
   <div id="storageNotice" class="notice" hidden role="status"></div>
 
   <main id="main" tabindex="-1">
-    <section id="evidenceStatus" class="evidence-status" aria-label="추천 근거 확인 상태" aria-live="polite"></section>
     <section id="watch" class="watch" hidden aria-label="재생 중인 영상"></section>
 
     <section class="library" aria-labelledby="libTitle">
-      <h1 id="libTitle" class="sr-only">영상 목록</h1>
-      <div class="controls">
+      <h1 id="libTitle">AI교양으로 고른 영상</h1>
+      <details class="browse-tools"><summary>필터 · 보관함</summary><div class="controls">
         <div class="shelves" role="group" aria-label="모아보기" id="shelves"></div>
         <div class="filters">
           <div class="chips" role="group" aria-label="분야" id="cats"></div>
@@ -76,6 +75,7 @@
         <p class="count" id="count" aria-live="polite"></p>
         <div class="rotation-tools row" aria-label="오늘의 추천"><span id="dailyTitle">오늘의 추천</span><a id="dailyLink" class="btn btn-ghost" href="#/">불러오는 중</a><button id="another" class="btn btn-ghost" type="button">다른 추천</button><label><input type="checkbox" id="exclude" checked> 열어 본 영상 제외</label><button id="showOpened" class="btn btn-ghost" hidden>열어 본 추천 다시 보기</button></div>
       </div>
+      </details>
       <div id="grid" class="grid" aria-busy="true">
         <p class="loading">목록을 불러오는 중입니다…</p>
       </div>
@@ -83,9 +83,13 @@
   </main>
 
   <footer class="foot">
+    <details class="source-details"><summary>출처·업데이트 정보</summary>
+    <section id="evidenceStatus" class="evidence-status" aria-label="추천 근거 확인 상태" aria-live="polite"></section>
+    <p id="learningFreshness"></p>
     <p id="provenance">데이터 정보를 불러오는 중입니다.</p>
     <p>나중에 볼 목록·즐겨찾기·열어 본 기록·직접 추가한 영상은 <strong>이 브라우저에만</strong> 저장됩니다. 로그인과 서버 기록은 없습니다.</p>
     <p class="keys">단축키: <kbd>/</kbd> 검색 · <kbd>T</kbd> TV 모드 · TV 모드에서 <kbd>←</kbd>/<kbd>→</kbd> 이전·다음, <kbd>S</kbd> 섞기, <kbd>K</kbd> 또는 <kbd>Space</kbd> 일시정지, <kbd>Esc</kbd> 닫기</p>
+    </details>
   </footer>
 
   <!-- TV 모드 -->
