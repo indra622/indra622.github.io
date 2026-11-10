@@ -1,0 +1,2916 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rust 소유권과 이동</title>
+<meta name="description" content="2주차 Rust 소유권(Ownership)과 이동(Move) 한 시간 스터디. Python 입문자를 위한 인터랙티브 슬라이드.">
+<style>
+/* Rust Ownership study deck. Tokens are documented in DESIGN.md. */
+:root {
+  --paper: #F6F1E7;
+  --paper-2: #EDE4D1;
+  --card: #FFFDF8;
+  --ink: #1E2328;
+  --ink-2: #4A515B;
+  --muted: #7C828C;
+  --line: #D6CAB2;
+  --code-bg: #1D2127;
+  --code-ink: #E8E4DA;
+  --code-dim: #7D8590;
+  --active: #F2B84B;
+  --valid: #1E7A4C;
+  --valid-bg: #E2F1E7;
+  --moved: #B45F16;
+  --moved-bg: #F8E7D3;
+  --error: #B42318;
+  --error-bg: #FBE4E0;
+  --heap: #2D5B8A;
+  --heap-bg: #E3ECF6;
+  --stack: #5A4A86;
+  --stack-bg: #ECE8F4;
+  --py: #2A6E73;
+  --py-bg: #E0F0EF;
+  --freed-bg: #EEEBE4;
+  --accent: #0F5E66;
+  --font: "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", "Noto Sans CJK KR", "Malgun Gothic", "맑은 고딕", system-ui, sans-serif;
+  --mono: "SF Mono", "Menlo", "D2Coding", "Consolas", "Noto Sans Mono", monospace;
+  --r: 14px;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 16px;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+button { font-family: inherit; }
+code, pre, .mono { font-family: var(--mono); }
+a { color: var(--accent); }
+:focus-visible { outline: 3px solid var(--active); outline-offset: 2px; }
+
+/* ---------- chrome ---------- */
+.bar-top, .bar-bottom {
+  position: fixed; left: 0; right: 0; z-index: 20;
+  display: flex; align-items: center; gap: 16px; padding: 0 20px;
+  background: var(--paper); border-color: var(--line);
+}
+.bar-top { top: 0; height: 48px; border-bottom: 1px solid var(--line); font-size: 15px; }
+.bar-bottom { bottom: 0; height: 56px; border-top: 1px solid var(--line); }
+.bar-top .brand { font-weight: 700; color: var(--accent); white-space: nowrap; }
+.bar-top #sec-name { color: var(--ink-2); white-space: nowrap; }
+.bar-top #slide-title { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#progress { position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; background: transparent; }
+#progress i { display: block; height: 100%; background: var(--accent); transition: width .3s; }
+.bar-bottom .grp { display: flex; align-items: center; gap: 8px; }
+.bar-bottom .spacer { flex: 1; }
+.cbtn {
+  border: 1px solid var(--line); background: var(--card); color: var(--ink);
+  border-radius: 10px; padding: 8px 14px; font-size: 15px; cursor: pointer; white-space: nowrap;
+}
+.cbtn:hover { border-color: var(--accent); }
+.cbtn:disabled { opacity: .4; cursor: default; }
+.cbtn.nav { font-weight: 700; min-width: 112px; }
+#counter { font-variant-numeric: tabular-nums; min-width: 64px; text-align: center; font-weight: 600; }
+.speed-l { font-size: 14px; color: var(--ink-2); display: flex; gap: 6px; align-items: center; }
+.speed-l select { font: inherit; padding: 4px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); }
+kbd { font-family: var(--mono); font-size: .85em; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: 1px 6px; background: var(--card); }
+
+#stage-wrap { position: fixed; top: 48px; bottom: 56px; left: 0; right: 0; overflow: hidden; }
+body.notes-open #stage-wrap { right: 420px; }
+body.cinema #stage-wrap { top: 0; bottom: 0; right: 0; }
+body.cinema .bar-top, body.cinema .bar-bottom, body.cinema #notes-panel { display: none; }
+#cinema-exit { display: none; }
+body.cinema #cinema-exit {
+  display: block; position: fixed; right: 10px; top: 10px; z-index: 30; opacity: 0; transition: opacity .2s;
+}
+body.cinema #cinema-exit:hover, body.cinema #cinema-exit:focus-visible { opacity: 1; }
+body.cinema .controls .ghost { display: none; }
+
+#stage { position: absolute; width: 1600px; height: 900px; transform-origin: 0 0; }
+
+/* ---------- slides ---------- */
+.slide { position: absolute; inset: 0; padding: 56px 72px 40px; display: flex; flex-direction: column; overflow: hidden; }
+.slide[hidden] { display: none !important; }
+.slide.active { animation: slidein .35s ease-out; }
+@keyframes slidein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.notes { display: none !important; }
+
+.kicker { font-size: 20px; font-weight: 700; letter-spacing: .02em; color: var(--accent); margin: 0 0 8px; }
+.slide h1 { font-size: 72px; line-height: 1.15; margin: 0; letter-spacing: -0.02em; }
+.slide h2 { font-size: 46px; line-height: 1.2; margin: 0 0 6px; letter-spacing: -0.01em; }
+.slide h3 { font-size: 28px; margin: 0 0 10px; }
+.lead { font-size: 26px; line-height: 1.55; color: var(--ink-2); margin: 6px 0 18px; max-width: 1300px; }
+.slide p { font-size: 24px; line-height: 1.55; }
+.small { font-size: 19px !important; color: var(--ink-2); }
+.foot { margin-top: auto; font-size: 18px; color: var(--ink-2); padding-top: 10px; }
+.foot b { color: var(--ink); }
+.term { font-weight: 700; border-bottom: 3px solid var(--active); }
+.row { display: flex; gap: 32px; }
+.grow { flex: 1; min-width: 0; }
+
+/* cover */
+.s-cover { justify-content: center; background:
+  radial-gradient(circle at 85% 30%, rgba(15,94,102,.10), transparent 40%),
+  radial-gradient(circle at 10% 90%, rgba(180,95,22,.10), transparent 40%); }
+.s-cover h1 { font-size: 88px; }
+.s-cover .q { font-size: 34px; color: var(--ink-2); margin: 24px 0 0; max-width: 700px; line-height: 1.45; }
+.cover-art { position: absolute; right: 56px; top: 50%; transform: translateY(-50%); width: 720px; height: auto; }
+
+/* chapter */
+.s-chapter { justify-content: center; background: var(--ink); color: var(--paper); }
+.s-chapter .kicker { color: var(--active); }
+.s-chapter h1 { font-size: 80px; }
+.s-chapter .lead { color: #CFC7B6; font-size: 30px; }
+.vs { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 40px; }
+.vs > div { border: 1px solid #3B424C; border-radius: var(--r); padding: 26px 30px; }
+.vs h3 { color: var(--paper); font-size: 30px; }
+.vs p { color: #CFC7B6; font-size: 24px; margin: 0; }
+.vs .py-side { border-color: #2E6B6F; }
+.vs .rs-side { border-color: #8A5A2A; }
+
+/* learning map */
+.map-svg { width: 100%; height: auto; }
+.map-svg .stop { cursor: pointer; }
+.map-svg .stop:hover circle, .map-svg .stop:focus circle { stroke-width: 6; }
+.goals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 8px; }
+.goal { border-top: 4px solid var(--accent); padding: 14px 4px 0; font-size: 22px; line-height: 1.45; }
+.goal b { display: block; font-size: 18px; color: var(--accent); margin-bottom: 4px; }
+
+/* vocab */
+.terms { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin: 4px 0 16px; }
+.tcard { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; transition: background .25s, border-color .25s; }
+.tcard h4 { margin: 0 0 4px; font-size: 22px; }
+.tcard h4 small { font-family: var(--mono); font-weight: 400; color: var(--ink-2); font-size: 15px; margin-left: 4px; }
+.tcard p { margin: 0; font-size: 17px; line-height: 1.45; color: var(--ink-2); }
+.tcard.lit { background: #FFF4DA; border-color: var(--active); box-shadow: 0 0 0 2px var(--active) inset; }
+
+/* rules */
+.rules { display: flex; flex-direction: column; gap: 12px; }
+.rule { display: flex; gap: 16px; align-items: flex-start; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; transition: all .25s; }
+.rule .rn { flex: none; width: 44px; height: 44px; border-radius: 50%; background: var(--paper-2); display: grid; place-items: center; font-weight: 800; font-size: 22px; }
+.rule p { margin: 0; font-size: 22px; line-height: 1.4; }
+.rule p small { display: block; font-size: 17px; color: var(--ink-2); margin-top: 2px; }
+.rule.lit { border-color: var(--active); background: #FFF4DA; }
+.rule.lit .rn { background: var(--active); }
+
+/* ---------- code ---------- */
+.code-head { display: flex; gap: 10px; align-items: center; padding: 8px 14px; background: #2A2F37; color: var(--code-ink); border-radius: 12px 12px 0 0; font-size: 15px; }
+.code-head .fname { font-family: var(--mono); color: #BFC5CE; }
+.code-head .cnote { margin-left: auto; color: #BFC5CE; }
+.code-head .badge { margin-left: auto; }
+.lang { font-weight: 700; padding: 2px 8px; border-radius: 6px; font-size: 13px; }
+.lang-rust { background: #F3C9A6; color: #5A2A00; }
+.lang-python { background: #BFE3E0; color: #0F3D40; }
+ol.code { list-style: none; margin: 0; padding: 10px 0; background: var(--code-bg); color: var(--code-ink); border-radius: 0 0 12px 12px; font-family: var(--mono); font-size: 23px; line-height: 1.5; counter-reset: none; overflow: hidden; }
+ol.code li { display: flex; padding: 0 14px 0 0; border-left: 5px solid transparent; transition: background .2s; white-space: pre; }
+ol.code .ln { width: 46px; flex: none; text-align: right; padding-right: 14px; color: var(--code-dim); user-select: none; }
+ol.code .lc { white-space: pre; }
+ol.code li.active { background: rgba(242,184,75,.22); border-left-color: var(--active); }
+ol.code li.active .ln { color: var(--active); font-weight: 700; }
+ol.code li.err { background: rgba(180,35,24,.35); border-left-color: #FF6B5E; }
+ol.code li.err .lc::after { content: "  ✕ 오류"; color: #FFB4AB; font-family: var(--font); font-size: 17px; font-weight: 700; }
+.tk-kw { color: #F2A65A; font-weight: 600; }
+.tk-ty { color: #8CC8FF; }
+.tk-str { color: #A8D98C; }
+.tk-num { color: #F0C674; }
+.tk-mac { color: #D7A6F5; }
+.tk-com { color: var(--code-dim); font-style: italic; }
+ol.code.clickable li { padding: 0; }
+.line-btn { all: unset; display: flex; width: 100%; cursor: pointer; padding-right: 14px; }
+.line-btn:hover { background: rgba(255,255,255,.06); }
+.line-btn[aria-pressed="true"] { background: rgba(242,184,75,.30); outline: 2px solid var(--active); outline-offset: -2px; }
+.line-btn[aria-pressed="true"] .ln::before { content: "▶"; color: var(--active); margin-right: 4px; }
+ol.code li.ans .line-btn { box-shadow: inset 6px 0 0 #6FD39A; }
+ol.code li.ans .lc::after { content: "  ← 이동"; color: #9FE3BA; font-family: var(--font); font-size: 17px; font-weight: 700; }
+ol.code li.wrongpick .lc::after { content: "  ✕ 이동 아님"; color: #FFB4AB; font-family: var(--font); font-size: 17px; font-weight: 700; }
+
+/* ---------- simulator ---------- */
+.sim { display: flex; flex-direction: column; gap: 12px; flex: 1; min-height: 0; }
+.sim-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); grid-template-rows: minmax(0, 1fr); gap: 22px; flex: 1; min-height: 0; }
+.sim.no-code .sim-grid { grid-template-columns: 1fr; }
+.sim-code { min-width: 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 10px; }
+.sim-code > ol.code { flex: none; }
+.err-slot:empty { display: none; }
+.sim-viz { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 8px 12px 10px; position: relative; min-width: 0; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+.viz-head { display: flex; justify-content: space-between; gap: 10px; align-items: center; font-size: 16px; color: var(--ink-2); font-weight: 600; padding: 2px 2px 4px; }
+.viz-body { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; }
+.viz-body svg { width: 100%; height: 100%; max-height: 100%; display: block; }
+.badge { font-size: 13px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.b-sim { background: var(--heap-bg); color: var(--heap); }
+.b-compile { background: var(--error-bg); color: var(--error); }
+.b-analogy { background: var(--paper-2); color: var(--ink-2); }
+.ev { position: absolute; right: 16px; bottom: 12px; background: var(--ink); color: var(--paper); font-weight: 700; font-size: 18px; padding: 6px 14px; border-radius: 999px; opacity: 0; transform: translateY(6px); transition: all .3s; }
+.ev.show { opacity: 1; transform: none; }
+.sim-foot { display: grid; grid-template-columns: 1fr 300px; grid-template-rows: auto auto; gap: 10px 20px; align-items: stretch; }
+.caption { font-size: 23px; line-height: 1.5; background: #FFF8E8; border-left: 6px solid var(--active); border-radius: 10px; padding: 10px 16px; min-height: 84px; }
+.cap-step { display: inline-block; font-size: 15px; font-weight: 800; background: var(--active); color: var(--ink); border-radius: 6px; padding: 1px 8px; margin-right: 6px; vertical-align: 3px; }
+.out { background: var(--code-bg); color: var(--code-ink); border-radius: 10px; padding: 8px 14px; min-height: 84px; }
+.out-h { font-size: 14px; color: #BFC5CE; margin-bottom: 2px; }
+.out-b { margin: 0; font-size: 21px; line-height: 1.35; white-space: pre-wrap; }
+.out-b.norun { color: #FFB4AB; font-family: var(--font); font-weight: 700; font-size: 19px; }
+.controls { grid-column: 1 / -1; display: flex; gap: 10px; align-items: center; }
+.controls button { font-size: 18px; padding: 9px 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); cursor: pointer; color: var(--ink); }
+.controls button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+.controls button.ghost { margin-left: auto; }
+.controls button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.controls button:disabled { opacity: .38; cursor: default; }
+.counter { font-size: 18px; font-weight: 700; min-width: 110px; text-align: center; font-variant-numeric: tabular-nums; }
+
+/* SVG memory model */
+svg.mem text { font-family: var(--font); fill: var(--ink); }
+.col-title { font-size: 22px; font-weight: 800; }
+.col-title.py { fill: var(--py) !important; }
+.col-sub { font-size: 14px; fill: var(--ink-2) !important; }
+.divider { stroke: var(--line); stroke-dasharray: 4 6; }
+.empty-note { font-size: 17px; fill: var(--muted) !important; }
+.empty-note.small { font-size: 14px; }
+.fbox { fill: var(--stack-bg); stroke: var(--stack); stroke-width: 1.5; }
+.frame.top .fbox { stroke-width: 2.5; }
+.f-title { font-size: 16px; font-weight: 800; fill: var(--stack) !important; font-family: var(--mono) !important; }
+.vbox { fill: #fff; stroke: var(--valid); stroke-width: 2; }
+.v-name { font-family: var(--mono) !important; font-size: 21px; font-weight: 700; }
+.v-st { font-size: 13px; font-weight: 700; fill: var(--valid) !important; }
+.vcell { fill: var(--paper); stroke: var(--line); }
+.vcell.ptr { fill: var(--heap-bg); stroke: var(--heap); }
+.ban { fill: var(--moved-bg); stroke: var(--moved); stroke-dasharray: 4 3; }
+.ban-t { font-size: 13px; font-weight: 800; fill: var(--moved) !important; }
+.vcell.refcell { fill: var(--stack-bg); stroke: var(--stack); }
+.v-lab { font-size: 11px; fill: var(--ink-2) !important; font-family: var(--mono) !important; }
+.v-val { font-size: 16px; font-weight: 700; font-family: var(--mono) !important; }
+.v-num { font-size: 22px; font-weight: 800; font-family: var(--mono) !important; }
+.v-ty { font-size: 13px; fill: var(--ink-2) !important; font-family: var(--mono) !important; }
+.mut-badge { fill: var(--moved-bg); stroke: var(--moved); }
+.mut-t { font-size: 13px; font-weight: 800; fill: var(--moved) !important; font-family: var(--mono) !important; }
+.strike { stroke: var(--moved); stroke-width: 2.5; }
+.var.st-moved .vbox { stroke: var(--moved); stroke-dasharray: 7 5; fill: var(--moved-bg); }
+.var.st-moved .v-st { fill: var(--moved) !important; }
+.var.st-moved .vcell, .var.st-moved .v-val, .var.st-moved .v-lab { opacity: .45; }
+.var.st-dropped .vbox, .var.st-gone .vbox { stroke: var(--muted); fill: var(--freed-bg); stroke-dasharray: 2 4; }
+.var.st-dropped .v-st, .var.st-gone .v-st { fill: var(--muted) !important; }
+.var.st-dropped .strike, .var.st-gone .strike { stroke: var(--muted); }
+.var.st-dropped .v-name, .var.st-gone .v-name, .var.st-dropped .v-val, .var.st-gone .v-num { fill: var(--muted) !important; }
+.var.st-pending .vbox { stroke: var(--line); stroke-dasharray: 3 3; }
+.var.st-pending .v-st { fill: var(--muted) !important; }
+.hbox { fill: var(--heap-bg); stroke: var(--heap); stroke-width: 2; }
+.hb-title { font-size: 15px; font-weight: 800; fill: var(--heap) !important; }
+.hb-cap { font-size: 14px; font-family: var(--mono) !important; fill: var(--heap) !important; }
+.hb-freed { font-size: 15px; font-weight: 800; fill: var(--muted) !important; }
+.hb-count { font-size: 15px; fill: var(--ink-2) !important; }
+.cell.filled { fill: #fff; stroke: var(--heap); }
+.cell.spare { fill: transparent; stroke: var(--heap); stroke-dasharray: 3 3; opacity: .7; }
+.cell-t { font-family: var(--mono) !important; font-size: 18px; font-weight: 700; }
+.hblock.st-freed .hbox { fill: url(#hatch); stroke: var(--muted); stroke-dasharray: 6 4; }
+.hblock.st-freed .hb-title, .hblock.st-freed .cell-t { fill: var(--muted) !important; }
+.hblock.st-freed .cell { stroke: var(--muted); opacity: .5; }
+.hblock.st-static .hbox { fill: var(--paper-2); stroke: var(--muted); stroke-dasharray: 5 4; }
+.hblock.st-static .hb-title { fill: var(--ink-2) !important; }
+.hblock.st-static .cell { stroke: var(--muted); }
+.arrow { fill: none; stroke-width: 3; }
+.arrow.heap { stroke: var(--heap); }
+.arrow.ro { stroke: var(--muted); stroke-dasharray: 6 4; }
+.arrow.ref { stroke: var(--stack); stroke-dasharray: 8 4; }
+.arrow.py { stroke: var(--py); }
+.nbox { fill: var(--py-bg); stroke: var(--py); stroke-width: 2; }
+.n-t { font-family: var(--mono) !important; font-size: 22px; font-weight: 800; fill: var(--py) !important; }
+.obox { fill: #fff; stroke: var(--py); stroke-width: 2; }
+.pobj.orphan .obox { stroke-dasharray: 6 4; stroke: var(--muted); }
+.o-title { font-size: 16px; font-weight: 800; fill: var(--py) !important; }
+.o-note { font-size: 14px; fill: var(--ink-2) !important; }
+.ocell { fill: var(--py-bg); stroke: var(--py); }
+.shelf { fill: var(--ink-2); }
+.plate-e { fill: #fff; stroke: var(--stack); stroke-width: 3; }
+.plate-in { fill: var(--stack-bg); }
+.plate-t { font-size: 22px; font-weight: 800; }
+.plate-top { font-size: 18px; font-weight: 700; fill: var(--accent) !important; }
+.act-box { fill: var(--ink); }
+.act-t { fill: var(--paper) !important; font-family: var(--mono) !important; font-size: 22px; font-weight: 700; }
+.flash { animation: flash .9s ease-out; }
+@keyframes flash { 0% { filter: drop-shadow(0 0 0 rgba(242,184,75,0)); } 30% { filter: drop-shadow(0 0 10px rgba(242,184,75,1)); } 100% { filter: drop-shadow(0 0 0 rgba(242,184,75,0)); } }
+tr.flash { animation: rowflash .9s ease-out; }
+@keyframes rowflash { 30% { background: #FFF0C9; } }
+
+/* compile ledger */
+.phases { display: flex; gap: 10px; align-items: center; margin: 4px 0 12px; font-size: 18px; font-weight: 700; }
+.ph { padding: 6px 14px; border-radius: 999px; border: 2px solid var(--line); }
+.ph.on { border-color: var(--active); background: #FFF4DA; }
+.ph.blocked { border-color: var(--error); background: var(--error-bg); color: var(--error); text-decoration: line-through; text-decoration-thickness: 2px; }
+.ph-arrow { color: var(--muted); }
+table.ledger { width: 100%; border-collapse: collapse; font-size: 19px; }
+table.ledger caption { text-align: left; font-size: 15px; color: var(--ink-2); padding-bottom: 6px; font-weight: 700; }
+table.ledger th { text-align: left; background: var(--paper-2); font-size: 15px; padding: 6px 10px; }
+table.ledger td { padding: 9px 10px; border-bottom: 1px solid var(--line); }
+table.ledger td.empty { color: var(--muted); }
+.chip { font-weight: 800; font-size: 16px; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.c-owner { background: var(--valid-bg); color: var(--valid); }
+.c-moved { background: var(--moved-bg); color: var(--moved); border: 2px dashed var(--moved); }
+.c-error { background: var(--error-bg); color: var(--error); border: 2px solid var(--error); }
+.rustc { border: 2px solid var(--error); border-radius: 10px; overflow: hidden; }
+.rustc-h { background: var(--error); color: #fff; font-weight: 700; font-size: 15px; padding: 5px 12px; }
+.rustc pre { margin: 0; padding: 10px 12px; background: #2B1715; color: #FFD9D3; font-size: 14.5px; line-height: 1.38; white-space: pre; overflow: hidden; }
+
+/* ---------- quizzes ---------- */
+.quiz { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+.quiz-h { display: flex; gap: 12px; align-items: baseline; }
+.qlabel { flex: none; font-weight: 800; color: #fff; background: var(--accent); border-radius: 8px; padding: 3px 10px; font-size: 17px; }
+.qtext { font-size: 22px; font-weight: 700; line-height: 1.4; }
+.choices { display: flex; flex-direction: column; gap: 8px; }
+.choice { text-align: left; display: flex; gap: 12px; align-items: center; font-size: 20px; line-height: 1.35; padding: 10px 14px; border: 2px solid var(--line); border-radius: 10px; background: #fff; cursor: pointer; color: var(--ink); }
+.choice:hover:not(:disabled) { border-color: var(--accent); }
+.choice .ck { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--paper-2); font-weight: 800; font-size: 16px; }
+.choice:disabled { cursor: default; }
+.choice.right { border-color: var(--valid); background: var(--valid-bg); }
+.choice.right .ck::after { content: "✓"; }
+.choice.wrong { border-color: var(--error); background: var(--error-bg); }
+.choice.neutral { border-color: var(--muted); background: var(--paper-2); }
+.choice.picked { box-shadow: 0 0 0 3px var(--ink) inset; }
+.quiz-f { display: flex; gap: 14px; align-items: center; }
+.feedback { flex: 1; font-size: 19px; line-height: 1.45; min-height: 28px; }
+.fb-ok { color: var(--valid); }
+.fb-no { color: var(--error); }
+.fb-ans { display: inline-block; margin-left: 6px; font-weight: 700; }
+.qreset, .grade { font-size: 17px; padding: 8px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--paper); cursor: pointer; white-space: nowrap; color: var(--ink); }
+.grade { align-self: flex-start; background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 700; }
+.sort { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 22px; }
+.srow { display: grid; grid-template-columns: 130px auto; grid-template-rows: auto auto; align-items: center; gap: 2px 10px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--line); background: #fff; }
+.srow code { font-size: 20px; font-weight: 700; }
+.srow .smark { grid-column: 1 / -1; font-size: 16px; color: var(--ink-2); min-height: 0; }
+.srow.right { border-color: var(--valid); background: var(--valid-bg); }
+.srow.wrong { border-color: var(--error); background: var(--error-bg); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.seg button { font-size: 17px; padding: 6px 12px; border: 0; background: #fff; cursor: pointer; color: var(--ink); }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); font-weight: 700; }
+.seg button.picked.right { background: var(--valid); color: #fff; }
+.seg button.picked.wrong { background: var(--error); color: #fff; }
+.fix-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.fix-left ol.code, .fix-res ol.code, .cp ol.code { font-size: 18px; }
+.res { margin-top: 8px; border-radius: 10px; padding: 8px 12px; font-size: 16px; }
+.res pre { margin: 4px 0 0; font-size: 14.5px; line-height: 1.38; white-space: pre; overflow: hidden; }
+.res-ok { background: var(--valid-bg); border: 2px solid var(--valid); }
+.res-ok b { color: var(--valid); }
+.res-err { background: var(--error-bg); border: 2px solid var(--error); }
+.res-err b { color: var(--error); }
+.res-later { background: var(--paper-2); border: 2px dashed var(--muted); }
+.fix-right .choice { font-size: 17px; padding: 8px 12px; }
+.fix-res { margin-top: 10px; }
+.cp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.cp .choice { margin-top: 8px; width: 100%; font-size: 18px; }
+.cp .why { font-size: 16px !important; margin: 6px 0 0; }
+.lines-grid { display: grid; grid-template-columns: 1fr 520px; gap: 20px; align-items: start; }
+.lines-wrap ol.code { font-size: 20px; }
+.lines-side { display: flex; flex-direction: column; gap: 12px; }
+.line-why { font-size: 18px; color: var(--ink-2); display: flex; flex-direction: column; gap: 6px; }
+.tf { display: flex; flex-direction: column; gap: 8px; }
+.tfrow { display: grid; grid-template-columns: 1fr auto; gap: 4px 14px; align-items: center; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.tft { font-size: 19px; }
+.tfwhy { grid-column: 1 / -1; font-size: 16px; color: var(--ink-2); }
+.tfrow[data-state="correct"] { border-color: var(--valid); background: var(--valid-bg); }
+.tfrow[data-state="wrong"] { border-color: var(--error); background: var(--error-bg); }
+
+/* cost calculator */
+.costcalc { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+.cost-ops { display: flex; gap: 10px; }
+.cost-ops button { flex: 1; text-align: left; border: 2px solid var(--line); border-radius: 10px; background: #fff; padding: 8px 12px; cursor: pointer; font-size: 17px; color: var(--ink); }
+.cost-ops button b { display: block; font-size: 20px; }
+.cost-ops button code { font-size: 15px; color: var(--ink-2); }
+.cost-ops button[aria-checked="true"] { border-color: var(--accent); background: #E4F1F1; box-shadow: 0 0 0 2px var(--accent) inset; }
+.cost-size { font-size: 19px; display: flex; gap: 12px; align-items: center; }
+.cost-size.dim { opacity: .45; }
+.cost-size output { font-family: var(--mono); font-weight: 800; min-width: 110px; }
+.cost-range { flex: 1; accent-color: var(--accent); }
+.bars { display: flex; flex-direction: column; gap: 8px; }
+.bar { display: grid; grid-template-columns: 170px 1fr 220px; gap: 12px; align-items: center; font-size: 18px; }
+.bt { height: 22px; background: var(--paper-2); border-radius: 6px; overflow: hidden; }
+.bt.plain { background: none; }
+.bf { display: block; height: 100%; background: var(--heap); width: 0; transition: width .3s; }
+.b1 { background: var(--stack); }
+.b3 { background: var(--moved); }
+.bv { font-family: var(--mono); font-weight: 700; font-size: 17px; }
+.cost-note { font-size: 15px !important; color: var(--ink-2); margin: 0; }
+
+/* tables and misc */
+table.cmp { width: 100%; border-collapse: collapse; font-size: 19px; background: var(--card); border-radius: 12px; overflow: hidden; }
+table.cmp th, table.cmp td { padding: 9px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+table.cmp th { background: var(--paper-2); font-size: 17px; }
+table.cmp td:first-child { font-weight: 700; white-space: nowrap; }
+.fn { font-size: 16px !important; color: var(--ink-2); border-top: 1px solid var(--line); padding-top: 8px; margin: 8px 0 0; line-height: 1.45 !important; }
+.callout { border-left: 6px solid var(--accent); background: #E9F3F2; border-radius: 10px; padding: 12px 18px; font-size: 21px; line-height: 1.5; }
+.callout.warn { border-color: var(--moved); background: var(--moved-bg); }
+.callout.err { border-color: var(--error); background: var(--error-bg); }
+.next-tag { display: inline-block; background: var(--stack); color: #fff; font-weight: 800; border-radius: 8px; padding: 3px 10px; font-size: 17px; }
+details.disc { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 16px; font-size: 21px; }
+details.disc summary { cursor: pointer; font-weight: 700; }
+details.disc p { font-size: 19px; margin: 8px 0 2px; color: var(--ink-2); }
+.refs { font-size: 17px; line-height: 1.6; margin: 0; padding-left: 20px; }
+.refs a { word-break: break-all; }
+.summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.sum { background: var(--card); border: 1px solid var(--line); border-top: 6px solid var(--accent); border-radius: 12px; padding: 12px 16px; }
+.sum h4 { margin: 0 0 4px; font-size: 22px; }
+.sum p { margin: 0; font-size: 18px; line-height: 1.45; }
+.sum.m { border-top-color: var(--moved); }
+.sum.c { border-top-color: var(--valid); }
+.sum.p { border-top-color: var(--py); }
+
+/* ---------- side panels and overlays ---------- */
+#notes-panel { position: fixed; top: 48px; bottom: 56px; right: 0; width: 420px; background: var(--card); border-left: 1px solid var(--line); z-index: 15; display: flex; flex-direction: column; }
+#notes-panel[hidden] { display: none; }
+#notes-panel header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+#notes-panel header h2 { font-size: 18px; margin: 0; }
+#notes-time { font-size: 14px; color: var(--accent); font-weight: 700; padding: 8px 16px 0; }
+#notes-body { padding: 4px 16px 20px; overflow: auto; font-size: 16px; line-height: 1.6; }
+#notes-body h4 { margin: 14px 0 4px; font-size: 15px; color: var(--accent); }
+#notes-body ul { padding-left: 18px; margin: 4px 0; }
+.overlay { position: fixed; inset: 0; background: rgba(30,35,40,.55); z-index: 40; display: grid; place-items: center; }
+.overlay[hidden] { display: none; }
+.overlay .box { background: var(--paper); border-radius: 16px; padding: 22px 28px; width: min(900px, 92vw); max-height: 86vh; overflow: auto; box-shadow: 0 20px 60px rgba(0,0,0,.25); }
+.overlay .box header { display: flex; justify-content: space-between; align-items: center; }
+.overlay h2 { margin: 0; font-size: 24px; }
+#index-list { columns: 2; column-gap: 32px; }
+#index-list h3 { font-size: 15px; color: var(--accent); margin: 12px 0 4px; break-after: avoid; }
+#index-list ol { list-style: none; padding: 0; margin: 0; break-inside: avoid; }
+#index-list a { display: flex; gap: 8px; padding: 4px 6px; border-radius: 6px; text-decoration: none; color: var(--ink); font-size: 15px; }
+#index-list a:hover, #index-list a.cur { background: var(--paper-2); }
+#index-list a.cur { font-weight: 700; }
+.ix-n { width: 24px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.ix-m { margin-left: auto; color: var(--ink-2); font-size: 13px; }
+.keys { display: grid; grid-template-columns: auto 1fr; gap: 6px 18px; font-size: 16px; }
+
+/* ---------- reading mode (narrow screens) ---------- */
+body.reading { overflow: auto; }
+body.reading #stage-wrap { position: static; padding: 56px 0 72px; overflow: visible; }
+body.reading.notes-open #stage-wrap { right: 0; }
+body.reading #stage { position: static; width: auto; height: auto; transform: none !important; }
+body.reading .slide { position: static; padding: 20px 16px 28px; overflow: visible; }
+body.reading .slide h1 { font-size: 40px; }
+body.reading .s-cover h1 { font-size: 44px; }
+body.reading .slide h2 { font-size: 30px; }
+body.reading .lead, body.reading .slide p, body.reading .s-cover .q { font-size: 18px; }
+body.reading .row, body.reading .sim-grid, body.reading .sim-foot, body.reading .fix-grid, body.reading .cp-grid, body.reading .vs, body.reading .sort, body.reading .line-why { display: flex; flex-direction: column; gap: 12px; }
+body.reading .terms, body.reading .goals, body.reading .summary-grid { grid-template-columns: 1fr 1fr; }
+body.reading ol.code { font-size: 14px; overflow-x: auto; }
+body.reading .caption { font-size: 17px; }
+body.reading .controls { flex-wrap: wrap; }
+body.reading .controls button { font-size: 15px; padding: 8px 10px; }
+body.reading .controls button.ghost { margin-left: 0; }
+body.reading .cover-art { position: static; width: 100%; transform: none; margin-top: 20px; }
+body.reading .bar { grid-template-columns: 1fr; gap: 4px; }
+body.reading .cost-ops { flex-direction: column; }
+body.reading .rustc pre, body.reading .res pre { font-size: 11px; overflow-x: auto; }
+body.reading .bar-top { font-size: 13px; gap: 8px; padding: 0 10px; }
+body.reading .bar-top .brand, body.reading .bar-top #sec-name { display: none; }
+body.reading .bar-bottom { gap: 6px; padding: 0 8px; }
+body.reading .bar-bottom .opt, body.reading .speed-l { display: none; }
+body.reading .cbtn.nav { min-width: 0; }
+body.reading #notes-panel { top: auto; bottom: 56px; left: 0; width: auto; height: 55vh; border-left: 0; border-top: 1px solid var(--line); }
+body.reading .ev { position: static; margin-top: 6px; align-self: flex-start; }
+body.reading .ev:not(.show) { display: none; }
+body.reading table.cmp { font-size: 14px; }
+body.reading table.cmp td:first-child { white-space: normal; }
+body.reading .srow { grid-template-columns: 1fr; }
+body.reading #index-list { columns: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* tabs, compact and mini code */
+.tabs { display: flex; gap: 8px; margin: 2px 0 12px; }
+.tabs [role="tab"] { font-size: 19px; font-weight: 700; padding: 8px 18px; border-radius: 10px 10px 0 0; border: 1px solid var(--line); border-bottom: 3px solid var(--line); background: var(--paper-2); cursor: pointer; color: var(--ink-2); }
+.tabs [role="tab"][aria-selected="true"] { background: var(--card); color: var(--ink); border-bottom-color: var(--accent); }
+.tabpanel { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.tabpanel[hidden] { display: none; }
+.sim.compact ol.code { font-size: 19px; }
+.mini ol.code { font-size: 15px; padding: 6px 0; }
+.mini .code-head { font-size: 13px; padding: 5px 10px; }
+.mini ol.code .ln { width: 34px; padding-right: 10px; }
+
+/* compile sims: smaller code so the real rustc message fits under it */
+.sim.k-compile ol.code { font-size: 20px; padding: 6px 0; }
+.sim.k-compile .viz-body { justify-content: flex-start; padding-top: 8px; }
+.sim.k-compile .rustc pre { font-size: 13px; line-height: 1.32; }
+body.dark #stage-wrap { background: var(--ink); }
+.takeaway { margin-top: auto; display: flex; gap: 24px; align-items: center; background: var(--ink); color: var(--paper); border-radius: 14px; padding: 18px 26px; }
+.takeaway p { margin: 0; font-size: 26px !important; line-height: 1.4; flex: 1; }
+.takeaway .next-tag { font-size: 18px; flex: none; }
+
+.sim.wide-code .sim-grid { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); }
+.sim.wide-code ol.code { font-size: 19px; }
+.rules.horizontal { flex-direction: row; margin-bottom: 14px; }
+.rules.horizontal .rule { flex: 1; padding: 10px 16px; }
+.h-note { font-size: 17px; font-weight: 400; color: var(--ink-2); margin-left: 12px; letter-spacing: 0; }
+body.reading .rules.horizontal { flex-direction: column; }
+body.reading .lines-grid { display: flex; flex-direction: column; }
+/* narrow screens: wrap long code instead of scrolling sideways */
+body.reading ol.code { overflow-x: hidden; }
+body.reading ol.code li, body.reading ol.code .lc { white-space: pre-wrap; word-break: break-all; }
+body.reading .rustc pre, body.reading .res pre { white-space: pre-wrap; word-break: break-all; overflow-x: hidden; }
+body.reading .row > * { width: auto !important; flex: 1 1 auto !important; min-width: 0; }
+body.reading .tabs { flex-wrap: wrap; }
+body.reading .tabs [role="tab"] { font-size: 15px; padding: 6px 10px; }
+/* fix panels: keep chosen code compact so the result stays on the slide */
+.fix-left ol.code { font-size: 17px; line-height: 1.4; }
+.fix-res ol.code { font-size: 15px; line-height: 1.35; padding: 4px 0; }
+.fix-res .code-head { font-size: 13px; padding: 4px 10px; }
+.fix-res .res { margin-top: 6px; }
+.fix-right .choices { gap: 6px; }
+
+/* ---------- v02: memory direction legend, TOS, animated scene ---------- */
+.axis { stroke: var(--ink-2); stroke-width: 2; }
+.axis-t { font-size: 13px; fill: var(--ink-2) !important; font-weight: 700; }
+.axis-t.grow { fill: var(--stack) !important; }
+.tos-line { stroke: var(--stack); stroke-width: 2.5; stroke-dasharray: 8 5; }
+.tos-t { font-family: var(--mono) !important; font-size: 15px; font-weight: 800; fill: var(--stack) !important; }
+.tos-s { font-size: 12px; fill: var(--stack) !important; font-weight: 700; }
+.hbox.hb-live { fill: var(--heap-bg); stroke: var(--heap); stroke-width: 2; }
+.hbox.hb-freed { fill: var(--freed-bg); stroke: var(--muted); stroke-dasharray: 6 4; stroke-width: 2; }
+.hbox.hb-static { fill: var(--paper-2); stroke: var(--muted); stroke-dasharray: 5 4; stroke-width: 2; }
+.hfreed { fill: url(#hatch); pointer-events: none; }
+.hb-owner { font-size: 14px; font-weight: 800; fill: var(--valid) !important; }
+.cellg.freed .cell { stroke: var(--muted); opacity: .5; }
+.cellg.freed .cell-t { fill: var(--muted) !important; }
+.ph-box { fill: var(--card); stroke: var(--line); stroke-width: 2; }
+.ph-box.on { fill: #FFF4DA; stroke: var(--active); }
+.ph-box.blocked { fill: var(--error-bg); stroke: var(--error); }
+.ph-t { font-size: 17px; font-weight: 800; }
+.ph-t.blocked { fill: var(--error) !important; }
+.ph-strike { stroke: var(--error); stroke-width: 2.5; }
+.ph-arrow { font-size: 22px; fill: var(--muted) !important; }
+.l-cap { font-size: 15px; font-weight: 700; fill: var(--ink-2) !important; }
+.l-head { fill: var(--paper-2); }
+.l-h { font-size: 15px; font-weight: 700; }
+.l-row { fill: var(--card); stroke: var(--line); stroke-width: 1; }
+.lr.st-error .l-row { fill: #FFF1EE; }
+.l-name, .l-ty { font-family: var(--mono) !important; font-size: 19px; }
+.l-note { font-size: 16px; }
+.chipr.c-owner { fill: var(--valid-bg); }
+.chipr.c-moved { fill: var(--moved-bg); stroke: var(--moved); stroke-width: 2; stroke-dasharray: 5 3; }
+.chipr.c-error { fill: var(--error-bg); stroke: var(--error); stroke-width: 2; }
+.chip-t { font-size: 15px; font-weight: 800; }
+.chip-t.c-owner { fill: var(--valid) !important; }
+.chip-t.c-moved { fill: var(--moved) !important; }
+.chip-t.c-error { fill: var(--error) !important; }
+.rustc { animation: fadein .5s ease-out; }
+@keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.viz-legend { font-size: 13px; color: var(--ink-2); font-weight: 400; }
+
+/* ---------- v03: observation evidence panel (slide 7) ---------- */
+.evidence { position: absolute; top: 58px; right: 72px; z-index: 6; max-width: 820px; }
+.evidence > summary { list-style: none; cursor: pointer; font-size: 17px; font-weight: 700; color: var(--heap); background: var(--heap-bg); border: 1.5px solid var(--heap); border-radius: 999px; padding: 6px 16px; float: right; }
+.evidence > summary::-webkit-details-marker { display: none; }
+.evidence[open] > summary { background: var(--heap); color: #fff; }
+.ev-panel { clear: both; margin-top: 8px; background: var(--card); border: 1.5px solid var(--heap); border-radius: 14px; padding: 14px 18px; box-shadow: 0 12px 40px rgba(30,35,40,.18); width: 820px; }
+.ev-panel p { font-size: 17px !important; line-height: 1.5 !important; margin: 0 0 10px; }
+.ev-grid { display: grid; grid-template-columns: 1fr 300px; gap: 14px; margin-bottom: 10px; }
+.ev-h { font-size: 14px; font-weight: 700; color: var(--ink-2); margin-bottom: 4px; }
+.ev-out, .ev-tool pre { margin: 0; background: var(--code-bg); color: var(--code-ink); border-radius: 10px; padding: 8px 12px; font-size: 14px; line-height: 1.4; white-space: pre; }
+.ev-tool summary { cursor: pointer; font-size: 15px; color: var(--ink-2); }
+.ev-tool pre { margin-top: 6px; font-size: 12.5px; }
+.res-miss { background: #FFF6E6; border-color: var(--moved); }
+.res-miss .miss { color: var(--error); }
+body.reading .evidence { position: static; max-width: none; margin-bottom: 10px; }
+body.reading .evidence > summary { float: none; display: inline-block; }
+body.reading .ev-panel { width: auto; }
+body.reading .ev-grid { grid-template-columns: 1fr; }
+body.reading .ev-out, body.reading .ev-tool pre { white-space: pre-wrap; word-break: break-all; }
+.evidence { width: 820px; pointer-events: none; }
+.evidence > summary, .evidence .ev-panel { pointer-events: auto; }
+.ev-panel { width: auto; }
+body.reading .evidence { width: auto; pointer-events: auto; }
+.ev-grid { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.ev-panel { margin-top: 30px; }
+
+/* ---------- v04: cover illustration ---------- */
+.cover-art text { font-family: var(--font); fill: var(--ink); }
+.cover-art .cv-mono, .cover-art .cv-code, .cover-art .cv-cells text { font-family: var(--mono); }
+.cv-col { font-size: 24px; font-weight: 800; }
+.cv-stack { fill: var(--stack) !important; }
+.cv-heap { fill: var(--heap) !important; }
+.cv-sub { font-size: 15px; fill: var(--ink-2) !important; }
+.cv-frame { font-size: 16px; font-weight: 800; fill: var(--stack) !important; }
+.cv-name { font-size: 34px; font-weight: 800; }
+.cv-moved { fill: var(--moved) !important; }
+.cv-ok { font-size: 16px; font-weight: 800; fill: var(--valid) !important; }
+.cv-moved-t { font-size: 15px; font-weight: 800; fill: var(--moved) !important; }
+.cv-lab { font-size: 12px; fill: var(--ink-2) !important; }
+.cv-x { font-size: 18px; font-weight: 800; fill: var(--error) !important; }
+.cv-move-t { font-size: 14px; font-weight: 800; fill: #8A5A10 !important; }
+.cv-hb { font-size: 17px; font-weight: 800; fill: var(--heap) !important; }
+.cv-hb.sm { font-size: 15px; }
+.cv-owner { font-size: 14px; font-weight: 800; fill: var(--valid) !important; }
+.cv-owner.sm { font-size: 12.5px; }
+.cv-cells rect { fill: var(--heap-bg); stroke: var(--heap); stroke-width: 2; }
+.cv-cells text { font-size: 28px; font-weight: 800; }
+.cv-cells.sm rect { fill: #F2F6FB; stroke-width: 1.5; }
+.cv-cells.sm text { font-size: 22px; fill: var(--ink-2) !important; }
+.cv-copy { font-size: 14px; font-weight: 700; fill: var(--heap) !important; }
+.cv-code { font-size: 21px; fill: var(--code-ink) !important; }
+.cv-code .kw { fill: #F2A65A; font-weight: 700; }
+.cv-code .fn { fill: #8CC8FF; }
+.cv-note { font-size: 15px; font-weight: 800; }
+.cv-note.move { fill: var(--active) !important; }
+.cv-note.copy { fill: #8CC8FF !important; }
+/* one-time entrance: the owner key rises from s1 to s2 (off with reduced motion) */
+.slide.active .cv-key { animation: cvkey 1.3s .35s cubic-bezier(.3,.7,.2,1) both; }
+.slide.active .cv-trail { animation: cvtrail 1.3s .35s ease-out both; }
+@keyframes cvkey { from { transform: translate(0, 104px); } to { transform: none; } }
+@keyframes cvtrail { from { opacity: 0; } }
+
+</style>
+</head>
+<body>
+<header class="bar-top">
+  <span class="brand">Rust 2주차</span>
+  <span id="sec-name"></span>
+  <span id="slide-title"></span>
+  <div id="progress"><i></i></div>
+</header>
+
+<main id="stage-wrap">
+<div id="stage">
+
+<!-- 1 -->
+<section class="slide s-cover" data-title="표지: 이 값의 주인은 누구?" data-section="A 시작" data-min="1">
+  <p class="kicker">Rust 스터디 2주차</p>
+  <h1>소유권과 이동</h1>
+  <p class="q">Rust는 왜 "이 값의 주인이 누구인가"를<br>코드에 드러나게 관리할까?</p>
+  <svg class="cover-art" viewBox="0 0 720 600" role="img" aria-label="표지 그림: 힙의 hello 버퍼는 제자리에 있고, 주인 열쇠가 s1에서 s2로 옮겨 간다. s1은 이동되어 쓸 수 없다. clone은 새 버퍼를 따로 만든다.">
+    <defs>
+      <radialGradient id="cv-glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#F2B84B" stop-opacity=".42"/><stop offset=".55" stop-color="#F2B84B" stop-opacity=".12"/><stop offset="1" stop-color="#F2B84B" stop-opacity="0"/></radialGradient>
+      <pattern id="cv-dots" width="18" height="18" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.4" fill="#2D5B8A" opacity=".18"/></pattern>
+      <filter id="cv-shadow" x="-10%" y="-10%" width="120%" height="140%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#1E2328" flood-opacity=".14"/></filter>
+      <marker id="cv-ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2D5B8A"/></marker>
+      <marker id="cv-ah2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2D5B8A" opacity=".7"/></marker>
+    </defs>
+    <!-- backdrop: one memory card, stack on the left, heap on the right -->
+    <rect x="2" y="2" width="716" height="596" rx="28" fill="#FFFDF8" stroke="#D6CAB2" stroke-width="2"/>
+    <rect x="336" y="24" width="362" height="458" rx="20" fill="#E3ECF6" opacity=".45"/>
+    <rect x="336" y="24" width="362" height="458" rx="20" fill="url(#cv-dots)"/>
+    <text x="40" y="62" class="cv-col cv-stack">스택</text><text x="96" y="62" class="cv-sub">함수의 칸 (새 칸이 위)</text>
+    <text x="356" y="62" class="cv-col cv-heap">힙</text><text x="388" y="62" class="cv-sub">동적으로 할당한 버퍼</text>
+
+    <!-- stack: main frame, s2 (newer, above) owns; s1 (older, below) was moved -->
+    <rect x="32" y="150" width="276" height="252" rx="16" fill="#ECE8F4" stroke="#5A4A86" stroke-width="2"/>
+    <text x="48" y="178" class="cv-mono cv-frame">main</text>
+    <g filter="url(#cv-shadow)">
+      <rect x="48" y="196" width="244" height="84" rx="12" fill="#FFFFFF" stroke="#1E7A4C" stroke-width="3"/>
+    </g>
+    <text x="68" y="247" class="cv-mono cv-name">s2</text>
+    <text x="68" y="269" class="cv-ok">✓ 주인</text>
+    <rect x="200" y="214" width="76" height="48" rx="8" fill="#E3ECF6" stroke="#2D5B8A" stroke-width="2"/>
+    <text x="210" y="231" class="cv-mono cv-lab">ptr</text><circle cx="256" cy="243" r="6" fill="#2D5B8A"/>
+
+    <rect x="48" y="300" width="244" height="84" rx="12" fill="#F8E7D3" stroke="#B45F16" stroke-width="2.5" stroke-dasharray="8 6"/>
+    <text x="68" y="350" class="cv-mono cv-name cv-moved">s1</text>
+    <line x1="64" y1="340" x2="106" y2="340" stroke="#B45F16" stroke-width="3"/>
+    <text x="68" y="372" class="cv-moved-t">→ 이동됨, 사용 금지</text>
+    <g opacity=".35"><rect x="200" y="318" width="76" height="48" rx="8" fill="#FFFFFF" stroke="#7C828C" stroke-width="2" stroke-dasharray="4 3"/><text x="210" y="335" class="cv-mono cv-lab">ptr</text></g>
+    <!-- the old pointer no longer counts -->
+    <path d="M276,342 C306,342 312,326 326,312" fill="none" stroke="#7C828C" stroke-width="2.5" stroke-dasharray="5 5" opacity=".7"/>
+    <text x="324" y="316" class="cv-x">✕</text>
+
+    <!-- ownership key travels from s1 up to s2 -->
+    <path d="M44,334 C6,310 4,238 30,212" fill="none" stroke="#F2B84B" stroke-width="3.5" stroke-dasharray="2 8" stroke-linecap="round"/>
+    <circle cx="24" cy="300" r="4" fill="#F2B84B" opacity=".45" class="cv-trail"/>
+    <circle cx="16" cy="268" r="4.5" fill="#F2B84B" opacity=".7" class="cv-trail"/>
+    <text x="116" y="294" class="cv-move-t">↑ 소유권만 이동</text>
+    <g class="cv-key">
+      <g transform="translate(10,182)">
+        <circle cx="18" cy="18" r="16" fill="#F2B84B" stroke="#8A5A10" stroke-width="2.5"/>
+        <circle cx="18" cy="18" r="5.5" fill="#FFFDF8" stroke="#8A5A10" stroke-width="1.5"/>
+        <rect x="32" y="14" width="46" height="9" rx="3" fill="#F2B84B" stroke="#8A5A10" stroke-width="2"/>
+        <rect x="60" y="22" width="7" height="11" rx="1.5" fill="#F2B84B" stroke="#8A5A10" stroke-width="2"/>
+        <rect x="70" y="22" width="7" height="8" rx="1.5" fill="#F2B84B" stroke="#8A5A10" stroke-width="2"/>
+      </g>
+    </g>
+
+    <!-- focal: heap buffer #1 stays where it is -->
+    <ellipse cx="518" cy="252" rx="200" ry="140" fill="url(#cv-glow)"/>
+    <g filter="url(#cv-shadow)">
+      <rect x="360" y="192" width="318" height="122" rx="18" fill="#FFFFFF" stroke="#2D5B8A" stroke-width="3.5"/>
+    </g>
+    <text x="380" y="223" class="cv-hb">할당 #1  String</text>
+    <rect x="588" y="204" width="76" height="28" rx="14" fill="#E2F1E7" stroke="#1E7A4C" stroke-width="1.5"/>
+    <text x="626" y="223" text-anchor="middle" class="cv-owner">주인: s2</text>
+    <g class="cv-cells">
+      <rect x="380" y="240" width="48" height="48" rx="9"/><text x="404" y="273" text-anchor="middle">h</text>
+      <rect x="436" y="240" width="48" height="48" rx="9"/><text x="460" y="273" text-anchor="middle">e</text>
+      <rect x="492" y="240" width="48" height="48" rx="9"/><text x="516" y="273" text-anchor="middle">l</text>
+      <rect x="548" y="240" width="48" height="48" rx="9"/><text x="572" y="273" text-anchor="middle">l</text>
+      <rect x="604" y="240" width="48" height="48" rx="9"/><text x="628" y="273" text-anchor="middle">o</text>
+    </g>
+    <text x="380" y="306" class="cv-sub">바이트는 그대로, 복사 없음</text>
+    <path d="M276,238 C316,238 322,262 356,262" fill="none" stroke="#2D5B8A" stroke-width="4.5" marker-end="url(#cv-ah)"/>
+
+    <!-- clone: a second, independent buffer -->
+    <path d="M520,316 C520,340 548,346 548,366" fill="none" stroke="#2D5B8A" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#cv-ah2)" opacity=".8"/>
+    <text x="560" y="350" class="cv-copy">.clone() = 새 버퍼로 복사</text>
+    <rect x="410" y="372" width="268" height="98" rx="16" fill="#FFFDF8" stroke="#2D5B8A" stroke-width="2"/>
+    <text x="428" y="398" class="cv-hb sm">할당 #2</text>
+    <rect x="600" y="383" width="64" height="24" rx="12" fill="#E2F1E7" stroke="#1E7A4C" stroke-width="1.2"/>
+    <text x="632" y="400" text-anchor="middle" class="cv-owner sm">주인: t</text>
+    <g class="cv-cells sm">
+      <rect x="428" y="414" width="40" height="40" rx="7"/><text x="448" y="441" text-anchor="middle">h</text>
+      <rect x="474" y="414" width="40" height="40" rx="7"/><text x="494" y="441" text-anchor="middle">e</text>
+      <rect x="520" y="414" width="40" height="40" rx="7"/><text x="540" y="441" text-anchor="middle">l</text>
+      <rect x="566" y="414" width="40" height="40" rx="7"/><text x="586" y="441" text-anchor="middle">l</text>
+      <rect x="612" y="414" width="40" height="40" rx="7"/><text x="632" y="441" text-anchor="middle">o</text>
+    </g>
+
+    <!-- the two lines of code behind the picture -->
+    <rect x="24" y="500" width="672" height="78" rx="16" fill="#1D2127"/>
+    <text x="48" y="533" class="cv-code"><tspan class="kw">let</tspan> s2 = s1;</text>
+    <text x="48" y="563" class="cv-code"><tspan class="kw">let</tspan> t = s2.<tspan class="fn">clone</tspan>();</text>
+    <text x="672" y="533" text-anchor="end" class="cv-note move">이동: 주인만 바뀜</text>
+    <text x="672" y="563" text-anchor="end" class="cv-note copy">복제: 새 할당</text>
+  </svg>
+  <aside class="notes">
+    <h4>진행 (1분)</h4>
+    <p>인사하고 오늘의 질문 하나를 크게 읽습니다. "Python에서는 누가 메모리를 치우는지 신경 쓴 적이 거의 없죠. Rust는 그걸 코드에 드러냅니다. 왜 그럴까요?"</p>
+    <h4>표지 그림 (v04)</h4>
+    <p>힙의 "hello" 버퍼는 제자리에 있고, 주인 열쇠만 s1에서 s2로 옮겨 갑니다. s1은 이동되어 쓸 수 없고, clone은 새 버퍼(할당 #2)를 따로 만듭니다. 오늘 배울 이동과 복제를 한 장으로 미리 보여 주는 그림입니다.</p>
+    <h4>안내</h4>
+    <ul><li>화면의 실행 결과는 모두 미리 계산한 결과입니다. 브라우저가 Rust나 Python을 실행하지 않습니다.</li>
+    <li>예제 코드는 실제 rustc 1.96.1, Python 3.14.6에서 확인했습니다.</li></ul>
+  </aside>
+</section>
+
+<!-- 2 -->
+<section class="slide" data-title="학습 지도와 오늘의 목표" data-section="A 시작" data-min="2">
+  <p class="kicker">오늘의 길</p>
+  <h2>메모리 지도에서 시작해 소유권 규칙까지</h2>
+  <svg class="map-svg" viewBox="0 0 1456 330" role="group" aria-label="학습 지도. 단계를 누르면 그 화면으로 갑니다.">
+    <path d="M70,170 C230,40 330,300 480,170 S730,40 830,170 S1080,300 1230,170 S1380,110 1400,170" fill="none" stroke="#D6CAB2" stroke-width="10" stroke-linecap="round"/>
+    <g class="stop" data-go="3" tabindex="0" role="link" aria-label="A 시작, 3번 화면"><circle cx="70" cy="170" r="34" fill="#FFFDF8" stroke="#0F5E66" stroke-width="4"/><text x="70" y="180" text-anchor="middle" font-size="28" font-weight="800" fill="#0F5E66">A</text><text x="70" y="240" text-anchor="middle" font-size="20" font-weight="700">낱말 맞추기</text><text x="70" y="266" text-anchor="middle" font-size="16" fill="#4A515B">6분</text></g>
+    <g class="stop" data-go="4" tabindex="0" role="link" aria-label="B 메모리 기초, 4번 화면"><circle cx="290" cy="150" r="34" fill="#FFFDF8" stroke="#5A4A86" stroke-width="4"/><text x="290" y="160" text-anchor="middle" font-size="28" font-weight="800" fill="#5A4A86">B</text><text x="290" y="90" text-anchor="middle" font-size="20" font-weight="700">스택과 힙</text><text x="290" y="66" text-anchor="middle" font-size="16" fill="#4A515B">10분</text></g>
+    <g class="stop" data-go="8" tabindex="0" role="link" aria-label="C 소유권, 8번 화면"><circle cx="480" cy="170" r="34" fill="#FFFDF8" stroke="#1E7A4C" stroke-width="4"/><text x="480" y="180" text-anchor="middle" font-size="28" font-weight="800" fill="#1E7A4C">C</text><text x="480" y="240" text-anchor="middle" font-size="20" font-weight="700">소유권과 이동</text><text x="480" y="266" text-anchor="middle" font-size="16" fill="#4A515B">10분</text></g>
+    <g class="stop" data-go="13" tabindex="0" role="link" aria-label="D 실습, 13번 화면"><circle cx="700" cy="110" r="34" fill="#FFFDF8" stroke="#2A6E73" stroke-width="4"/><text x="700" y="120" text-anchor="middle" font-size="28" font-weight="800" fill="#2A6E73">D</text><text x="700" y="50" text-anchor="middle" font-size="20" font-weight="700">실습: Python과 비교</text><text x="700" y="26" text-anchor="middle" font-size="16" fill="#4A515B">12분</text></g>
+    <g class="stop" data-go="17" tabindex="0" role="link" aria-label="E Copy와 Clone, 17번 화면"><circle cx="890" cy="200" r="34" fill="#FFFDF8" stroke="#B45F16" stroke-width="4"/><text x="890" y="210" text-anchor="middle" font-size="28" font-weight="800" fill="#B45F16">E</text><text x="890" y="270" text-anchor="middle" font-size="20" font-weight="700">Copy와 Clone</text><text x="890" y="296" text-anchor="middle" font-size="16" fill="#4A515B">5분</text></g>
+    <g class="stop" data-go="19" tabindex="0" role="link" aria-label="F 함수와 소유권, 19번 화면"><circle cx="1100" cy="230" r="34" fill="#FFFDF8" stroke="#2D5B8A" stroke-width="4"/><text x="1100" y="240" text-anchor="middle" font-size="28" font-weight="800" fill="#2D5B8A">F</text><text x="1100" y="300" text-anchor="middle" font-size="20" font-weight="700">함수와 소유권</text><text x="1100" y="324" text-anchor="middle" font-size="16" fill="#4A515B">7분</text></g>
+    <g class="stop" data-go="22" tabindex="0" role="link" aria-label="G 연습과 정리, 22번 화면"><circle cx="1330" cy="150" r="34" fill="#FFFDF8" stroke="#B42318" stroke-width="4"/><text x="1330" y="160" text-anchor="middle" font-size="28" font-weight="800" fill="#B42318">G</text><text x="1330" y="90" text-anchor="middle" font-size="20" font-weight="700">고쳐 보기와 정리</text><text x="1330" y="66" text-anchor="middle" font-size="16" fill="#4A515B">10분</text></g>
+  </svg>
+  <div class="goals">
+    <div class="goal"><b>목표 1</b>소유권 규칙 3가지를 내 말로 설명한다</div>
+    <div class="goal"><b>목표 2</b>String, Vec에서 이동이 일어나는 줄을 짚는다</div>
+    <div class="goal"><b>목표 3</b>Move, Copy, Clone 차이를 예제로 보인다</div>
+    <div class="goal"><b>목표 4</b>Python의 참조와 GC를 Rust의 자원 관리와 비교한다</div>
+  </div>
+  <p class="foot">지도의 원을 누르면 그 단원으로 갑니다. <kbd>I</kbd>를 누르면 전체 목차, <kbd>?</kbd>는 단축키 안내.</p>
+  <aside class="notes">
+    <h4>진행 (2분)</h4>
+    <p>A부터 G까지 일곱 구간을 짧게 소개합니다. 목표 네 개를 소리 내 읽습니다.</p>
+    <h4>질문</h4>
+    <ul><li>"Python에서 a = b 를 쓰면 무슨 일이 일어난다고 생각하나요?" 답을 받아 두고 13번 화면에서 다시 꺼냅니다.</li></ul>
+    <h4>시간 배분</h4>
+    <p>A 6분, B 10분, C 10분, D 12분, E 5분, F 7분, G 10분. 합계 60분.</p>
+  </aside>
+</section>
+
+<!-- 3 -->
+<section class="slide" data-title="먼저 맞출 낱말" data-section="A 시작" data-min="3">
+  <h2>먼저 낱말부터 맞춰요</h2>
+  <div class="terms">
+    <div class="tcard" data-lit="w-var"><h4>변수 <small>variable</small></h4><p>값에 붙이는 이름. Rust는 "바인딩"이라고도 함.</p></div>
+    <div class="tcard" data-lit="w-val"><h4>값 <small>value</small></h4><p>실제 데이터. 5, "hi", [1, 2, 3].</p></div>
+    <div class="tcard" data-lit="w-obj"><h4>객체 <small>object</small></h4><p>Python에서 값이 담긴 덩어리. 이름은 객체를 가리킴.</p></div>
+    <div class="tcard" data-lit="w-addr"><h4>주소 <small>address</small></h4><p>메모리 칸의 위치 번호. 집 주소처럼 "어디에 있나".</p></div>
+    <div class="tcard" data-lit="w-scope"><h4>스코프 <small>scope</small></h4><p>이름이 살아 있는 구간. 보통 { 부터 } 까지.</p></div>
+    <div class="tcard" data-lit="w-mut"><h4>mut <small>mutable</small></h4><p>"바꿀 수 있음" 표시. 없으면 못 바꿈.</p></div>
+  </div>
+  <div class="sim" data-sim="vocab"></div>
+  <aside class="notes">
+    <h4>진행 (3분)</h4>
+    <p>카드 여섯 장을 짧게 읽고 시뮬레이터를 한 단계씩 넘깁니다. 단계마다 관련 카드가 노랗게 켜집니다.</p>
+    <h4>마지막 두 단계 (v03)</h4>
+    <ul><li>5단계: 스코프가 끝나 x, y 이름을 더 쓸 수 없습니다. 흐린 칸은 설명용 흔적입니다.</li>
+    <li>6단계: main 프레임이 스택에서 빠지고 TOS가 바닥으로 내려갑니다. 그 칸은 "다시 쓸 수 있는 자리"가 될 뿐, 값을 0으로 지우거나 운영체제에 메모리를 돌려주는 것이 아닙니다. 그림은 교육용 모델이며 실제 스택 덤프가 아닙니다.</li></ul>
+    <h4>설명</h4>
+    <ul><li>Rust의 let은 "이름을 값에 묶는다(바인딩)". 기본은 바꿀 수 없음.</li>
+    <li>주소와 객체는 다음 화면들에서 쓰입니다. 주소는 String의 ptr 칸, 객체는 Python 그림에서 나옵니다.</li></ul>
+    <h4>질문</h4>
+    <ul><li>"4번 줄에서 mut를 지우면 어떻게 될까요?" (컴파일 오류. 22번 화면 Q6에서 다시 봅니다.)</li></ul>
+  </aside>
+</section>
+
+<!-- 4 -->
+<section class="slide" data-title="스택 비유: 접시 쌓기" data-section="B 메모리 기초" data-min="2">
+  <p class="kicker">B 메모리 기초</p>
+  <h2>스택은 접시 쌓기와 닮았어요</h2>
+  <div class="row grow" style="min-height:0">
+    <div class="sim no-code grow" data-sim="plates"></div>
+    <div style="width:420px;display:flex;flex-direction:column;gap:16px">
+      <div class="callout"><b>규칙 하나:</b> 맨 위에만 올리고(push) 맨 위에서만 꺼낸다(pop).</div>
+      <p class="small">나중에 올린 것이 먼저 나갑니다. 이것을 LIFO(Last In, First Out)라고 부릅니다.</p>
+      <div class="callout warn">비유는 비유일 뿐입니다. 진짜 스택에는 접시 대신 <b>함수 호출마다 프레임</b>(그 함수가 쓰는 칸 묶음)이 쌓입니다. 다음 화면에서 봅니다.</div>
+    </div>
+  </div>
+  <aside class="notes">
+    <h4>진행 (2분)</h4>
+    <p>단계를 넘기며 "다음에 나올 접시는?"을 물어봅니다. pop D, pop B 단계 직전에 예측하게 합니다.</p>
+    <h4>방향</h4>
+    <ul><li>접시는 위로 쌓이고 "맨 위(top)"도 위에 있습니다. 3번과 5번 화면 이후의 스택 그림도 같은 방향(새것이 위)입니다.</li></ul>
+    <h4>주의</h4>
+    <ul><li>비유를 오래 끌지 않습니다. 핵심은 "맨 위에서만 넣고 뺀다", 그래서 빠르고 정리가 쉽다.</li></ul>
+  </aside>
+</section>
+
+<!-- 5 -->
+<section class="slide" data-title="스택의 실제 모습: 함수 호출 프레임" data-section="B 메모리 기초" data-min="3">
+  <h2>진짜 스택: 함수를 부를 때마다 프레임이 쌓여요</h2>
+  <p class="lead">새 프레임은 위에 쌓이고, 함수가 끝나면 통째로 빠집니다. 그림은 위가 낮은 주소인 교육용 배치이며 실제 변수 위치를 보여 주지 않습니다.</p>
+  <div class="sim" data-sim="frames"></div>
+  <aside class="notes">
+    <h4>진행 (3분)</h4>
+    <p>3단계(add 호출)에서 멈추고 접시 그림과 비교합니다. "맨 위 프레임이 add죠? add가 끝나면 어디가 빠질까요?"</p>
+    <h4>설명</h4>
+    <ul><li>프레임: 함수 한 번 호출이 쓰는 칸 묶음(매개변수, 지역 변수).</li>
+    <li>i32는 Copy라서 a, b 값이 p, q로 복사됩니다(17번 화면에서 자세히).</li></ul>
+    <h4>그림의 방향 (v02)</h4>
+    <ul><li>모든 Rust 메모리 그림은 같은 약속을 씁니다: 위쪽이 낮은 주소, 아래쪽이 높은 주소. main 프레임이 맨 아래, 새 프레임과 새 칸은 그 위에 쌓입니다. 점선 TOS(스택 꼭대기) 표시가 지금 가장 위를 가리킵니다. 4번 화면 접시와 같은 방향입니다.</li>
+    <li>많은 기계(x86-64, AArch64 등)에서 스택은 낮은 주소 쪽으로 자랍니다. 그래서 낮은 주소를 위에 두면 "위로 쌓인다"가 됩니다. 다만 아키텍처, ABI, 컴파일러에 따라 다르고, 지역 변수는 레지스터에만 있거나 순서가 바뀌거나 아예 사라질 수 있습니다.</li>
+    <li>따라서 그림의 칸 순서와 위치는 실제 오프셋이 아닙니다. "교육용 배치이지 메모리 덤프가 아니다"라고 한 번 말해 줍니다.</li></ul>
+    <h4>주의</h4>
+    <ul><li>"Rust 변수는 모두 스택에 있다"고 말하지 않습니다. 오늘 그림은 교육용 모델이고, 최적화로 실제 배치는 달라질 수 있습니다.</li></ul>
+  </aside>
+</section>
+
+<!-- 6 -->
+<section class="slide" data-title="힙 1: String" data-section="B 메모리 기초" data-min="3">
+  <h2>힙: 크기가 변하는 String은 버퍼를 따로 빌려요</h2>
+  <p class="lead">String 변수 칸에는 <span class="term">ptr</span>(힙 버퍼의 주소), <span class="term">len</span>(쓰고 있는 바이트 수), <span class="term">cap</span>(잡아 둔 바이트 수) 세 칸짜리 설명표가 있습니다.</p>
+  <div class="sim" data-sim="string"></div>
+  <aside class="notes">
+    <h4>진행 (3분)</h4>
+    <p>시작 화면은 비어 있습니다. 1단계에서 &str 리터럴은 힙이 아니라는 점을 짚고, 2단계에서 String::from이 힙을 새로 잡는 것을 보여 줍니다.</p>
+    <h4>1단계에서 "hi"가 나타나는 이유 (v03)</h4>
+    <ul><li>"hi" 바이트는 컴파일할 때 프로그램 파일의 읽기 전용 데이터에 들어가므로, 이 줄이 실행되기 전부터 이미 있습니다. 1단계에서 그림에 처음 비추는 것은 설명을 위한 연출입니다. let이 바이트를 새로 만들거나 힙에 잡는 것이 아닙니다.</li>
+    <li>마지막 단계에서 s의 힙 버퍼만 해제되고 고정 데이터는 그대로 남습니다(drop 대상이 아님).</li></ul>
+    <h4>설명</h4>
+    <ul><li>문자열 리터럴 "hi"의 타입은 &str입니다. 프로그램 안에 박혀 있는 고정 데이터를 가리킵니다. 힙의 String이 아닙니다.</li>
+    <li>len은 바이트 수입니다. 한글 "안"은 UTF-8에서 3바이트라 len이 3입니다. 오늘 예제는 헷갈리지 않게 ASCII만 씁니다.</li>
+    <li>cap 숫자(2에서 8)는 rustc 1.96.1에서 확인한 값입니다. 얼마나 키울지는 표준이 정하지 않습니다.</li></ul>
+    <h4>질문</h4>
+    <ul><li>"len과 cap이 왜 따로 있을까요?" (매번 새로 빌리지 않으려고 여유를 둔다.)</li></ul>
+  </aside>
+</section>
+
+<!-- 7 -->
+<section class="slide" data-title="힙 2: Vec의 len과 capacity" data-section="B 메모리 기초" data-min="2">
+  <h2>Vec도 같은 모양: len(원소 수)과 capacity(자리 수)</h2>
+  <details class="evidence">
+    <summary>관찰 근거: cap 4 → 8은 어디서 왔나?</summary>
+    <div class="ev-panel">
+      <p><b>짧게:</b> 그림의 cap 숫자는 지어낸 값이 아니라 이 컴퓨터의 Rust로 직접 찍어 본 값입니다. 다른 버전이나 다른 환경에서는 달라질 수 있고, 언어가 "항상 두 배"를 약속하지는 않습니다.</p>
+      <div class="ev-grid">
+        <div data-code="r04_vec_capacity_probe.rs" class="mini"></div>
+        <div><div class="ev-h">실제 출력 (미리 실행해 저장한 결과)</div><pre class="ev-out" data-evidence-out="r04_vec_capacity_probe.rs"></pre></div>
+      </div>
+      <p class="small">이 버전(1.96.1) 표준 라이브러리 소스 <a href="https://github.com/rust-lang/rust/blob/1.96.1/library/alloc/src/raw_vec/mod.rs"><code>library/alloc/src/raw_vec/mod.rs</code></a>의 <code>grow_amortized</code>는 자리가 모자라면 "지금 cap의 2배"와 "필요한 개수" 중 큰 값으로 키웁니다(이 예제의 i32 원소는 최소 4칸). 그래서 4 → 8. 버퍼를 제자리에서 늘릴지 옮길지는 할당기가 정합니다. 표준이 보장하는 범위: <a href="https://doc.rust-lang.org/std/vec/struct.Vec.html#guarantees">Vec 문서의 Guarantees</a>.</p>
+      <details class="ev-tool"><summary>도구 버전 (rustc -vV)</summary><pre data-evidence-toolchain></pre></details>
+    </div>
+  </details>
+  <div class="sim wide-code" data-sim="vec"></div>
+  <aside class="notes">
+    <h4>진행 (2분)</h4>
+    <p>4단계(꽉 참) 다음 5단계에서 버퍼를 키웁니다. 그림은 할당 #1에서 #2로 옮긴 경우입니다. 할당기는 제자리에서 늘릴 수도 있으므로 "항상 새 주소로 옮긴다"고 말하지 않습니다.</p>
+    <h4>cap 숫자의 근거 (질문이 나오면)</h4>
+    <ul><li>오른쪽 위 "관찰 근거"를 펼칩니다. examples/rust/r04_vec_capacity_probe.rs를 rustc 1.96.1 (commit 31fca3adb, host aarch64-apple-darwin, Homebrew)로 컴파일해 실행한 출력입니다: push 40까지 cap 4, push 50에서 cap 8.</li>
+    <li>이 버전 소스 raw_vec/mod.rs의 grow_amortized: cap = max(현재 cap x 2, 필요한 개수), 그리고 원소 크기에 따른 최소값(1바이트 원소 8, 1024바이트 이하 4)과 비교. 실제 키우기는 할당기의 grow(제자리 또는 이동) 또는 allocate.</li>
+    <li>이것은 구현의 현재 정책이지 언어 보장이 아닙니다. 보장 범위는 Vec 문서 Guarantees 절을 봅니다. 6번 화면 String의 cap 2 → 8도 같은 규칙(1바이트 원소 최소 8)에서 나온 관찰값입니다.</li></ul>
+    <h4>설명</h4>
+    <ul><li>점선 빈칸은 잡아 두었지만 아직 원소가 없는 자리(spare capacity)입니다.</li>
+    <li>with_capacity(4)는 "적어도 4개" 자리를 보장합니다. 그래서 예제는 cap&gt;=4로 출력합니다.</li></ul>
+  </aside>
+</section>
+
+<!-- 8 -->
+<section class="slide s-chapter" data-title="장 전환: 누가 치우나?" data-section="C 소유권" data-min="1">
+  <p class="kicker">C 소유권</p>
+  <h1>힙에 빌린 버퍼,<br>누가 언제 돌려줄까?</h1>
+  <div class="vs">
+    <div class="py-side"><h3>Python</h3><p>실행 중에 런타임(GC)이 "아무도 안 쓰는 객체"를 찾아 회수합니다. 언제 회수하는지는 구현마다 다릅니다.</p></div>
+    <div class="rs-side"><h3>Rust</h3><p>값마다 <b>주인(owner)</b>이 하나 있고, 주인이 스코프를 벗어나면 그 자리에서 정리(drop)됩니다. 컴파일러가 이 규칙을 검사합니다.</p></div>
+  </div>
+  <aside class="notes">
+    <h4>진행 (1분)</h4>
+    <p>두 방식을 대비만 하고 넘어갑니다. 어느 쪽이 더 좋다는 결론은 24번 토론으로 미룹니다.</p>
+    <h4>주의</h4>
+    <ul><li>CPython은 참조 카운트와 순환 GC를 함께 쓰지만, 이는 구현 세부사항입니다. PyPy 같은 다른 구현은 방식과 시점이 다릅니다.</li></ul>
+  </aside>
+</section>
+
+<!-- 9 -->
+<section class="slide" data-title="스코프가 끝나면 drop" data-section="C 소유권" data-min="2">
+  <h2>주인이 스코프를 벗어나면 drop</h2>
+  <p class="lead">} 를 만나는 순간 Rust가 자동으로 정리 코드를 부릅니다. 직접 free를 쓰지 않아도 되고, 빼먹을 수도 없습니다.</p>
+  <div class="sim wide-code" data-sim="scope"></div>
+  <aside class="notes">
+    <h4>진행 (2분)</h4>
+    <p>5단계(안쪽 } )에서 멈추고 "outer는 아직 살아 있을까요?"를 묻습니다.</p>
+    <h4>주의 (깊이 들어가지 않기)</h4>
+    <ul><li>여기서 말하는 drop은 정상적으로 스코프를 벗어날 때의 이야기입니다.</li>
+    <li>예외도 있습니다: 일부러 메모리를 놓아 두는 함수(std::mem::forget 등), Rc 순환 참조로 생기는 누수, 프로세스 강제 종료(abort). 입문 단계에서는 "이런 예외가 있다"만 알고 넘어갑니다.</li></ul>
+  </aside>
+</section>
+
+<!-- 10 -->
+<section class="slide" data-title="소유권 규칙 3가지" data-section="C 소유권" data-min="2">
+  <h2>소유권 규칙 3가지 <span class="h-note">출처: The Rust Programming Language 4.1장. 단계를 넘기면 해당 규칙이 켜집니다.</span></h2>
+  <div class="rules horizontal">
+      <div class="rule" data-lit="rule1"><span class="rn">1</span><p>값마다 주인(owner)이 있다.<small>Each value has an owner.</small></p></div>
+      <div class="rule" data-lit="rule2"><span class="rn">2</span><p>주인은 한 번에 하나뿐이다.<small>There can only be one owner at a time.</small></p></div>
+      <div class="rule" data-lit="rule3"><span class="rn">3</span><p>주인이 스코프를 벗어나면 값이 drop된다.<small>When the owner goes out of scope, the value is dropped.</small></p></div>
+  </div>
+  <div class="sim" data-sim="rules"></div>
+  <aside class="notes">
+    <h4>진행 (2분)</h4>
+    <p>참가자에게 규칙 하나씩 소리 내 읽게 하고, 단계를 넘겨 코드의 어느 줄이 어느 규칙인지 연결합니다.</p>
+    <h4>질문</h4>
+    <ul><li>"규칙 2가 없다면 5번 줄 } 에서 무슨 문제가 생길까요?" (a와 b가 같은 버퍼를 두 번 해제하려 함: double free)</li></ul>
+  </aside>
+</section>
+
+<!-- 11 -->
+<section class="slide" data-title="String의 이동(move)" data-section="C 소유권" data-min="3">
+  <h2>let s2 = s1; 은 "이동"입니다</h2>
+  <p class="lead">설명표(ptr, len, cap)만 옮겨 적고 힙의 바이트는 그대로. 그리고 s1은 더 이상 쓸 수 없습니다.</p>
+  <div class="sim" data-sim="move"></div>
+  <aside class="notes">
+    <h4>진행 (3분)</h4>
+    <p>2단계에서 "할당 #1이 몇 개가 됐나요?"를 묻습니다(여전히 하나). 3단계에서 "s1은 null이 된 것이 아니다"를 분명히 합니다.</p>
+    <h4>설명</h4>
+    <ul><li>move는 소유권을 옮기는 것입니다. 힙 데이터를 복사하지 않습니다. 실제로 기계 수준에서 설명표 바이트가 복사되는지는 최적화에 따라 다르지만, 의미는 "주인이 바뀐다"입니다.</li>
+    <li>이동된 s1은 값을 지우거나 null로 바꾸는 것이 아니라, 컴파일러가 사용을 금지합니다.</li></ul>
+  </aside>
+</section>
+
+<!-- 12 -->
+<section class="slide" data-title="퀴즈 1: 이동한 뒤 s1을 쓰면?" data-section="C 소유권" data-min="2">
+  <h2>퀴즈 1: 이동한 뒤 s1을 쓰면?</h2>
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" data-tab="q1-a" aria-selected="true">① 예측하기</button>
+    <button type="button" role="tab" data-tab="q1-b" aria-selected="false">② 컴파일러 따라가기</button>
+  </div>
+  <div class="tabpanel" data-panel="q1-a">
+    <div class="row">
+      <div style="width:640px;flex:none" data-code="r08_use_after_move.rs"></div>
+      <div class="quiz grow" data-quiz="q1"></div>
+    </div>
+  </div>
+  <div class="tabpanel" data-panel="q1-b" hidden>
+    <div class="sim" data-sim="q1compile"></div>
+  </div>
+  <aside class="notes">
+    <h4>진행 (2분)</h4>
+    <p>먼저 ① 탭에서 손을 들어 예측하게 한 뒤 답을 누릅니다. 그다음 ② 탭에서 컴파일러가 장부를 쓰는 과정을 단계로 봅니다.</p>
+    <h4>강조</h4>
+    <ul><li>이 프로그램은 실행되지 않습니다. hello가 한 번 찍히다 멈추는 것도 아닙니다. 그래서 ② 탭에는 메모리 그림이 없고 "컴파일러 장부"만 있습니다.</li>
+    <li>오류 메시지 마지막에 컴파일러가 clone()을 제안합니다. 16번 화면에서 씁니다.</li></ul>
+  </aside>
+</section>
+
+<!-- 13 -->
+<section class="slide" data-title="실습 1: Python 리스트 공유" data-section="D 실습: Python과 비교" data-min="3">
+  <p class="kicker">D 실습</p>
+  <h2>실습 1: Python에서 b = a 는 "이름표 하나 더"</h2>
+  <div class="sim" data-sim="pyalias"></div>
+  <aside class="notes">
+    <h4>진행 (3분, 안내형 실습)</h4>
+    <p>참가자가 자기 컴퓨터에서 직접 실행해 보게 합니다: <code>python3 p09_list_alias.py</code>. 출력 [1, 2, 3, 4]를 확인한 뒤 시뮬레이터로 이유를 봅니다.</p>
+    <h4>설명</h4>
+    <ul><li>Python 대입은 이름을 객체에 묶습니다. 복사하지 않습니다(Python 언어 참조, 대입문).</li>
+    <li>오른쪽 그림은 개념도입니다. Python 메모리를 Rust 스택/힙 그림과 같은 것으로 보지 않습니다.</li>
+    <li>CPython이 객체마다 참조 수를 세는 것은 구현 세부사항입니다.</li></ul>
+    <h4>질문</h4>
+    <ul><li>"2번 화면에서 a = b 에 대해 했던 답과 같나요?"</li></ul>
+  </aside>
+</section>
+
+<!-- 14 -->
+<section class="slide" data-title="Python 재바인딩과 변경" data-section="D 실습: Python과 비교" data-min="3">
+  <h2>바꾸기(변경)와 이름 옮기기(재바인딩)는 달라요</h2>
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" data-tab="pr-a" aria-selected="true">① 따라가기</button>
+    <button type="button" role="tab" data-tab="pr-b" aria-selected="false">② 예측 퀴즈 Q2</button>
+  </div>
+  <div class="tabpanel" data-panel="pr-a"><div class="sim" data-sim="pyrebind"></div></div>
+  <div class="tabpanel" data-panel="pr-b" hidden>
+    <div class="row">
+      <div style="width:620px;flex:none" data-code="p10_rebind_vs_mutate.py"></div>
+      <div class="quiz grow" data-quiz="q2"></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <h4>진행 (3분)</h4>
+    <p>① 탭에서 6단계(b도 객체 #3)까지 넘긴 뒤 ② 탭으로 가서 Q2를 예측합니다. 답을 본 뒤 ① 탭으로 돌아와 7단계부터 확인합니다.</p>
+    <h4>설명</h4>
+    <ul><li>b.append(4)는 객체 자체를 바꿉니다(변경). b = b + [4]는 새 객체를 만들고 이름 b만 옮깁니다(재바인딩).</li>
+    <li>int는 바꿀 수 없는 객체라서 y = y + 1은 항상 재바인딩입니다.</li>
+    <li>"이름 없음" 객체가 언제 회수되는지는 Python 구현마다 다릅니다.</li></ul>
+  </aside>
+</section>
+
+<!-- 15 -->
+<section class="slide" data-title="실습 2: 같은 코드를 Rust로" data-section="D 실습: Python과 비교" data-min="3">
+  <h2>실습 2: 같은 모양을 Rust로 쓰면 컴파일 오류</h2>
+  <p class="lead">Python은 실행해서 [1, 2, 3, 4]를 출력했습니다. Rust는 실행하기 <b>전에</b> 거부합니다.</p>
+  <div class="sim" data-sim="labrust"></div>
+  <aside class="notes">
+    <h4>진행 (3분, 안내형 실습)</h4>
+    <p>참가자가 직접 컴파일해 봅니다: <code>rustc --edition 2021 r11_vec_move_lab.rs</code>. 오류 E0382를 함께 읽습니다. 그다음 단계로 컴파일러의 장부를 따라갑니다.</p>
+    <h4>강조</h4>
+    <ul><li>"value moved here", "value borrowed here after move" 두 표시가 3번 줄과 5번 줄을 가리킵니다.</li>
+    <li>실행 파일이 생기지 않으니 b.push(4)도 실제로 실행되지 않았습니다.</li></ul>
+    <h4>질문</h4>
+    <ul><li>"Rust가 이걸 막아서 얻는 것은 무엇일까요?" (한 데이터를 두 이름이 몰래 함께 바꾸고, 누가 해제할지 헷갈리는 일을 없앰)</li></ul>
+  </aside>
+</section>
+
+<!-- 16 -->
+<section class="slide" data-title="실습 3: clone()으로 고치기" data-section="D 실습: Python과 비교" data-min="3">
+  <h2>실습 3: 원본을 지키려면 clone()으로 따로 복사</h2>
+  <div class="row grow" style="min-height:0">
+    <div class="sim grow" data-sim="labclone"></div>
+    <div style="width:330px;flex:none;display:flex;flex-direction:column;gap:12px">
+      <p class="small" style="margin:0"><b>Python에서 같은 의도:</b> a.copy()로 새 리스트를 만듭니다.</p>
+      <div data-code="p23_list_copy.py" class="mini"></div>
+      <div class="res res-ok"><b>✓ 실행 결과 (미리 계산)</b><pre>[1, 2, 3] [1, 2, 3, 4]
+False</pre></div>
+      <p class="small" style="margin:0">Rust의 clone()도 "새 할당 + 복사"입니다. 그래서 공짜가 아닙니다.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <h4>진행 (3분, 안내형 실습)</h4>
+    <p>참가자가 15번 화면 코드의 3번 줄을 <code>let mut b = a.clone();</code>으로 고쳐 다시 컴파일하고 실행합니다. 출력 두 줄을 확인합니다.</p>
+    <h4>설명</h4>
+    <ul><li>할당 번호 #1, #2가 서로 다른 버퍼라는 것을 강조합니다. b.push(4)는 #2만 바꿉니다.</li>
+    <li>drop 순서: 나중에 선언한 b가 먼저, 그다음 a.</li></ul>
+  </aside>
+</section>
+
+<!-- 17 -->
+<section class="slide" data-title="i32는 Copy" data-section="E Copy와 Clone" data-min="2">
+  <p class="kicker">E Copy와 Clone</p>
+  <h2>i32는 Copy: 대입해도 원래 이름이 그대로</h2>
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" data-tab="cp-a" aria-selected="true">① 따라가기</button>
+    <button type="button" role="tab" data-tab="cp-b" aria-selected="false">② 분류 퀴즈 Q3</button>
+  </div>
+  <div class="tabpanel" data-panel="cp-a"><div class="sim" data-sim="copy"></div></div>
+  <div class="tabpanel" data-panel="cp-b" hidden><div class="quiz" data-quiz="q3"></div></div>
+  <aside class="notes">
+    <h4>진행 (2분)</h4>
+    <p>① 탭 2단계에서 "x는 이동됐나요?"를 묻고, ② 탭의 분류 퀴즈 Q3을 함께 풉니다.</p>
+    <h4>설명</h4>
+    <ul><li>Copy는 타입이 정합니다. i32, bool, char, 그리고 모든 칸이 Copy인 튜플은 Copy입니다.</li>
+    <li>"Copy 값은 모두 스택에 있다"가 아닙니다. 위치가 아니라 타입의 성질입니다. 예를 들어 Vec&lt;i32&gt; 안의 i32 원소들은 힙에 있지만 i32 자체는 Copy입니다.</li></ul>
+  </aside>
+</section>
+
+<!-- 18 -->
+<section class="slide" data-title="Copy, Move, Clone 비교와 비용" data-section="E Copy와 Clone" data-min="3">
+  <h2>Copy, Move, Clone 한눈에 비교</h2>
+  <div class="row grow" style="min-height:0">
+    <div class="grow" style="display:flex;flex-direction:column;gap:14px">
+      <table class="cmp">
+        <thead><tr><th></th><th>언제</th><th>무엇이 복사되나</th><th>원래 이름</th></tr></thead>
+        <tbody>
+          <tr><td>Copy</td><td>Copy 타입 대입. 자동, 암묵적</td><td>값 자체 (작고 크기가 정해진 값)</td><td>✓ 그대로 유효</td></tr>
+          <tr><td>Move</td><td>Copy가 아닌 타입 대입, 함수 인자. 자동</td><td>설명표만. 힙 데이터는 그대로</td><td>→ 사용 금지</td></tr>
+          <tr><td>Clone</td><td>.clone()을 직접 써야 함. 명시적</td><td>타입이 정함. String, Vec은 새 할당 + 내용 복사</td><td>✓ 그대로 유효</td></tr>
+        </tbody>
+      </table>
+      <div class="costcalc"></div>
+    </div>
+    <div style="width:470px;flex:none;display:flex;flex-direction:column;gap:10px">
+      <div data-code="r14_clone_cost.rs" class="mini"></div>
+      <div class="res res-ok" style="margin:0"><b>✓ 출력 (미리 계산)</b> <code>1000 1000</code></div>
+      <p class="fn"><b>각주 1. Clone이 늘 깊은 복사는 아님.</b> Rc::clone은 데이터를 복사하지 않고 "함께 쓰는 주인 수"만 1 올립니다.</p>
+      <div data-code="r24_rc_clone.rs" class="mini"></div>
+      <p class="fn"><b>각주 2. Python도 얕은 복사와 깊은 복사가 다름.</b> copy.copy는 바깥만, copy.deepcopy는 안쪽까지. 출력: <code>[[1, 9], [2]]</code>, <code>[[1], [2]]</code></p>
+    </div>
+  </div>
+  <aside class="notes">
+    <h4>진행 (3분)</h4>
+    <p>표를 위에서 아래로 읽고, 계산기에서 Move와 Clone을 번갈아 누르며 길이를 1에서 1,000,000까지 움직여 봅니다. Move 막대는 길이와 상관없이 그대로입니다.</p>
+    <h4>설명</h4>
+    <ul><li>Clone 비용은 타입과 크기에 달려 있습니다. 작은 String 하나는 싸지만, 반복문 안에서 큰 Vec을 clone하면 비쌉니다.</li>
+    <li>Rc는 오늘 깊이 다루지 않습니다. "clone이라는 이름이어도 하는 일은 타입마다 다르다"만 기억합니다.</li>
+    <li>Python 각주 코드: p22_copy_module.py (examples 폴더).</li></ul>
+  </aside>
+</section>
+
+<!-- 19 -->
+<section class="slide" data-title="함수 인자로 넘기면 이동" data-section="F 함수와 소유권" data-min="3">
+  <p class="kicker">F 함수와 소유권</p>
+  <h2>함수에 넘기는 것도 대입과 같아요</h2>
+  <div class="sim compact" data-sim="fnmove"></div>
+  <aside class="notes">
+    <h4>진행 (3분)</h4>
+    <p>3단계(take 호출)에서 멈추고 "word는 이제 누구 것이죠?"를 묻습니다. 5단계에서 할당 #1이 main이 아니라 take 안에서 해제되는 것을 강조합니다.</p>
+    <h4>설명</h4>
+    <ul><li>String 인자는 이동, i32 인자는 Copy. 규칙은 let 대입과 같습니다.</li>
+    <li>14번 줄에서 num 대신 word를 쓰면 E0382입니다(22번 화면 Q4가 같은 모양).</li></ul>
+  </aside>
+</section>
+
+<!-- 20 -->
+<section class="slide" data-title="반환하면 소유권이 돌아온다" data-section="F 함수와 소유권" data-min="2">
+  <h2>돌려주면(return) 소유권도 함께 돌아와요</h2>
+  <div class="sim compact" data-sim="fnret"></div>
+  <aside class="notes">
+    <h4>진행 (2분)</h4>
+    <p>3단계에서 make 프레임이 빠져도 할당 #1이 살아 있는 이유를 묻습니다(주인이 a로 옮겨 왔기 때문).</p>
+    <h4>설명</h4>
+    <ul><li>이 방식은 동작하지만, 쓰고 돌려받기를 매번 하면 번거롭습니다. 그래서 다음 화면의 빌림이 있습니다.</li></ul>
+  </aside>
+</section>
+
+<!-- 21 -->
+<section class="slide" data-title="빌림 맛보기 (다음 시간)" data-section="F 함수와 소유권" data-min="2">
+  <h2>맛보기: 주지 않고 빌려주기 &amp; <span class="next-tag">다음 시간 본편</span></h2>
+  <p class="lead">&name은 "잠깐 보여 줄게, 주인은 나야". 오늘은 모양만 봅니다. 규칙(&amp;와 &amp;mut, 수명)은 3주차에 다룹니다.</p>
+  <div class="sim" data-sim="borrow"></div>
+  <aside class="notes">
+    <h4>진행 (2분)</h4>
+    <p>2단계에서 보라색 점선 화살표가 힙이 아니라 name 칸을 가리키는 것을 보여 줍니다. "빌린 쪽은 drop하지 않는다"까지만 말합니다.</p>
+    <h4>주의</h4>
+    <ul><li>수명(lifetime), 여러 개를 빌릴 때 규칙, &amp;mut는 다음 시간으로 넘깁니다. 질문이 나오면 "다음 주에 정확히 봅시다"로 받아 둡니다.</li>
+    <li>참고: The Rust Programming Language 4.2장 References and Borrowing.</li></ul>
+  </aside>
+</section>
+
+<!-- 22 -->
+<section class="slide" data-title="고쳐 보기 연습" data-section="G 연습과 정리" data-min="4">
+  <p class="kicker">G 연습과 정리</p>
+  <h2>고쳐 보기: 컴파일러 오류를 읽고 고침 고르기</h2>
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" data-tab="fx-1" aria-selected="true">Q4 함수에 넘긴 뒤</button>
+    <button type="button" role="tab" data-tab="fx-2" aria-selected="false">Q5 이동한 Vec</button>
+    <button type="button" role="tab" data-tab="fx-3" aria-selected="false">Q6 mut 빠짐</button>
+  </div>
+  <div class="tabpanel" data-panel="fx-1"><div class="quiz" data-quiz="q4"></div></div>
+  <div class="tabpanel" data-panel="fx-2" hidden><div class="quiz" data-quiz="q5"></div></div>
+  <div class="tabpanel" data-panel="fx-3" hidden><div class="quiz" data-quiz="q6"></div></div>
+  <aside class="notes">
+    <h4>진행 (4분, 안내형 실습)</h4>
+    <p>짝을 지어 1분씩 오류 메시지를 읽고 고침을 고릅니다. 고른 뒤 결과 패널을 함께 봅니다.</p>
+    <h4>포인트</h4>
+    <ul><li>Q4: 고치는 길이 둘(clone, 돌려받기). mut는 이동 문제를 풀지 못합니다.</li>
+    <li>Q5: 목표는 "list와 other 둘 다 출력". A(clone)만 목표를 이룹니다. B는 컴파일은 되지만 list를 출력하지 않아 목표 미달. C(let mut list)는 mut가 이동을 되돌리지 못해 같은 E0382. 컴파일 통과와 목표 달성은 다릅니다.</li>
+    <li>Q6: 이동이 아니라 mut 규칙 오류(E0596)입니다. 오류 번호를 읽는 습관을 들입니다.</li></ul>
+  </aside>
+</section>
+
+<!-- 23 -->
+<section class="slide" data-title="종합 퀴즈" data-section="G 연습과 정리" data-min="3">
+  <h2>종합 퀴즈</h2>
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" data-tab="fq-1" aria-selected="true">Q7 이동하는 줄</button>
+    <button type="button" role="tab" data-tab="fq-2" aria-selected="false">Q8 튜플은 Copy?</button>
+    <button type="button" role="tab" data-tab="fq-3" aria-selected="false">Q9 참/거짓</button>
+  </div>
+  <div class="tabpanel" data-panel="fq-1"><div class="quiz" data-quiz="q7"></div></div>
+  <div class="tabpanel" data-panel="fq-2" hidden><div class="quiz" data-quiz="q8"></div></div>
+  <div class="tabpanel" data-panel="fq-3" hidden><div class="quiz" data-quiz="q9"></div></div>
+  <aside class="notes">
+    <h4>진행 (3분)</h4>
+    <p>세 탭을 차례로 풉니다. Q9는 오늘 자주 나오는 오해 네 가지를 다시 점검합니다.</p>
+    <h4>포인트</h4>
+    <ul><li>Q7: 13번 줄 show(num)은 Copy라서 이동이 아닙니다.</li>
+    <li>Q8: 튜플은 모든 칸이 Copy일 때만 Copy.</li></ul>
+  </aside>
+</section>
+
+<!-- 24 -->
+<section class="slide" data-title="정리, 토론, 참고 자료" data-section="G 연습과 정리" data-min="3">
+  <h2>정리: 제약이 주는 안전</h2>
+  <div class="summary-grid" style="margin-top:8px">
+    <div class="sum"><h4>소유권 3규칙</h4><p>주인은 하나. 주인이 스코프를 벗어나면 drop. 해제는 정확히 한 번.</p></div>
+    <div class="sum m"><h4>Move</h4><p>String, Vec 대입과 함수 인자. 설명표만 옮기고 원래 이름은 사용 금지.</p></div>
+    <div class="sum c"><h4>Copy와 Clone</h4><p>Copy는 타입이 정하는 자동 복사. Clone은 직접 부르는 복사이고 비용은 타입마다 다름.</p></div>
+    <div class="sum p"><h4>Python과 비교</h4><p>Python은 이름을 같은 객체에 묶고 GC가 회수. Rust는 컴파일할 때 주인을 검사.</p></div>
+  </div>
+  <div class="row" style="margin-top:18px">
+    <div class="grow" style="display:flex;flex-direction:column;gap:10px">
+      <h3 style="margin:0">토론 (눌러서 펼치기)</h3>
+      <details class="disc"><summary>1. "이동 후 사용 금지"는 불편한 제약일까, 안전장치일까?</summary><p>실습 1의 Python 코드처럼 두 이름이 한 리스트를 함께 바꾸는 일이 의도였다면? 실수였다면?</p></details>
+      <details class="disc"><summary>2. clone()을 아무 데나 쓰면 오류는 사라진다. 그래도 괜찮을까?</summary><p>18번 화면의 계산기를 떠올려 보세요. 크기와 반복 횟수에 따라 비용이 커집니다. 다음 시간의 빌림이 대안입니다.</p></details>
+      <details class="disc"><summary>3. GC가 있는 언어와 비교해 무엇을 얻고 무엇을 내주나?</summary><p>얻는 것: 해제 시점이 코드에 드러남, 두 번 해제와 해제 후 사용을 컴파일 단계에서 막음. 내주는 것: 처음 배울 때의 낯섦, 컴파일러와 씨름하는 시간.</p></details>
+    </div>
+    <div style="width:560px;flex:none">
+      <h3 style="margin:0 0 6px">참고 자료</h3>
+      <ol class="refs">
+        <li><a href="https://doc.rust-lang.org/book/ch04-01-what-is-ownership.html">The Rust Book 4.1 What Is Ownership?</a></li>
+        <li><a href="https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html">The Rust Book 4.2 References and Borrowing</a> (다음 시간)</li>
+        <li><a href="https://docs.python.org/3/reference/simple_stmts.html#assignment-statements">Python 언어 참조: Assignment statements</a></li>
+        <li><a href="https://docs.python.org/3/library/copy.html">Python copy 모듈: 얕은 복사와 깊은 복사</a></li>
+      </ol>
+      <p class="fn">예제 코드는 examples 폴더에 있습니다. rustc 1.96.1, Python 3.14.6에서 확인했습니다. 화면의 결과는 이 확인 결과를 옮긴 것입니다.</p>
+    </div>
+  </div>
+  <div class="takeaway"><p><b>한 문장 정리:</b> Rust는 값마다 주인을 하나 정하고, 이동 후 사용 같은 실수를 실행 전에 막아 정리 시점을 코드에 드러낸다.</p><span class="next-tag">다음 주: 빌림 &amp; 과 &amp;mut</span></div>
+  <aside class="notes">
+    <h4>진행 (3분)</h4>
+    <p>요약 네 칸을 참가자에게 읽게 하고, 토론 질문 하나를 골라 2분 이야기합니다.</p>
+    <h4>마무리 말</h4>
+    <p>"Rust의 소유권은 제약입니다. 대신 누가 언제 정리하는지가 코드에 드러나고, 실수는 실행 전에 잡힙니다. 다음 주에는 소유권을 넘기지 않고 빌려주는 방법을 배웁니다."</p>
+    <h4>과제 제안</h4>
+    <ul><li>examples 폴더의 오류 버전 파일을 직접 컴파일해 오류 메시지를 읽어 오기.</li></ul>
+  </aside>
+</section>
+
+</div>
+</main>
+
+<aside id="notes-panel" hidden aria-label="발표자 노트">
+  <header><h2>발표자 노트</h2><button type="button" class="cbtn" id="notes-close" aria-label="노트 닫기">닫기 ✕</button></header>
+  <div id="notes-time"></div>
+  <div id="notes-body"></div>
+</aside>
+
+<footer class="bar-bottom">
+  <div class="grp">
+    <button type="button" class="cbtn nav" id="prev-slide" aria-label="이전 슬라이드">← 이전</button>
+    <span id="counter"></span>
+    <button type="button" class="cbtn nav" id="next-slide" aria-label="다음 슬라이드">다음 →</button>
+  </div>
+  <span class="spacer"></span>
+  <label class="speed-l">움직임
+    <select id="motion" aria-label="단계 전환 움직임 길이"><option value="450">짧게</option><option value="800" selected>보통</option><option value="1300">느리게</option></select>
+  </label>
+  <label class="speed-l">자동 시연 속도
+    <select id="speed" aria-label="자동 시연 속도"><option value="0.5">0.5배</option><option value="1" selected>1배</option><option value="1.5">1.5배</option><option value="2">2배</option></select>
+  </label>
+  <div class="grp">
+    <button type="button" class="cbtn" id="index-btn" title="목차 (I)">목차</button>
+    <button type="button" class="cbtn" id="notes-btn" aria-expanded="false" title="발표자 노트 (N)">노트</button>
+    <button type="button" class="cbtn opt" id="cinema-btn" title="무대 모드 (C)">무대 모드</button>
+    <button type="button" class="cbtn opt" id="fs-btn" title="전체 화면 (F)">전체 화면</button>
+    <button type="button" class="cbtn" id="help-btn" title="단축키 (?)">?</button>
+  </div>
+</footer>
+<button type="button" class="cbtn" id="cinema-exit" title="무대 모드 끄기 (C 또는 Esc)">무대 모드 끄기</button>
+
+<div class="overlay" id="index" hidden role="dialog" aria-label="목차">
+  <div class="box"><header><h2>목차 (총 60분)</h2><button type="button" class="cbtn" data-close>닫기 ✕</button></header><div id="index-list"></div></div>
+</div>
+<div class="overlay" id="help" hidden role="dialog" aria-label="단축키">
+  <div class="box"><header><h2>단축키</h2><button type="button" class="cbtn" data-close>닫기 ✕</button></header>
+    <div class="keys">
+      <span><kbd>→</kbd> <kbd>PageDown</kbd></span><span>다음 슬라이드</span>
+      <span><kbd>←</kbd> <kbd>PageUp</kbd></span><span>이전 슬라이드</span>
+      <span><kbd>Home</kbd> <kbd>End</kbd></span><span>처음, 마지막 슬라이드</span>
+      <span><kbd>.</kbd></span><span>시뮬레이터 다음 단계 (슬라이드는 그대로)</span>
+      <span><kbd>,</kbd></span><span>시뮬레이터 이전 단계</span>
+      <span><kbd>R</kbd></span><span>시뮬레이터 처음으로</span>
+      <span><kbd>P</kbd></span><span>자동 시연 시작, 일시정지 (마지막 단계에서 멈춤, 슬라이드는 넘기지 않음)</span>
+      <span><kbd>N</kbd></span><span>발표자 노트 열기, 닫기</span>
+      <span><kbd>I</kbd></span><span>목차</span>
+      <span><kbd>C</kbd></span><span>무대 모드 (녹화용, 바깥 UI 숨김)</span>
+      <span><kbd>F</kbd></span><span>전체 화면</span>
+      <span><kbd>Esc</kbd></span><span>창 닫기, 무대 모드 끄기</span>
+      <span><kbd>?</kbd></span><span>이 안내</span>
+    </div>
+    <p class="small">주소 끝에 #slide-11 처럼 붙이면 그 슬라이드로 바로 열립니다. #slide-11/step-3 은 그 슬라이드 시뮬레이터의 3단계로 엽니다. 입력 칸과 슬라이더에 포커스가 있을 때는 단축키가 동작하지 않습니다.</p>
+  </div>
+</div>
+
+<noscript><p style="padding:80px 24px;font-size:20px">이 슬라이드는 JavaScript가 필요합니다. 내용은 src/index.html과 content-plan-v01.md에서 읽을 수 있습니다.</p></noscript>
+<script>
+/* generated by tools/build.py from examples/ ; do not edit */
+window.EXAMPLES = {
+ "r01_vocab.rs": "fn main() {\n    let x = 5;\n    let mut y = 10;\n    y = y + 1;\n    println!(\"x = {}, y = {}\", x, y);\n}\n",
+ "r02_stack_frames.rs": "fn add(p: i32, q: i32) -> i32 {\n    let sum = p + q;\n    sum\n}\n\nfn main() {\n    let a = 2;\n    let b = 3;\n    let c = add(a, b);\n    println!(\"{}\", c);\n}\n",
+ "r03_string_heap.rs": "fn main() {\n    let literal: &str = \"hi\";\n    let mut s = String::from(literal);\n    s.push_str(\"!!\");\n    println!(\"{} {}\", s, s.len());\n    println!(\"{}\", literal);\n}\n",
+ "r04_vec_capacity.rs": "fn main() {\n    let mut v: Vec<i32> = Vec::with_capacity(4);\n    v.push(10);\n    v.push(20);\n    v.push(30);\n    println!(\"len={} cap>=4:{}\", v.len(), v.capacity() >= 4);\n    v.push(40);\n    v.push(50);\n    println!(\"len={} cap>=5:{}\", v.len(), v.capacity() >= 5);\n}\n",
+ "r04_vec_capacity_probe.rs": "fn main() {\n    let mut v: Vec<i32> = Vec::with_capacity(4);\n    println!(\"start len={} cap={}\", v.len(), v.capacity());\n    for x in [10, 20, 30, 40, 50] {\n        v.push(x);\n        println!(\"push {} len={} cap={}\", x, v.len(), v.capacity());\n    }\n}\n",
+ "r05_scope_drop.rs": "fn main() {\n    let outer = String::from(\"outer\");\n    {\n        let inner = String::from(\"inner\");\n        println!(\"{} {}\", outer, inner);\n    }\n    println!(\"{}\", outer);\n}\n",
+ "r06_three_rules.rs": "fn main() {\n    let a = String::from(\"book\");\n    let b = a;\n    println!(\"{}\", b);\n}\n",
+ "r07_string_move.rs": "fn main() {\n    let s1 = String::from(\"hello\");\n    let s2 = s1;\n    println!(\"{}\", s2);\n}\n",
+ "r08_use_after_move.rs": "fn main() {\n    let s1 = String::from(\"hello\");\n    let s2 = s1;\n    println!(\"{} {}\", s1, s2);\n}\n",
+ "r11_vec_move_lab.rs": "fn main() {\n    let a = vec![1, 2, 3];\n    let mut b = a;\n    b.push(4);\n    println!(\"{:?}\", a);\n}\n",
+ "r12_vec_clone_lab.rs": "fn main() {\n    let a = vec![1, 2, 3];\n    let mut b = a.clone();\n    b.push(4);\n    println!(\"{:?}\", a);\n    println!(\"{:?}\", b);\n}\n",
+ "r13_i32_copy.rs": "fn main() {\n    let x: i32 = 5;\n    let mut y = x;\n    y += 1;\n    println!(\"x={} y={}\", x, y);\n}\n",
+ "r14_clone_cost.rs": "fn main() {\n    let big: Vec<u8> = vec![7; 1000];\n    let copy = big.clone();\n    println!(\"{} {}\", big.len(), copy.len());\n}\n",
+ "r15_fn_arg_move.rs": "fn take(s: String) {\n    println!(\"take: {}\", s);\n}\n\nfn show(n: i32) {\n    println!(\"show: {}\", n);\n}\n\nfn main() {\n    let word = String::from(\"rust\");\n    let num = 7;\n    take(word);\n    show(num);\n    println!(\"{}\", num);\n}\n",
+ "r16_return_ownership.rs": "fn make() -> String {\n    String::from(\"new\")\n}\n\nfn add_bang(mut s: String) -> String {\n    s.push('!');\n    s\n}\n\nfn main() {\n    let a = make();\n    let b = add_bang(a);\n    println!(\"{}\", b);\n}\n",
+ "r17_borrow_teaser.rs": "fn count(s: &String) -> usize {\n    s.len()\n}\n\nfn main() {\n    let name = String::from(\"ferris\");\n    let n = count(&name);\n    println!(\"{} {}\", name, n);\n}\n",
+ "r18_fix_fn_broken.rs": "fn take(s: String) {\n    println!(\"{}\", s);\n}\n\nfn main() {\n    let msg = String::from(\"hi\");\n    take(msg);\n    println!(\"{}\", msg);\n}\n",
+ "r18_fix_fn_clone.rs": "fn take(s: String) {\n    println!(\"{}\", s);\n}\n\nfn main() {\n    let msg = String::from(\"hi\");\n    take(msg.clone());\n    println!(\"{}\", msg);\n}\n",
+ "r18_fix_fn_mut.rs": "fn take(s: String) {\n    println!(\"{}\", s);\n}\n\nfn main() {\n    let mut msg = String::from(\"hi\");\n    take(msg);\n    println!(\"{}\", msg);\n}\n",
+ "r18_fix_fn_return.rs": "fn take(s: String) -> String {\n    println!(\"{}\", s);\n    s\n}\n\nfn main() {\n    let msg = String::from(\"hi\");\n    let msg = take(msg);\n    println!(\"{}\", msg);\n}\n",
+ "r19_fix_vec_broken.rs": "fn main() {\n    let list = vec![1, 2];\n    let other = list;\n    println!(\"{:?} {:?}\", list, other);\n}\n",
+ "r19_fix_vec_clone.rs": "fn main() {\n    let list = vec![1, 2];\n    let other = list.clone();\n    println!(\"{:?} {:?}\", list, other);\n}\n",
+ "r19_fix_vec_mut.rs": "fn main() {\n    let mut list = vec![1, 2];\n    let other = list;\n    println!(\"{:?} {:?}\", list, other);\n}\n",
+ "r19_fix_vec_swap.rs": "fn main() {\n    let list = vec![1, 2];\n    let other = list;\n    println!(\"{:?}\", other);\n}\n",
+ "r20_fix_clone_temp.rs": "fn main() {\n    let v = vec![1, 2];\n    v.clone().push(3);\n    println!(\"{:?}\", v);\n}\n",
+ "r20_fix_mut_broken.rs": "fn main() {\n    let v = vec![1, 2];\n    v.push(3);\n    println!(\"{:?}\", v);\n}\n",
+ "r20_fix_mut_fixed.rs": "fn main() {\n    let mut v = vec![1, 2];\n    v.push(3);\n    println!(\"{:?}\", v);\n}\n",
+ "r21_tuple_copy.rs": "fn main() {\n    let p = (1, 2);\n    let q = p;\n    println!(\"{:?} {:?}\", p, q);\n}\n",
+ "r21_tuple_string_move.rs": "fn main() {\n    let p = (1, String::from(\"x\"));\n    let q = p;\n    println!(\"{:?} {:?}\", p, q);\n}\n",
+ "r24_rc_clone.rs": "use std::rc::Rc;\n\nfn main() {\n    let a = Rc::new(String::from(\"shared\"));\n    let b = Rc::clone(&a);\n    println!(\"{} {}\", Rc::strong_count(&a), b);\n}\n",
+ "p09_list_alias.py": "a = [1, 2, 3]\nb = a\nb.append(4)\nprint(a)\n",
+ "p10_rebind_vs_mutate.py": "x = 1\ny = x\ny = y + 1\nprint(x, y)\n\na = [1, 2, 3]\nb = a\nb = b + [4]\nprint(a, b)\nprint(a is b)\n",
+ "p22_copy_module.py": "import copy\n\na = [[1], [2]]\nb = copy.copy(a)\nc = copy.deepcopy(a)\nb[0].append(9)\nprint(a)\nprint(c)\n",
+ "p23_list_copy.py": "a = [1, 2, 3]\nb = a.copy()\nb.append(4)\nprint(a, b)\nprint(a is b)\n"
+};
+window.EXPECTED = {
+ "r01_vocab.rs": {
+  "kind": "ok",
+  "stdout": "x = 5, y = 11\n"
+ },
+ "r02_stack_frames.rs": {
+  "kind": "ok",
+  "stdout": "5\n"
+ },
+ "r03_string_heap.rs": {
+  "kind": "ok",
+  "stdout": "hi!! 4\nhi\n"
+ },
+ "r04_vec_capacity.rs": {
+  "kind": "ok",
+  "stdout": "len=3 cap>=4:true\nlen=5 cap>=5:true\n"
+ },
+ "r05_scope_drop.rs": {
+  "kind": "ok",
+  "stdout": "outer inner\nouter\n"
+ },
+ "r06_three_rules.rs": {
+  "kind": "ok",
+  "stdout": "book\n"
+ },
+ "r07_string_move.rs": {
+  "kind": "ok",
+  "stdout": "hello\n"
+ },
+ "r08_use_after_move.rs": {
+  "kind": "compile_error",
+  "codes": [
+   "E0382"
+  ]
+ },
+ "r11_vec_move_lab.rs": {
+  "kind": "compile_error",
+  "codes": [
+   "E0382"
+  ]
+ },
+ "r12_vec_clone_lab.rs": {
+  "kind": "ok",
+  "stdout": "[1, 2, 3]\n[1, 2, 3, 4]\n"
+ },
+ "r13_i32_copy.rs": {
+  "kind": "ok",
+  "stdout": "x=5 y=6\n"
+ },
+ "r14_clone_cost.rs": {
+  "kind": "ok",
+  "stdout": "1000 1000\n"
+ },
+ "r15_fn_arg_move.rs": {
+  "kind": "ok",
+  "stdout": "take: rust\nshow: 7\n7\n"
+ },
+ "r16_return_ownership.rs": {
+  "kind": "ok",
+  "stdout": "new!\n"
+ },
+ "r17_borrow_teaser.rs": {
+  "kind": "ok",
+  "stdout": "ferris 6\n"
+ },
+ "r18_fix_fn_broken.rs": {
+  "kind": "compile_error",
+  "codes": [
+   "E0382"
+  ]
+ },
+ "r18_fix_fn_clone.rs": {
+  "kind": "ok",
+  "stdout": "hi\nhi\n"
+ },
+ "r18_fix_fn_return.rs": {
+  "kind": "ok",
+  "stdout": "hi\nhi\n"
+ },
+ "r19_fix_vec_broken.rs": {
+  "kind": "compile_error",
+  "codes": [
+   "E0382"
+  ]
+ },
+ "r19_fix_vec_clone.rs": {
+  "kind": "ok",
+  "stdout": "[1, 2] [1, 2]\n"
+ },
+ "r20_fix_mut_broken.rs": {
+  "kind": "compile_error",
+  "codes": [
+   "E0596"
+  ]
+ },
+ "r20_fix_mut_fixed.rs": {
+  "kind": "ok",
+  "stdout": "[1, 2, 3]\n"
+ },
+ "r21_tuple_copy.rs": {
+  "kind": "ok",
+  "stdout": "(1, 2) (1, 2)\n"
+ },
+ "r21_tuple_string_move.rs": {
+  "kind": "compile_error",
+  "codes": [
+   "E0382"
+  ]
+ },
+ "r24_rc_clone.rs": {
+  "kind": "ok",
+  "stdout": "2 shared\n"
+ },
+ "p09_list_alias.py": {
+  "kind": "ok",
+  "stdout": "[1, 2, 3, 4]\n"
+ },
+ "p10_rebind_vs_mutate.py": {
+  "kind": "ok",
+  "stdout": "1 2\n[1, 2, 3] [1, 2, 3, 4]\nFalse\n"
+ },
+ "p22_copy_module.py": {
+  "kind": "ok",
+  "stdout": "[[1, 9], [2]]\n[[1], [2]]\n"
+ },
+ "p23_list_copy.py": {
+  "kind": "ok",
+  "stdout": "[1, 2, 3] [1, 2, 3, 4]\nFalse\n"
+ },
+ "r18_fix_fn_mut.rs": {
+  "kind": "compile_error",
+  "codes": [
+   "E0382"
+  ]
+ },
+ "r19_fix_vec_swap.rs": {
+  "kind": "ok",
+  "stdout": "[1, 2]\n"
+ },
+ "r20_fix_clone_temp.rs": {
+  "kind": "ok",
+  "stdout": "[1, 2]\n"
+ },
+ "r04_vec_capacity_probe.rs": {
+  "kind": "ok",
+  "stdout": "start len=0 cap=4\npush 10 len=1 cap=4\npush 20 len=2 cap=4\npush 30 len=3 cap=4\npush 40 len=4 cap=4\npush 50 len=5 cap=8\n",
+  "note": "capacity values observed on rustc 1.96.1 aarch64-apple-darwin; not guaranteed by the language"
+ },
+ "r19_fix_vec_mut.rs": {
+  "kind": "compile_error",
+  "codes": [
+   "E0382"
+  ]
+ }
+};
+window.TOOLCHAIN = "$ rustc -vV\nrustc 1.96.1 (31fca3adb 2026-06-26) (Homebrew)\nbinary: rustc\ncommit-hash: 31fca3adb283cc9dfd56b49cdee9a96eb9c96ffd\ncommit-date: 2026-06-26\nhost: aarch64-apple-darwin\nrelease: 1.96.1\nLLVM version: 22.1.8\n\n$ rustc --edition 2021 r04_vec_capacity_probe.rs && ./r04_vec_capacity_probe\nstart len=0 cap=4\npush 10 len=1 cap=4\npush 20 len=2 cap=4\npush 30 len=3 cap=4\npush 40 len=4 cap=4\npush 50 len=5 cap=8\n";
+
+</script>
+<script>
+/* Step data for every simulator and quiz.
+   Every state is precomputed here; nothing is executed in the browser. */
+(function () {
+  'use strict';
+
+  const num = (v, ty) => ({ t: 'num', v: String(v), ty: ty || 'i32' });
+  const desc = (ptr, len, cap, ty) => ({ t: 'desc', ptr, len, cap, ty: ty || 'String' });
+  const ref = (to) => ({ t: 'ref', to });
+  const lit = (ptr) => ({ t: 'strref', ptr });
+  const v = (name, val, o) => Object.assign({ name, val, st: 'valid' }, o || {});
+  const F = (name, vars, o) => Object.assign({ name, vars }, o || {});
+  const H = (id, ty, cells, cap, o) => Object.assign({ id, ty, cells, cap, st: 'live' }, o || {});
+  const ch = (s) => s.split('');
+
+  /* Fill unspecified fields from the previous step so each step is a full,
+     self-contained state (deterministic replay and step-back). */
+  function seq(list) {
+    let prev = { stack: [], heap: [], out: [], ledger: [], names: [], objs: [] };
+    return list.map((s) => {
+      const st = {
+        line: s.line || 0,
+        say: s.say,
+        ev: s.ev || null,
+        lit: s.lit || [],
+        flash: s.flash || [],
+        stack: s.stack !== undefined ? s.stack : prev.stack,
+        heap: s.heap !== undefined ? s.heap : prev.heap,
+        names: s.names !== undefined ? s.names : prev.names,
+        objs: s.objs !== undefined ? s.objs : prev.objs,
+        ledger: s.ledger !== undefined ? s.ledger : prev.ledger,
+        phase: s.phase || prev.phase || 'check',
+        error: s.error !== undefined ? s.error : prev.error || null,
+        out: s.print ? prev.out.concat(s.print) : (s.out !== undefined ? s.out : prev.out),
+        plates: s.plates !== undefined ? s.plates : prev.plates,
+        action: s.action || null
+      };
+      prev = st;
+      return st;
+    });
+  }
+
+  const SIMS = {};
+
+  /* 3. vocabulary */
+  SIMS.vocab = {
+    kind: 'mem', example: 'r01_vocab.rs', heapless: true,
+    steps: seq([
+      { say: '실행 전입니다. "다음 단계"를 눌러 한 줄씩 따라가 보세요.' },
+      { line: 2, say: '<b>let x = 5;</b> 값 5를 만들고 이름 x에 묶습니다(바인딩). mut가 없으니 x에 묶인 값은 바꿀 수 없습니다.',
+        stack: [F('main', [v('x', num(5))])], flash: ['x'], lit: ['w-var', 'w-val'] },
+      { line: 3, say: '<b>let mut y = 10;</b> mut는 "나중에 바꿀 수 있음"이라는 표시입니다.',
+        stack: [F('main', [v('x', num(5)), v('y', num(10), { mut: true })])], flash: ['y'], lit: ['w-mut'] },
+      { line: 4, say: '<b>y = y + 1;</b> y에 묶인 값이 11로 바뀝니다. x는 그대로 5입니다.',
+        stack: [F('main', [v('x', num(5)), v('y', num(11), { mut: true })])], flash: ['y'], ev: '값 변경', lit: ['w-mut'] },
+      { line: 5, say: '두 값을 출력합니다.', print: ['x = 5, y = 11'] },
+      { line: 6, say: '<b>}</b> main의 스코프(이름이 살아 있는 구간)가 끝납니다. 이제 x와 y라는 이름은 쓸 수 없습니다. 흐린 칸은 설명을 위해 잠깐 남겨 둔 흔적입니다. 정수는 힙을 쓰지 않아 따로 치울 힙이 없습니다.',
+        stack: [F('main', [v('x', num(5), { st: 'gone' }), v('y', num(11), { mut: true, st: 'gone' })])], ev: '스코프 끝', lit: ['w-scope'] },
+      { line: 6, say: 'main이 끝나 main 프레임이 스택에서 빠졌습니다. 그 자리는 이제 쓰이지 않는 칸이라 다음에 부르는 함수가 다시 쓸 수 있습니다. 값을 0으로 지우거나 운영체제에 메모리를 돌려주는 것은 아닙니다.',
+        stack: [], ev: 'pop: main 프레임', lit: ['w-scope'] }
+    ])
+  };
+
+  /* 4. plate analogy */
+  SIMS.plates = {
+    kind: 'plates',
+    steps: seq([
+      { say: '빈 선반입니다. 접시는 맨 위에만 올리고 맨 위에서만 꺼낼 수 있습니다.', plates: [] },
+      { say: '접시 A를 올립니다 (push).', plates: ['A'], action: 'push A' },
+      { say: '접시 B를 A 위에 올립니다 (push).', plates: ['A', 'B'], action: 'push B' },
+      { say: '접시 C를 올립니다. 이제 맨 위는 C입니다.', plates: ['A', 'B', 'C'], action: 'push C' },
+      { say: '하나 꺼냅니다 (pop). 가장 나중에 올린 C가 먼저 나옵니다.', plates: ['A', 'B'], action: 'pop C' },
+      { say: '접시 D를 올립니다. B 위에 놓입니다.', plates: ['A', 'B', 'D'], action: 'push D' },
+      { say: 'pop, pop. D가 먼저, 그다음 B가 나옵니다. 나중에 온 것이 먼저 나가는 규칙(LIFO)입니다.', plates: ['A'], action: 'pop D, pop B' },
+      { say: '비유는 여기까지. 다음 화면에서 진짜 스택은 접시 대신 "함수 프레임"을 쌓는다는 것을 봅니다.', plates: [], action: 'pop A' }
+    ])
+  };
+
+  /* 5. stack frames */
+  SIMS.frames = {
+    kind: 'mem', example: 'r02_stack_frames.rs', heapless: true,
+    steps: seq([
+      { say: '실행 전. 프로그램은 main부터 시작합니다.' },
+      { line: 7, say: 'main이 시작되면 스택에 main 프레임(함수 하나가 쓰는 칸 묶음)이 생깁니다. a = 2.',
+        stack: [F('main', [v('a', num(2))])], flash: ['a'], ev: 'push: main 프레임' },
+      { line: 8, say: 'b = 3. 같은 main 프레임 안에 놓입니다.',
+        stack: [F('main', [v('a', num(2)), v('b', num(3))])], flash: ['b'] },
+      { line: 9, say: 'add(a, b)를 부르면 main 위에 add 프레임이 쌓입니다. i32는 Copy라서 p, q에 값이 복사됩니다.',
+        stack: [F('main', [v('a', num(2)), v('b', num(3)), v('c', num('?'), { st: 'pending' })]), F('add', [v('p', num(2)), v('q', num(3))])],
+        flash: ['p', 'q'], ev: 'push: add 프레임' },
+      { line: 2, say: 'add 안에서 sum = 5를 계산합니다. sum은 add 프레임에 있습니다.',
+        stack: [F('main', [v('a', num(2)), v('b', num(3)), v('c', num('?'), { st: 'pending' })]), F('add', [v('p', num(2)), v('q', num(3)), v('sum', num(5))])],
+        flash: ['sum'] },
+      { line: 3, say: 'sum을 돌려주고 add가 끝납니다. add 프레임은 맨 위에서 통째로 빠지고(pop) 값 5는 c에 들어갑니다.',
+        stack: [F('main', [v('a', num(2)), v('b', num(3)), v('c', num(5))])], flash: ['c'], ev: 'pop: add 프레임' },
+      { line: 10, say: 'c를 출력합니다.', print: ['5'] },
+      { line: 11, say: 'main이 끝나면 main 프레임도 빠집니다. 스택이 비었습니다.', stack: [], ev: 'pop: main 프레임' }
+    ])
+  };
+
+  /* 6. String on the heap */
+  SIMS.string = {
+    kind: 'mem', example: 'r03_string_heap.rs',
+    steps: seq([
+      { say: '실행 전. 아직 그림에 아무것도 없습니다. "다음 단계"로 시작하세요.' },
+      { line: 2, say: '<b>literal: &str</b> "hi" 바이트는 이 줄보다 먼저, 프로그램 파일 안 읽기 전용 데이터에 이미 들어 있습니다. 여기서 그림에 처음 보여 줄 뿐 let이 새로 만드는 것이 아닙니다. 힙도 아닙니다. literal은 그 바이트를 가리킵니다.',
+        stack: [F('main', [v('literal', lit('RO'))])], heap: [H('RO', '&str 고정 데이터', ch('hi'), 2, { st: 'static' })], flash: ['literal'], ev: '고정 데이터 보여 주기' },
+      { line: 3, say: '<b>String::from</b>은 힙에 버퍼를 새로 잡고(할당) "hi"를 복사합니다. s 칸에는 설명표 ptr(주소), len(바이트 수), cap(잡아 둔 크기)이 들어갑니다.',
+        stack: [F('main', [v('literal', lit('RO')), v('s', desc('H1', 2, 2), { mut: true })])],
+        heap: [H('RO', '&str 고정 데이터', ch('hi'), 2, { st: 'static' }), H('H1', 'String', ch('hi'), 2)],
+        flash: ['s', 'H1'], ev: '힙 할당 #1' },
+      { line: 4, say: '<b>push_str("!!")</b> 공간이 모자라 더 큰 버퍼로 키웁니다. 이때 버퍼가 다른 곳으로 옮겨질 수도 있습니다. len은 4, cap 8은 이 환경(rustc 1.96.1)에서 찍어 본 값이고 표준 보장은 아닙니다(근거는 7번 화면).',
+        stack: [F('main', [v('literal', lit('RO')), v('s', desc('H1', 4, 8), { mut: true })])],
+        heap: [H('RO', '&str 고정 데이터', ch('hi'), 2, { st: 'static' }), H('H1', 'String', ch('hi!!'), 8)],
+        flash: ['s', 'H1'], ev: '버퍼 키움' },
+      { line: 5, say: 'len은 글자 수가 아니라 <b>바이트 수</b>입니다. ASCII 글자는 1바이트라서 4가 나옵니다.', print: ['hi!! 4'] },
+      { line: 6, say: '고정 데이터는 그대로입니다.', print: ['hi'] },
+      { line: 7, say: '스코프가 끝나면 s가 drop되어 힙 할당 #1이 해제됩니다. 고정 데이터는 drop 대상이 아니고 프로그램이 도는 동안 그대로 있습니다.',
+        stack: [F('main', [v('literal', lit('RO'), { st: 'gone' }), v('s', desc('H1', 4, 8), { mut: true, st: 'dropped' })])],
+        heap: [H('RO', '&str 고정 데이터', ch('hi'), 2, { st: 'static' }), H('H1', 'String', ch('hi!!'), 8, { st: 'freed' })],
+        flash: ['H1'], ev: 'drop: 할당 #1 해제' }
+    ])
+  };
+
+  /* 7. Vec len vs capacity */
+  SIMS.vec = {
+    kind: 'mem', example: 'r04_vec_capacity.rs',
+    steps: seq([
+      { say: '실행 전.' },
+      { line: 2, say: '<b>with_capacity(4)</b> 원소 4개가 들어갈 자리를 미리 잡습니다. 아직 원소는 0개라서 len 0, cap 4.',
+        stack: [F('main', [v('v', desc('H1', 0, 4, 'Vec<i32>'), { mut: true })])], heap: [H('H1', 'Vec<i32>', [], 4)], flash: ['v', 'H1'], ev: '힙 할당 #1' },
+      { line: 5, say: 'push 세 번. 미리 잡은 자리에 채우기만 하므로 새 할당이 없습니다. len 3, cap 4.',
+        stack: [F('main', [v('v', desc('H1', 3, 4, 'Vec<i32>'), { mut: true })])], heap: [H('H1', 'Vec<i32>', ['10', '20', '30'], 4)], flash: ['H1'] },
+      { line: 6, say: 'len과 capacity는 다른 숫자입니다.', print: ['len=3 cap>=4:true'] },
+      { line: 7, say: 'push(40). 자리가 꽉 찼습니다. len 4, cap 4.',
+        stack: [F('main', [v('v', desc('H1', 4, 4, 'Vec<i32>'), { mut: true })])], heap: [H('H1', 'Vec<i32>', ['10', '20', '30', '40'], 4)], flash: ['H1'] },
+      { line: 8, say: 'push(50). 자리가 없어 버퍼를 키웁니다. 할당기는 제자리에서 늘릴 수도, 다른 곳으로 옮길 수도 있습니다. 그림은 옮긴 경우(#1 → #2)입니다. cap 8은 이 환경(rustc 1.96.1)에서 실제로 찍어 본 값입니다. 오른쪽 위 "관찰 근거"를 보세요.',
+        stack: [F('main', [v('v', desc('H2', 5, 8, 'Vec<i32>'), { mut: true })])],
+        heap: [H('H1', 'Vec<i32>', ['10', '20', '30', '40'], 4, { st: 'freed' }), H('H2', 'Vec<i32>', ['10', '20', '30', '40', '50'], 8)],
+        flash: ['v', 'H2'], ev: '키움 (옮긴 경우 예시)' },
+      { line: 9, say: '출력합니다.', print: ['len=5 cap>=5:true'],
+        heap: [H('H2', 'Vec<i32>', ['10', '20', '30', '40', '50'], 8)] },
+      { line: 10, say: '스코프가 끝나 v가 drop되고 할당 #2가 해제됩니다.',
+        stack: [F('main', [v('v', desc('H2', 5, 8, 'Vec<i32>'), { mut: true, st: 'dropped' })])],
+        heap: [H('H2', 'Vec<i32>', ['10', '20', '30', '40', '50'], 8, { st: 'freed' })], flash: ['H2'], ev: 'drop: 할당 #2 해제' }
+    ])
+  };
+
+  /* 9. scope and drop */
+  SIMS.scope = {
+    kind: 'mem', example: 'r05_scope_drop.rs',
+    steps: seq([
+      { say: '실행 전. 중괄호 { }가 스코프의 경계입니다.' },
+      { line: 2, say: 'outer가 힙 할당 #1의 주인(owner)이 됩니다.',
+        stack: [F('main', [v('outer', desc('H1', 5, 5))])], heap: [H('H1', 'String', ch('outer'), 5)], flash: ['outer', 'H1'], ev: '할당 #1' },
+      { line: 3, say: '안쪽 블록 { 에 들어갑니다. 여기서 만든 이름은 이 블록 안에서만 살아 있습니다.',
+        stack: [F('main', [v('outer', desc('H1', 5, 5))]), F('{ } 블록', [])], ev: '스코프 시작' },
+      { line: 4, say: 'inner가 힙 할당 #2의 주인이 됩니다.',
+        stack: [F('main', [v('outer', desc('H1', 5, 5))]), F('{ } 블록', [v('inner', desc('H2', 5, 5))])],
+        heap: [H('H1', 'String', ch('outer'), 5), H('H2', 'String', ch('inner'), 5)], flash: ['inner', 'H2'], ev: '할당 #2' },
+      { line: 5, say: '둘 다 쓸 수 있습니다.', print: ['outer inner'] },
+      { line: 6, say: '<b>}</b> 블록이 끝납니다. Rust가 여기서 자동으로 drop을 불러 inner의 힙(할당 #2)을 해제합니다. 직접 free를 쓰지 않습니다.',
+        stack: [F('main', [v('outer', desc('H1', 5, 5))]), F('{ } 블록', [v('inner', desc('H2', 5, 5), { st: 'dropped' })])],
+        heap: [H('H1', 'String', ch('outer'), 5), H('H2', 'String', ch('inner'), 5, { st: 'freed' })], flash: ['H2'], ev: 'drop: inner' },
+      { line: 7, say: 'outer는 아직 스코프 안이라 쓸 수 있습니다.',
+        stack: [F('main', [v('outer', desc('H1', 5, 5))])], heap: [H('H1', 'String', ch('outer'), 5)], print: ['outer'] },
+      { line: 8, say: 'main이 끝나며 outer가 drop되고 할당 #1이 해제됩니다. 할당 하나당 해제는 정확히 한 번입니다.',
+        stack: [F('main', [v('outer', desc('H1', 5, 5), { st: 'dropped' })])], heap: [H('H1', 'String', ch('outer'), 5, { st: 'freed' })], flash: ['H1'], ev: 'drop: outer' }
+    ])
+  };
+
+  /* 10. three rules */
+  SIMS.rules = {
+    kind: 'mem', example: 'r06_three_rules.rs',
+    steps: seq([
+      { say: '규칙 세 개가 코드 어디에서 보이는지 따라가 봅시다.' },
+      { line: 2, say: '규칙 1. 값마다 주인(owner)이 있습니다. a가 할당 #1 "book"의 주인입니다.',
+        stack: [F('main', [v('a', desc('H1', 4, 4))])], heap: [H('H1', 'String', ch('book'), 4)], flash: ['a', 'H1'], lit: ['rule1'], ev: '주인: a' },
+      { line: 3, say: '규칙 2. 주인은 한 번에 하나뿐입니다. let b = a;로 주인이 b로 바뀌고 a는 더 이상 쓸 수 없습니다.',
+        stack: [F('main', [v('a', desc('H1', 4, 4), { st: 'moved' }), v('b', desc('H1', 4, 4))])], flash: ['a', 'b'], lit: ['rule2'], ev: '이동 a → b' },
+      { line: 4, say: '현재 주인 b로 씁니다.', print: ['book'], lit: ['rule2'] },
+      { line: 5, say: '규칙 3. 주인이 스코프를 벗어나면 값이 drop됩니다. 주인 b 하나만 해제를 맡으므로 두 번 해제되지 않습니다.',
+        stack: [F('main', [v('a', desc('H1', 4, 4), { st: 'moved' }), v('b', desc('H1', 4, 4), { st: 'dropped' })])],
+        heap: [H('H1', 'String', ch('book'), 4, { st: 'freed' })], flash: ['H1'], lit: ['rule3'], ev: 'drop: b' }
+    ])
+  };
+
+  /* 11. String move */
+  SIMS.move = {
+    kind: 'mem', example: 'r07_string_move.rs',
+    steps: seq([
+      { say: '실행 전.' },
+      { line: 2, say: 's1이 힙 할당 #1 "hello"의 주인입니다. 설명표: ptr, len 5, cap 5.',
+        stack: [F('main', [v('s1', desc('H1', 5, 5))])], heap: [H('H1', 'String', ch('hello'), 5)], flash: ['s1', 'H1'], ev: '할당 #1' },
+      { line: 3, say: '<b>let s2 = s1;</b> 설명표 세 칸(ptr, len, cap)만 s2로 옮겨 적습니다. 힙의 "hello" 바이트는 복사하지 않습니다. 할당은 여전히 #1 하나입니다.',
+        stack: [F('main', [v('s1', desc('H1', 5, 5), { st: 'moved' }), v('s2', desc('H1', 5, 5))])], flash: ['s1', 's2'], ev: '이동 (move)' },
+      { line: 3, say: 's1은 null이 된 것이 아닙니다. 컴파일러가 장부에 "s1은 이동됨"이라고 적고, 이후 s1 사용을 컴파일 단계에서 막습니다.',
+        flash: ['s1'] },
+      { line: 4, say: '새 주인 s2로 출력합니다.', print: ['hello'] },
+      { line: 5, say: '스코프 끝. 주인 s2만 drop을 맡습니다. s1은 이미 이동되어 해제 대상이 아니므로 같은 버퍼를 두 번 해제하지 않습니다.',
+        stack: [F('main', [v('s1', desc('H1', 5, 5), { st: 'moved' }), v('s2', desc('H1', 5, 5), { st: 'dropped' })])],
+        heap: [H('H1', 'String', ch('hello'), 5, { st: 'freed' })], flash: ['H1'], ev: 'drop: s2 (한 번)' }
+    ])
+  };
+
+  /* 12. use after move (compile-time only) */
+  const E0382_s1 = [
+    'error[E0382]: borrow of moved value: `s1`',
+    ' --> r08_use_after_move.rs:4:23',
+    '  |',
+    '2 |     let s1 = String::from("hello");',
+    '  |         -- move occurs because `s1` has type `String`,',
+    '  |            which does not implement the `Copy` trait',
+    '3 |     let s2 = s1;',
+    '  |              -- value moved here',
+    '4 |     println!("{} {}", s1, s2);',
+    '  |                       ^^ value borrowed here after move'
+  ].join('\n');
+  SIMS.q1compile = {
+    kind: 'compile', example: 'r08_use_after_move.rs',
+    steps: seq([
+      { say: '컴파일러가 실행 전에 코드를 위에서부터 읽으며 "누가 주인인지" 장부를 씁니다. 아직 아무 줄도 실행되지 않았습니다.', ledger: [], phase: 'check' },
+      { line: 2, say: 's1: String의 주인으로 기록.', ledger: [{ name: 's1', ty: 'String', st: 'owner', note: '2번 줄에서 주인' }], flash: ['s1'] },
+      { line: 3, say: 's1의 소유권이 s2로 이동. 장부에 "s1 이동됨"을 적습니다.',
+        ledger: [{ name: 's1', ty: 'String', st: 'moved', note: '3번 줄에서 s2로 이동' }, { name: 's2', ty: 'String', st: 'owner', note: '3번 줄부터 주인' }], flash: ['s1', 's2'] },
+      { line: 4, say: '이동된 s1을 쓰려고 합니다. 컴파일러가 여기서 멈추고 오류를 냅니다.',
+        ledger: [{ name: 's1', ty: 'String', st: 'error', note: '4번 줄: 이동 후 사용' }, { name: 's2', ty: 'String', st: 'owner', note: '3번 줄부터 주인' }], flash: ['s1'], phase: 'error', error: E0382_s1 },
+      { line: 4, say: '결과: 실행 파일이 만들어지지 않습니다. 출력은 0줄입니다. "hello"가 한 번 찍히다 멈추는 것도 아닙니다.', phase: 'error' }
+    ])
+  };
+
+  /* 13. Python list aliasing */
+  SIMS.pyalias = {
+    kind: 'py', example: 'p09_list_alias.py',
+    steps: seq([
+      { say: '실행 전. Python 그림은 "이름표 → 객체" 개념도입니다.', names: [], objs: [] },
+      { line: 1, say: '리스트 객체 #1을 만들고 이름 a를 그 객체에 묶습니다.',
+        names: [{ name: 'a', to: 'O1' }], objs: [{ id: 'O1', ty: 'list', cells: ['1', '2', '3'] }], flash: ['a', 'O1'] },
+      { line: 2, say: '<b>b = a</b> 새 리스트를 만들지 않습니다. 이름 b를 같은 객체 #1에 하나 더 묶습니다. 이제 객체 하나에 이름표가 두 개입니다.',
+        names: [{ name: 'a', to: 'O1' }, { name: 'b', to: 'O1' }], flash: ['b'], ev: 'a is b → True' },
+      { line: 3, say: '<b>b.append(4)</b> 객체 #1 자체를 바꿉니다(변경, mutation). a도 같은 객체를 보고 있습니다.',
+        objs: [{ id: 'O1', ty: 'list', cells: ['1', '2', '3', '4'] }], flash: ['O1'], ev: '객체 #1 변경' },
+      { line: 4, say: 'a를 출력해도 바뀐 객체가 보입니다. 오류 없이 실행됩니다.', print: ['[1, 2, 3, 4]'] }
+    ])
+  };
+
+  /* 14. Python rebinding vs mutation */
+  SIMS.pyrebind = {
+    kind: 'py', example: 'p10_rebind_vs_mutate.py',
+    steps: seq([
+      { say: '실행 전.', names: [], objs: [] },
+      { line: 1, say: 'int 객체 1에 이름 x를 묶습니다.', names: [{ name: 'x', to: 'O1' }], objs: [{ id: 'O1', ty: 'int', cells: ['1'] }], flash: ['x', 'O1'] },
+      { line: 2, say: 'y도 같은 객체에 묶습니다.', names: [{ name: 'x', to: 'O1' }, { name: 'y', to: 'O1' }], flash: ['y'] },
+      { line: 3, say: '<b>y = y + 1</b> int는 바꿀 수 없는(immutable) 객체입니다. 새 객체 2를 만들고 이름표 y만 옮깁니다(재바인딩). x는 그대로 1.',
+        names: [{ name: 'x', to: 'O1' }, { name: 'y', to: 'O2' }], objs: [{ id: 'O1', ty: 'int', cells: ['1'] }, { id: 'O2', ty: 'int', cells: ['2'] }], flash: ['y', 'O2'], ev: '재바인딩' },
+      { line: 4, say: '출력.', print: ['1 2'] },
+      { line: 6, say: '리스트 객체 #3에 a를 묶습니다.',
+        names: [{ name: 'x', to: 'O1' }, { name: 'y', to: 'O2' }, { name: 'a', to: 'O3' }],
+        objs: [{ id: 'O1', ty: 'int', cells: ['1'] }, { id: 'O2', ty: 'int', cells: ['2'] }, { id: 'O3', ty: 'list', cells: ['1', '2', '3'] }], flash: ['a', 'O3'] },
+      { line: 7, say: 'b도 같은 리스트 객체 #3에 묶습니다. 여기까지는 실습 1과 같습니다.',
+        names: [{ name: 'x', to: 'O1' }, { name: 'y', to: 'O2' }, { name: 'a', to: 'O3' }, { name: 'b', to: 'O3' }], flash: ['b'] },
+      { line: 8, say: '<b>b = b + [4]</b> +는 새 리스트 객체 #4를 만듭니다. 이름표 b만 #4로 옮깁니다. 객체 #3은 바뀌지 않습니다. (append는 #3 자체를 바꾸는 것이었죠.)',
+        names: [{ name: 'x', to: 'O1' }, { name: 'y', to: 'O2' }, { name: 'a', to: 'O3' }, { name: 'b', to: 'O4' }],
+        objs: [{ id: 'O1', ty: 'int', cells: ['1'] }, { id: 'O2', ty: 'int', cells: ['2'] }, { id: 'O3', ty: 'list', cells: ['1', '2', '3'] }, { id: 'O4', ty: 'list', cells: ['1', '2', '3', '4'] }],
+        flash: ['b', 'O4'], ev: '새 객체 + 재바인딩' },
+      { line: 9, say: 'a는 원래 리스트, b는 새 리스트를 봅니다.', print: ['[1, 2, 3] [1, 2, 3, 4]'] },
+      { line: 10, say: '둘은 이제 다른 객체입니다.', print: ['False'] }
+    ])
+  };
+
+  /* 15. Rust Vec move lab (compile-time only) */
+  const E0382_a = [
+    'error[E0382]: borrow of moved value: `a`',
+    ' --> r11_vec_move_lab.rs:5:22',
+    '  |',
+    '2 |     let a = vec![1, 2, 3];',
+    '  |         - move occurs because `a` has type `Vec<i32>`,',
+    '  |           which does not implement the `Copy` trait',
+    '3 |     let mut b = a;',
+    '  |                 - value moved here',
+    '4 |     b.push(4);',
+    '5 |     println!("{:?}", a);',
+    '  |                      ^ value borrowed here after move',
+    'help: consider cloning the value if the performance cost is acceptable',
+    '3 |     let mut b = a.clone();'
+  ].join('\n');
+  SIMS.labrust = {
+    kind: 'compile', example: 'r11_vec_move_lab.rs',
+    steps: seq([
+      { say: 'Python과 똑같은 모양의 코드입니다. 컴파일러가 먼저 검사합니다. 아직 실행 전입니다.', ledger: [], phase: 'check' },
+      { line: 2, say: 'a: Vec<i32>의 주인으로 기록.', ledger: [{ name: 'a', ty: 'Vec<i32>', st: 'owner', note: '2번 줄에서 주인' }], flash: ['a'] },
+      { line: 3, say: 'let mut b = a; Python처럼 "이름 하나 더"가 아니라 소유권 이동입니다. a는 이동됨.',
+        ledger: [{ name: 'a', ty: 'Vec<i32>', st: 'moved', note: '3번 줄에서 b로 이동' }, { name: 'b', ty: 'Vec<i32>', st: 'owner', note: '3번 줄부터 주인, mut' }], flash: ['a', 'b'] },
+      { line: 4, say: 'b.push(4)는 문제없습니다. b가 주인이고 mut이기 때문입니다.', flash: ['b'] },
+      { line: 5, say: '이동된 a를 읽으려 합니다. 오류 E0382.',
+        ledger: [{ name: 'a', ty: 'Vec<i32>', st: 'error', note: '5번 줄: 이동 후 사용' }, { name: 'b', ty: 'Vec<i32>', st: 'owner', note: '3번 줄부터 주인, mut' }], flash: ['a'], phase: 'error', error: E0382_a },
+      { line: 5, say: 'Python은 실행해서 [1, 2, 3, 4]를 찍었습니다. Rust는 실행하기 전에 거부합니다. 같은 데이터를 두 이름이 몰래 함께 바꾸는 일을 미리 막는 것입니다.', phase: 'error' }
+    ])
+  };
+
+  /* 16. clone fix */
+  SIMS.labclone = {
+    kind: 'mem', example: 'r12_vec_clone_lab.rs',
+    steps: seq([
+      { say: '이번에는 컴파일을 통과하는 프로그램입니다. 실행 결과는 미리 계산한 것입니다.' },
+      { line: 2, say: 'a가 할당 #1 [1, 2, 3]의 주인.',
+        stack: [F('main', [v('a', desc('H1', 3, 3, 'Vec<i32>'))])], heap: [H('H1', 'Vec<i32>', ['1', '2', '3'], 3)], flash: ['a', 'H1'], ev: '할당 #1' },
+      { line: 3, say: '<b>a.clone()</b> 새 힙 버퍼(할당 #2)를 잡고 원소를 복사합니다. b는 #2의 주인. a는 계속 #1의 주인이라 유효합니다.',
+        stack: [F('main', [v('a', desc('H1', 3, 3, 'Vec<i32>')), v('b', desc('H2', 3, 3, 'Vec<i32>'), { mut: true })])],
+        heap: [H('H1', 'Vec<i32>', ['1', '2', '3'], 3), H('H2', 'Vec<i32>', ['1', '2', '3'], 3)], flash: ['b', 'H2'], ev: 'clone: 할당 #2' },
+      { line: 4, say: 'b.push(4)는 할당 #2만 바꿉니다. cap 6은 예시(rustc 1.96.1). #1은 그대로입니다.',
+        stack: [F('main', [v('a', desc('H1', 3, 3, 'Vec<i32>')), v('b', desc('H2', 4, 6, 'Vec<i32>'), { mut: true })])],
+        heap: [H('H1', 'Vec<i32>', ['1', '2', '3'], 3), H('H2', 'Vec<i32>', ['1', '2', '3', '4'], 6)], flash: ['H2'], ev: '#2만 변경' },
+      { line: 5, say: 'a는 원래 값 그대로.', print: ['[1, 2, 3]'] },
+      { line: 6, say: 'b는 4가 붙은 값.', print: ['[1, 2, 3, 4]'] },
+      { line: 7, say: '스코프 끝. 선언의 반대 순서로 drop: b(할당 #2) 먼저, 그다음 a(할당 #1). 주인이 둘, 할당도 둘, 해제도 두 번.',
+        stack: [F('main', [v('a', desc('H1', 3, 3, 'Vec<i32>'), { st: 'dropped' }), v('b', desc('H2', 4, 6, 'Vec<i32>'), { mut: true, st: 'dropped' })])],
+        heap: [H('H1', 'Vec<i32>', ['1', '2', '3'], 3, { st: 'freed' }), H('H2', 'Vec<i32>', ['1', '2', '3', '4'], 6, { st: 'freed' })], flash: ['H1', 'H2'], ev: 'drop: b, 그다음 a' }
+    ])
+  };
+
+  /* 17. i32 Copy */
+  SIMS.copy = {
+    kind: 'mem', example: 'r13_i32_copy.rs', heapless: true,
+    steps: seq([
+      { say: '실행 전.' },
+      { line: 2, say: 'x: i32 = 5. 정수는 크기가 정해진 작은 값이고 따로 소유하는 힙 버퍼가 없습니다.',
+        stack: [F('main', [v('x', num(5))])], flash: ['x'] },
+      { line: 3, say: '<b>let mut y = x;</b> i32는 Copy 타입이라 값이 그대로 복사됩니다. x는 이동되지 않고 계속 유효합니다.',
+        stack: [F('main', [v('x', num(5)), v('y', num(5), { mut: true })])], flash: ['y'], ev: 'Copy (자동 복사)' },
+      { line: 4, say: 'y만 6이 됩니다. 서로 다른 값이라 x에 영향이 없습니다.',
+        stack: [F('main', [v('x', num(5)), v('y', num(6), { mut: true })])], flash: ['y'] },
+      { line: 5, say: '둘 다 쓸 수 있습니다.', print: ['x=5 y=6'] }
+    ])
+  };
+
+  /* 19. function argument move */
+  SIMS.fnmove = {
+    kind: 'mem', example: 'r15_fn_arg_move.rs',
+    steps: seq([
+      { say: '실행 전. 함수에 값을 넘기는 것도 let 대입과 같은 규칙을 따릅니다.' },
+      { line: 10, say: 'word가 할당 #1 "rust"의 주인.',
+        stack: [F('main', [v('word', desc('H1', 4, 4))])], heap: [H('H1', 'String', ch('rust'), 4)], flash: ['word', 'H1'], ev: '할당 #1' },
+      { line: 11, say: 'num = 7 (i32).', stack: [F('main', [v('word', desc('H1', 4, 4)), v('num', num(7))])], flash: ['num'] },
+      { line: 12, say: '<b>take(word)</b> String을 인자로 넘기면 소유권이 매개변수 s로 이동합니다. word는 이동됨.',
+        stack: [F('main', [v('word', desc('H1', 4, 4), { st: 'moved' }), v('num', num(7))]), F('take', [v('s', desc('H1', 4, 4))])], flash: ['word', 's'], ev: '이동 word → s' },
+      { line: 2, say: 'take 안에서 출력.', print: ['take: rust'] },
+      { line: 3, say: 'take가 끝나면 주인 s가 스코프를 벗어나 drop. 할당 #1은 take 안에서 해제됩니다.',
+        stack: [F('main', [v('word', desc('H1', 4, 4), { st: 'moved' }), v('num', num(7))]), F('take', [v('s', desc('H1', 4, 4), { st: 'dropped' })])],
+        heap: [H('H1', 'String', ch('rust'), 4, { st: 'freed' })], flash: ['H1'], ev: 'drop: s' },
+      { line: 13, say: '<b>show(num)</b> i32는 Copy라서 n에 값이 복사됩니다. num은 그대로 유효.',
+        stack: [F('main', [v('word', desc('H1', 4, 4), { st: 'moved' }), v('num', num(7))]), F('show', [v('n', num(7))])], heap: [], flash: ['n'], ev: 'Copy num → n' },
+      { line: 6, say: 'show 안에서 출력.', print: ['show: 7'] },
+      { line: 7, say: 'show 프레임이 빠집니다.', stack: [F('main', [v('word', desc('H1', 4, 4), { st: 'moved' }), v('num', num(7))])], ev: 'pop: show' },
+      { line: 14, say: 'num은 계속 쓸 수 있습니다. 여기서 word를 쓰면 컴파일 오류입니다(퀴즈 Q4에서 확인).', print: ['7'] },
+      { line: 15, say: 'main 끝. word는 이미 이동되었으니 해제할 것이 없습니다.',
+        stack: [F('main', [v('word', desc('H1', 4, 4), { st: 'moved' }), v('num', num(7), { st: 'gone' })])], ev: '스코프 끝' }
+    ])
+  };
+
+  /* 20. returning ownership */
+  SIMS.fnret = {
+    kind: 'mem', example: 'r16_return_ownership.rs',
+    steps: seq([
+      { say: '실행 전.' },
+      { line: 11, say: 'make()를 부릅니다. make 프레임이 쌓입니다.', stack: [F('main', []), F('make', [])], ev: 'push: make' },
+      { line: 2, say: 'make 안에서 할당 #1 "new"를 만듭니다. 아직 이름 없는 반환값입니다.',
+        stack: [F('main', []), F('make', [v('(반환값)', desc('H1', 3, 3))])], heap: [H('H1', 'String', ch('new'), 3)], flash: ['H1'], ev: '할당 #1' },
+      { line: 11, say: '반환하면 소유권이 a로 옮겨 옵니다. make 프레임은 빠지지만 할당 #1은 해제되지 않습니다. 주인이 a로 바뀌었을 뿐입니다.',
+        stack: [F('main', [v('a', desc('H1', 3, 3))])], flash: ['a'], ev: '반환: 소유권 → a' },
+      { line: 12, say: '<b>add_bang(a)</b> a의 소유권이 매개변수 s로 이동.',
+        stack: [F('main', [v('a', desc('H1', 3, 3), { st: 'moved' })]), F('add_bang', [v('s', desc('H1', 3, 3), { mut: true })])], flash: ['a', 's'], ev: '이동 a → s' },
+      { line: 6, say: 'mut s라서 push로 바꿀 수 있습니다. cap 8은 예시(rustc 1.96.1).',
+        stack: [F('main', [v('a', desc('H1', 3, 3), { st: 'moved' })]), F('add_bang', [v('s', desc('H1', 4, 8), { mut: true })])],
+        heap: [H('H1', 'String', ch('new!'), 8)], flash: ['H1'] },
+      { line: 7, say: 's를 반환합니다. 소유권이 b로 옮겨 오고 add_bang 프레임은 빠집니다.',
+        stack: [F('main', [v('a', desc('H1', 3, 3), { st: 'moved' }), v('b', desc('H1', 4, 8))])], flash: ['b'], ev: '반환: 소유권 → b' },
+      { line: 13, say: '출력.', print: ['new!'] },
+      { line: 14, say: 'main 끝. 주인 b가 drop되며 할당 #1이 해제됩니다.',
+        stack: [F('main', [v('a', desc('H1', 3, 3), { st: 'moved' }), v('b', desc('H1', 4, 8), { st: 'dropped' })])],
+        heap: [H('H1', 'String', ch('new!'), 8, { st: 'freed' })], flash: ['H1'], ev: 'drop: b' }
+    ])
+  };
+
+  /* 21. borrow teaser */
+  SIMS.borrow = {
+    kind: 'mem', example: 'r17_borrow_teaser.rs',
+    steps: seq([
+      { say: '맛보기입니다. 규칙의 자세한 내용은 다음 시간에 다룹니다.' },
+      { line: 6, say: 'name이 할당 #1 "ferris"의 주인.',
+        stack: [F('main', [v('name', desc('H1', 6, 6))])], heap: [H('H1', 'String', ch('ferris'), 6)], flash: ['name', 'H1'], ev: '할당 #1' },
+      { line: 7, say: '<b>count(&name)</b> &는 "빌려주기"입니다. s는 name을 가리킬 뿐 주인이 아닙니다. 소유권은 name에 그대로 있습니다.',
+        stack: [F('main', [v('name', desc('H1', 6, 6)), v('n', num('?', 'usize'), { st: 'pending' })]), F('count', [v('s', ref('name'))])], flash: ['s'], ev: '빌림 (&)' },
+      { line: 2, say: 's.len()은 6. 빌린 쪽은 읽기만 합니다.', flash: ['s'] },
+      { line: 7, say: 'count가 끝나면 빌림도 끝납니다. 빌린 쪽은 주인이 아니므로 drop하지 않습니다. 할당 #1은 그대로.',
+        stack: [F('main', [v('name', desc('H1', 6, 6)), v('n', num(6, 'usize'))])], flash: ['n'], ev: '빌림 끝' },
+      { line: 8, say: 'name을 계속 쓸 수 있습니다. clone도, 반환도 필요 없었습니다.', print: ['ferris 6'] },
+      { line: 9, say: 'main 끝. 주인 name이 drop.',
+        stack: [F('main', [v('name', desc('H1', 6, 6), { st: 'dropped' }), v('n', num(6, 'usize'), { st: 'gone' })])],
+        heap: [H('H1', 'String', ch('ferris'), 6, { st: 'freed' })], flash: ['H1'], ev: 'drop: name' }
+    ])
+  };
+
+  /* ---------- quizzes ---------- */
+  const QUIZZES = {
+    q1: {
+      type: 'choice', label: 'Q1 예측',
+      q: '이동한 뒤 s1과 s2를 함께 출력하면 어떻게 될까요?',
+      choices: [
+        { t: 'hello hello 가 출력된다', ok: false, why: 'Python이라면 그렇게 생각하기 쉽습니다. 하지만 s1은 3번 줄에서 이동되었습니다.' },
+        { t: '컴파일 오류가 나서 실행되지 않는다', ok: true, why: '맞습니다. E0382 "이동된 값 사용". 실행 파일이 만들어지지 않습니다.' },
+        { t: '빈 문자열과 hello 가 출력된다', ok: false, why: '이동된 s1은 빈 값이나 null이 되는 것이 아닙니다. 아예 쓸 수 없게 막힙니다.' },
+        { t: '실행 중에 hello를 한 번 찍고 멈춘다', ok: false, why: 'Rust는 이 검사를 실행 전에 합니다. 일부만 실행되는 일은 없습니다.' }
+      ]
+    },
+    q2: {
+      type: 'choice', label: 'Q2 예측',
+      q: '9번 줄 print(a, b)는 무엇을 출력할까요? (8번 줄은 b = b + [4])',
+      choices: [
+        { t: '[1, 2, 3, 4] [1, 2, 3, 4]', ok: false, why: 'append였다면 그렇습니다. +는 새 리스트를 만들고 b만 옮깁니다.' },
+        { t: '[1, 2, 3] [1, 2, 3, 4]', ok: true, why: '맞습니다. 객체 #3은 바뀌지 않았고 b가 새 객체 #4로 재바인딩되었습니다.' },
+        { t: '[1, 2, 3] [1, 2, 3]', ok: false, why: 'b는 새 리스트 [1, 2, 3, 4]에 묶였습니다.' },
+        { t: '오류가 난다', ok: false, why: 'Python에서는 정상 실행되는 코드입니다.' }
+      ]
+    },
+    q3: {
+      type: 'sort', label: 'Q3 분류',
+      q: '각 타입이 let y = x; 에서 자동 복사(Copy)되는지, 이동(Move)되는지 고르세요.',
+      items: [
+        { t: 'i32', a: 'copy', why: '정수는 Copy.' },
+        { t: 'bool', a: 'copy', why: 'true/false 한 칸. Copy.' },
+        { t: 'char', a: 'copy', why: '글자 하나. Copy.' },
+        { t: '(i32, i32)', a: 'copy', why: '모든 칸이 Copy인 튜플은 Copy.' },
+        { t: 'String', a: 'move', why: '힙 버퍼를 소유하므로 Copy가 아님. Move.' },
+        { t: 'Vec<i32>', a: 'move', why: '원소는 Copy여도 Vec 자체는 힙 버퍼를 소유. Move.' }
+      ]
+    },
+    q4: {
+      type: 'fix', label: 'Q4 고치기',
+      broken: 'r18_fix_fn_broken.rs', errLine: 8,
+      err: 'error[E0382]: borrow of moved value: `msg`\n --> r18_fix_fn_broken.rs:8:20\n7 |     take(msg);\n  |          --- value moved here\n8 |     println!("{}", msg);\n  |                    ^^^ value borrowed here after move',
+      q: 'msg를 take에 넘긴 뒤에도 출력하고 싶습니다. 어떻게 고칠까요?',
+      choices: [
+        { t: 'take(msg.clone()) 으로 복제본을 넘긴다', ex: 'r18_fix_fn_clone.rs', ok: true, result: 'ok', out: ['hi', 'hi'], why: '복제본(새 할당)이 take로 가고 원본 msg는 남습니다. 대신 복사 비용이 듭니다.' },
+        { t: 'take가 s를 돌려주게 하고 let msg = take(msg); 로 받는다', ex: 'r18_fix_fn_return.rs', ok: true, result: 'ok', out: ['hi', 'hi'], why: '소유권을 돌려받는 방법입니다. 복사가 없습니다. 다음 시간의 빌림(&)이 더 간단한 길입니다.' },
+        { t: 'let mut msg 로 바꾼다', ex: 'r18_fix_fn_mut.rs', ok: false, result: 'error', err: 'error[E0382]: borrow of moved value: `msg` (8번 줄)\nwarning: variable does not need to be mutable', why: 'mut는 "바꿀 수 있음"이지 "주인을 유지함"이 아닙니다. 같은 오류가 그대로 납니다.' }
+      ]
+    },
+    q5: {
+      type: 'fix', label: 'Q5 고치기',
+      broken: 'r19_fix_vec_broken.rs', errLine: 4,
+      err: 'error[E0382]: borrow of moved value: `list`\n --> r19_fix_vec_broken.rs:4:27\n3 |     let other = list;\n  |                 ---- value moved here\n4 |     println!("{:?} {:?}", list, other);\n  |                           ^^^^ value borrowed here after move',
+      q: 'list와 other를 둘 다 출력하려면?',
+      choices: [
+        { t: 'let other = list.clone(); 으로 바꾼다', ex: 'r19_fix_vec_clone.rs', ok: true, result: 'ok', out: ['[1, 2] [1, 2]'], why: '두 할당, 두 주인. 둘 다 유효합니다.' },
+        { t: 'println!에서 list를 빼고 other만 출력한다', ex: 'r19_fix_vec_swap.rs', ok: false, goal: false, result: 'ok', out: ['[1, 2]'], why: '컴파일은 됩니다. 하지만 list는 출력하지 못해 "둘 다 출력"이라는 목표를 이루지 못했습니다. 컴파일 통과와 목표 달성은 다릅니다.' },
+        { t: 'let mut list 로 바꾼다', ex: 'r19_fix_vec_mut.rs', ok: false, result: 'error', err: 'error[E0382]: borrow of moved value: `list` (4번 줄)\nwarning: variable does not need to be mutable', why: 'mut는 "값을 바꿀 수 있음"이라는 표시일 뿐입니다. 3번 줄에서 소유권이 other로 옮겨 간 사실은 그대로라 같은 오류가 납니다.' }
+      ]
+    },
+    q6: {
+      type: 'fix', label: 'Q6 고치기',
+      broken: 'r20_fix_mut_broken.rs', errLine: 3,
+      err: 'error[E0596]: cannot borrow `v` as mutable,\n               as it is not declared as mutable\n --> r20_fix_mut_broken.rs:3:5\n3 |     v.push(3);\n  |     ^ cannot borrow as mutable\nhelp: consider changing this to be mutable\n2 |     let mut v = vec![1, 2];',
+      q: '이번 오류는 이동이 아닙니다. v에 3을 넣으려면?',
+      choices: [
+        { t: 'let mut v = vec![1, 2]; 로 바꾼다', ex: 'r20_fix_mut_fixed.rs', ok: true, result: 'ok', out: ['[1, 2, 3]'], why: '맞습니다. 바꾸려면 mut 표시가 필요합니다. 이동과는 다른 규칙입니다.' },
+        { t: 'v.clone().push(3); 으로 바꾼다', ex: 'r20_fix_clone_temp.rs', ok: false, goal: false, result: 'ok', out: ['[1, 2]'], why: '컴파일은 됩니다. 그런데 이름 없는 복제본에 3을 넣고 바로 버립니다. v는 [1, 2] 그대로입니다.' }
+      ]
+    },
+    q7: {
+      type: 'lines', label: 'Q7 줄 고르기', example: 'r15_fn_arg_move.rs',
+      q: '소유권 이동(move)이 일어나는 줄을 모두 고르세요. (19번 화면의 코드)',
+      answer: [12],
+      why: { 10: '만들기(주인 생김). 이동은 아님.', 11: 'i32 값 만들기.', 12: 'String을 함수 인자로 넘김: 이동.', 13: 'i32는 Copy: 복사.', 14: 'num 사용. Copy라 문제없음.' }
+    },
+    q8: {
+      type: 'compilepick', label: 'Q8 컴파일 예측',
+      q: '두 프로그램 중 컴파일되는 것을 고르세요.',
+      options: [
+        { ex: 'r21_tuple_copy.rs', ok: true, res: 'ok', out: ['(1, 2) (1, 2)'], why: '칸이 모두 i32라 튜플 전체가 Copy. p도 q도 유효.' },
+        { ex: 'r21_tuple_string_move.rs', ok: false, res: 'error', err: 'error[E0382]: borrow of moved value: `p`\n  p has type `(i32, String)`,\n  which does not implement the `Copy` trait', why: 'String이 한 칸이라도 있으면 튜플 전체가 Copy가 아닙니다. 이동.' }
+      ]
+    },
+    q9: {
+      type: 'tf', label: 'Q9 참/거짓',
+      items: [
+        { t: 'let s2 = s1; 에서 move는 힙의 문자열 바이트를 복사한다.', a: false, why: '거짓. ptr, len, cap 설명표만 옮깁니다. 힙 바이트는 그대로.' },
+        { t: '이동된 변수 s1은 null 값이 된다.', a: false, why: '거짓. 컴파일러가 s1 사용을 막을 뿐입니다. null을 넣지 않습니다.' },
+        { t: '.clone()은 언제나 모든 데이터를 깊게 복사한다.', a: false, why: '거짓. 타입마다 다릅니다. Rc::clone은 카운트만 올리고 데이터를 공유합니다.' },
+        { t: 'Vec의 len과 capacity는 같을 수도, 다를 수도 있다.', a: true, why: '참. len은 원소 수, capacity는 미리 잡아 둔 칸 수.' }
+      ]
+    }
+  };
+
+  window.SIMS = SIMS;
+  window.QUIZZES = QUIZZES;
+})();
+
+</script>
+<script>
+/* Scene builders + one shared animation renderer for every simulator.
+   Each step becomes a list of nodes with stable keys. The Stage tweens
+   position, size, opacity and arrow endpoints between consecutive scenes,
+   so objects move instead of being redrawn. Final values are exact targets. */
+(function () {
+  'use strict';
+
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const T = (x, y, s, cls, extra) => '<text x="' + x + '" y="' + y + '" class="' + (cls || '') + '"' + (extra || '') + '>' + esc(s) + '</text>';
+
+  const DEFS =
+    '<defs>' +
+    '<marker id="ah-heap" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--heap)"/></marker>' +
+    '<marker id="ah-ref" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--stack)"/></marker>' +
+    '<marker id="ah-ro" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>' +
+    '<marker id="ah-py" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--py)"/></marker>' +
+    '<marker id="ah-axis" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--ink-2)"/></marker>' +
+    '<pattern id="hatch" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="10" height="10" fill="var(--freed-bg)"/><line x1="0" y1="0" x2="0" y2="10" stroke="var(--line)" stroke-width="4"/></pattern>' +
+    '</defs>';
+
+  const W = 760, H = 480;
+  const STATUS = { valid: '✓ 유효', moved: '→ 이동됨', dropped: '해제됨 (drop)', gone: '스코프 끝', pending: '값 대기' };
+
+  /* ---------- Rust stack + heap ---------- */
+  // Educational layout: low addresses at the top, the stack grows upward,
+  // main sits at the bottom, newer frames and newer slots appear above older ones.
+  function memScene(sim, st) {
+    const AX = 22, X0 = 64, VX = 128, VW = 196, ROW = 56, HEAD = 28, PAD = 8;
+    const SW = VX + VW;            // stack slot width
+    const HX = 452, HW = 296;      // heap column
+    const TOPY = 74, BOT = H - 30; // stack drawing area
+    const nodes = [];
+    const static_ =
+      T(X0 - 8, 26, '스택', 'col-title') + T(X0 + 52, 26, '함수마다 프레임이 쌓임', 'col-sub') +
+      T(HX, 26, '힙', 'col-title') + T(HX + 34, 26, '실행 중에 빌려 쓰는 공간 (위치는 그림용)', 'col-sub') +
+      '<line x1="' + AX + '" y1="' + (BOT + 4) + '" x2="' + AX + '" y2="' + (TOPY - 18) + '" class="axis" marker-end="url(#ah-axis)"/>' +
+      T(AX - 10, TOPY - 30, '낮은 주소', 'axis-t') + T(AX - 10, H - 6, '높은 주소', 'axis-t') +
+      T(AX + 10, TOPY - 6, '스택이 자라는 방향 ↑', 'axis-t grow') +
+      '<line x1="' + (HX - 26) + '" y1="40" x2="' + (HX - 26) + '" y2="' + (H - 10) + '" class="divider"/>';
+    nodes.push({ key: 'static', x: 0, y: 0, html: static_ });
+
+    // heap blocks (top-down, position is only a drawing slot)
+    let hy = 46;
+    const heapPos = {};
+    const owners = {};
+    st.stack.forEach((f) => f.vars.forEach((v) => { if (v.val && v.val.ptr && v.st === 'valid' && v.val.t === 'desc') owners[v.val.ptr] = v.name; }));
+    if (sim.heapless && !st.heap.length) {
+      nodes.push({ key: 'heapless', x: HX, y: 90, html: T(0, 0, '이 예제는 힙을 쓰지 않습니다.', 'empty-note') + T(0, 28, '정수는 크기가 정해진 값이라', 'empty-note small') + T(0, 50, '따로 소유하는 버퍼가 없습니다.', 'empty-note small') });
+    } else if (!st.heap.length) {
+      nodes.push({ key: 'heapnone', x: HX, y: 90, html: T(0, 0, '(아직 할당 없음)', 'empty-note'), enter: { op: 0 } });
+    }
+    st.heap.forEach((b) => {
+      const n = Math.max(b.cap, b.cells.length, 1);
+      const cs = Math.min(36, Math.floor((HW - 20) / n));
+      const bh = 34 + cs + 12;
+      const title = b.st === 'static' ? '고정 데이터 (힙 아님)' : '할당 #' + b.id.replace(/\D/g, '') + '  ' + b.ty;
+      const right = b.st === 'freed' ? '해제됨' : b.st === 'static' ? '' : (owners[b.id] ? '주인: ' + owners[b.id] : '');
+      nodes.push({ key: 'H:' + b.id, rect: { x: HX, y: hy, w: HW, h: bh, rx: 10 }, cls: 'hbox hb-' + b.st, attrs: { 'data-id': b.id, 'data-st': b.st }, enter: { op: 0, dy: -12 }, delay: 0 });
+      nodes.push({ key: 'HF:' + b.id, rect: { x: HX, y: hy, w: HW, h: bh, rx: 10 }, cls: 'hfreed', op: b.st === 'freed' ? 1 : 0, enter: { op: 0 }, delay: b.st === 'freed' ? 0.35 : 0 });
+      nodes.push({ key: 'HT:' + b.id, x: HX + 12, y: hy + 22, html: T(0, 0, title, 'hb-title') + T(HW - 24, 0, right, b.st === 'freed' ? 'hb-freed' : 'hb-owner', ' text-anchor="end"') , enter: { op: 0, dy: -12 } });
+      for (let i = 0; i < n; i++) {
+        const filled = i < b.cells.length;
+        nodes.push({
+          key: 'C:' + b.id + ':' + i, x: HX + 10 + i * cs, y: hy + 32,
+          html: '<rect width="' + (cs - 4) + '" height="' + (cs - 4) + '" rx="4" class="cell' + (filled ? ' filled' : ' spare') + '"/>' + (filled ? T((cs - 4) / 2, (cs - 4) / 2 + 7, b.cells[i], 'cell-t', ' text-anchor="middle"') : ''),
+          cls: 'cellg' + (b.st === 'freed' ? ' freed' : ''), attrs: { 'data-block': b.id, 'data-filled': filled ? '1' : '0' },
+          enter: { op: 0, dy: -10 }, delay: 0.25
+        });
+      }
+      if (b.st !== 'static') nodes.push({ key: 'HC:' + b.id, x: HX + HW - 12, y: hy + bh - 6, html: T(0, 0, 'cap ' + b.cap, 'hb-cap', ' text-anchor="end"'), enter: { op: 0 } });
+      heapPos[b.id] = { x: HX, mid: hy + 32 + (cs - 4) / 2 };
+      hy += bh + 14;
+    });
+
+    // stack frames from the bottom (high addresses) upward
+    let y = BOT;
+    const anchors = {};
+    st.stack.forEach((f, fi) => {
+      const vars = f.vars.slice().reverse(); // newest slot on top
+      const fh = HEAD + Math.max(vars.length, 1) * ROW + PAD;
+      y -= fh;
+      nodes.push({ key: 'F:' + f.name, rect: { x: X0 - 8, y, w: SW + 16, h: fh, rx: 12 }, cls: 'fbox', enter: { op: 0, dy: -40 }, exit: { op: 0, dy: -40 } });
+      nodes.push({ key: 'FT:' + f.name, x: X0 + 2, y: y + 20, html: T(0, 0, f.name + ' 프레임', 'f-title'), enter: { op: 0, dy: -40 }, exit: { op: 0, dy: -40 } });
+      if (!vars.length) nodes.push({ key: 'FE:' + f.name, x: X0 + 2, y: y + HEAD + 30, html: T(0, 0, '(아직 변수 없음)', 'empty-note small'), enter: { op: 0, dy: -40 }, exit: { op: 0, dy: -40 } });
+      vars.forEach((vv, i) => {
+        const ry = y + HEAD + i * ROW;
+        let g = '<rect y="2" width="' + SW + '" height="' + (ROW - 8) + '" rx="8" class="vbox"/>' + T(12, 27, vv.name, 'v-name');
+        if (vv.st === 'moved' || vv.st === 'gone' || vv.st === 'dropped') g += '<line x1="10" y1="21" x2="' + (12 + Math.min(vv.name.length * 12 + 4, 100)) + '" y2="21" class="strike"/>';
+        if (vv.mut) { const mx = 14 + Math.min(vv.name.length * 12, 84); g += '<rect x="' + mx + '" y="11" width="38" height="20" rx="5" class="mut-badge"/>' + T(mx + 19, 26, 'mut', 'mut-t', ' text-anchor="middle"'); }
+        g += T(12, 45, STATUS[vv.st] || '', 'v-st');
+        const val = vv.val, vx = VX;
+        if (val.t === 'num') {
+          g += '<rect x="' + vx + '" y="8" width="' + (VW - 10) + '" height="34" rx="6" class="vcell"/>' + T(vx + 12, 31, val.v, 'v-num') + T(vx + VW - 20, 31, val.ty, 'v-ty', ' text-anchor="end"');
+        } else if (val.t === 'desc' || val.t === 'strref') {
+          const cells = val.t === 'desc' ? [['len', val.len], ['cap', val.cap], ['ptr', '●']] : [['len', 2], ['&str', ''], ['ptr', '●']];
+          const cw = 62;
+          if (vv.st !== 'moved') cells.forEach((c, k) => {
+            if (c[0] === '&str') { g += T(vx + k * cw + 8, 31, '&str', 'v-ty'); return; }
+            const isPtr = c[0] === 'ptr';
+            g += '<rect x="' + (vx + k * cw) + '" y="8" width="' + (cw - 4) + '" height="34" rx="6" class="vcell' + (isPtr ? ' ptr' : '') + '"/>' + T(vx + k * cw + 6, 22, c[0], 'v-lab') + T(vx + k * cw + (cw - 4) / 2 + (isPtr ? 0 : 6), 38, String(c[1]), 'v-val', ' text-anchor="middle"');
+          });
+          else g += '<rect x="' + (vx - 2) + '" y="14" width="' + (3 * cw) + '" height="22" rx="4" class="ban"/>' + T(vx + 1.5 * cw - 2, 30, '사용 금지 (컴파일러)', 'ban-t', ' text-anchor="middle"');
+          if (vv.st === 'valid' && heapPos[val.ptr]) anchors['ptr:' + val.ptr] = { x1: X0 + vx + 3 * cw - 4, y1: ry + 25, x2: heapPos[val.ptr].x - 2, y2: heapPos[val.ptr].mid, cls: val.t === 'strref' ? 'ro' : 'heap' };
+        } else if (val.t === 'ref') {
+          g += '<rect x="' + vx + '" y="8" width="' + (VW - 10) + '" height="34" rx="6" class="vcell refcell"/>' + T(vx + 12, 31, '& → ' + val.to + ' (빌림)', 'v-val');
+          anchors['ref:' + vv.name] = { from: vv.name, to: val.to, y1: ry + 25 };
+        }
+        anchors['row:' + vv.name] = { y: ry + 25 };
+        nodes.push({ key: 'V:' + f.name + ':' + vv.name, x: X0, y: ry, html: g, cls: 'var st-' + vv.st, attrs: { 'data-id': vv.name, 'data-st': vv.st }, enter: { op: 0, dy: -24 }, enterDelay: 0.35, exit: { op: 0, dy: -30 } });
+      });
+    });
+    // top-of-stack marker
+    const tosY = st.stack.length ? y - 6 : BOT;
+    nodes.push({ key: 'tos', x: X0 - 12, y: tosY, html: '<line x1="0" y1="0" x2="' + (SW + 24) + '" y2="0" class="tos-line"/>' + T(SW + 26, 5, 'TOS', 'tos-t') + T(SW + 26, 22, '스택 꼭대기', 'tos-s'), attrs: { 'data-tos': String(Math.round(tosY)) } });
+    if (!st.stack.length) nodes.push({ key: 'stackempty', x: X0, y: BOT - 30, html: T(0, 0, '(스택 비어 있음)', 'empty-note'), enter: { op: 0 } });
+
+    // arrows keyed by what they point at, so ownership moves glide the tail
+    Object.keys(anchors).forEach((k) => {
+      const a = anchors[k];
+      if (k.startsWith('ptr:')) nodes.push({ key: 'A:' + k.slice(4), arrow: { x1: a.x1, y1: a.y1, x2: a.x2, y2: a.y2, bend: 'h' }, cls: 'arrow ' + a.cls, marker: a.cls === 'ro' ? 'ah-ro' : 'ah-heap', delay: 0.45 });
+      if (k.startsWith('ref:') && anchors['row:' + a.to]) {
+        const x = X0 + VX + VW - 10;
+        nodes.push({ key: 'R:' + a.from, arrow: { x1: x, y1: a.y1, x2: x + 2, y2: anchors['row:' + a.to].y, bend: 'loop' }, cls: 'arrow ref', marker: 'ah-ref', delay: 0.45 });
+      }
+    });
+    return nodes;
+  }
+
+  /* ---------- Python names -> objects (concept picture, not Rust memory) ---------- */
+  function pyScene(sim, st) {
+    const NX = 40, OX = 360, OW = 360;
+    const nodes = [{ key: 'static', x: 0, y: 0, html: T(NX, 28, '이름', 'col-title py') + T(NX + 52, 28, '(변수 이름표)', 'col-sub') + T(OX, 28, '객체', 'col-title py') + T(OX + 52, 28, '(값이 담긴 것, 번호는 그림용)', 'col-sub') }];
+    const opos = {};
+    if (!st.objs.length) nodes.push({ key: 'noobj', x: OX, y: 90, html: T(0, 0, '(아직 객체 없음)', 'empty-note'), enter: { op: 0 } });
+    if (!st.names.length) nodes.push({ key: 'noname', x: NX, y: 90, html: T(0, 0, '(아직 이름 없음)', 'empty-note'), enter: { op: 0 } });
+    st.objs.forEach((o, i) => {
+      const y = 48 + i * 100;
+      const refd = st.names.some((n) => n.to === o.id);
+      nodes.push({ key: 'O:' + o.id, rect: { x: OX, y, w: OW, h: 84, rx: 12 }, cls: 'obox' + (refd ? '' : ' orphan'), attrs: { 'data-id': o.id }, enter: { op: 0, dx: 30 } });
+      nodes.push({ key: 'OT:' + o.id, x: OX + 14, y: y + 26, html: T(0, 0, '객체 #' + o.id.slice(1) + '   ' + o.ty, 'o-title') + (o.ty === 'int' ? T(56, 37, '바꿀 수 없는 객체', 'o-note') : '') + (!refd ? T(OW - 26, 0, '이름 없음', 'o-note', ' text-anchor="end"') : ''), enter: { op: 0, dx: 30 } });
+      o.cells.forEach((c, k) => {
+        nodes.push({ key: 'OC:' + o.id + ':' + k, x: OX + 14 + k * 46, y: y + 38, html: '<rect width="40" height="36" rx="6" class="ocell"/>' + T(20, 25, c, 'cell-t', ' text-anchor="middle"'), attrs: { 'data-obj': o.id }, enter: { op: 0, dy: -12 }, delay: 0.2 });
+      });
+      opos[o.id] = { x: OX, y: y + 42 };
+    });
+    st.names.forEach((n, i) => {
+      const y = 52 + i * 76;
+      nodes.push({ key: 'N:' + n.name, x: NX, y, html: '<rect width="120" height="48" rx="24" class="nbox"/>' + T(60, 32, n.name, 'n-t', ' text-anchor="middle"'), cls: 'pname', attrs: { 'data-id': n.name, 'data-to': n.to }, enter: { op: 0, dx: -30 } });
+      const t = opos[n.to];
+      if (t) nodes.push({ key: 'P:' + n.name, arrow: { x1: NX + 122, y1: y + 24, x2: t.x - 2, y2: t.y, bend: 'h' }, cls: 'arrow py', marker: 'ah-py', delay: 0.4 });
+    });
+    return nodes;
+  }
+
+  /* ---------- compiler ledger (no memory picture: nothing runs) ---------- */
+  const LST = { owner: '✓ 주인', moved: '→ 이동됨', error: '✕ 오류: 이동 후 사용' };
+  function compileScene(sim, st) {
+    const nodes = [];
+    const blocked = st.phase === 'error';
+    nodes.push({ key: 'ph1', x: 10, y: 14, html: '<rect width="210" height="38" rx="19" class="ph-box on"/>' + T(105, 25, '① 컴파일 검사 중', 'ph-t', ' text-anchor="middle"') });
+    nodes.push({ key: 'pharrow', x: 232, y: 40, html: T(0, 0, '→', 'ph-arrow') });
+    nodes.push({ key: 'ph2', x: 262, y: 14, html: '<rect width="210" height="38" rx="19" class="ph-box' + (blocked ? ' blocked' : '') + '"/>' + T(105, 25, blocked ? '② 실행: 하지 않음' : '② 실행: 아직', 'ph-t' + (blocked ? ' blocked' : ''), ' text-anchor="middle"') + (blocked ? '<line x1="22" y1="19" x2="188" y2="19" class="ph-strike"/>' : '') });
+    nodes.push({ key: 'lhead', x: 10, y: 80, html: T(0, 0, '컴파일러의 소유권 장부 (실행 전 분석)', 'l-cap') + '<rect y="10" width="730" height="34" class="l-head"/>' + T(12, 33, '이름', 'l-h') + T(120, 33, '타입', 'l-h') + T(270, 33, '상태', 'l-h') + T(480, 33, '근거', 'l-h') });
+    if (!st.ledger.length) nodes.push({ key: 'lempty', x: 22, y: 160, html: T(0, 0, '아직 기록 없음', 'empty-note'), enter: { op: 0 } });
+    st.ledger.forEach((r, i) => {
+      const chipW = r.st === 'error' ? 196 : 104;
+      nodes.push({
+        key: 'L:' + r.name, x: 10, y: 126 + i * 56,
+        html: '<rect width="730" height="50" class="l-row"/>' + T(12, 32, r.name, 'l-name') + T(120, 32, r.ty, 'l-ty') +
+          '<rect x="262" y="10" width="' + chipW + '" height="30" rx="15" class="chipr c-' + r.st + '"/>' + T(262 + chipW / 2, 31, LST[r.st], 'chip-t c-' + r.st, ' text-anchor="middle"') + T(480, 32, r.note, 'l-note'),
+        cls: 'lr st-' + r.st, attrs: { 'data-id': r.name, 'data-st': r.st }, enter: { op: 0, dy: -16 }
+      });
+    });
+    return nodes;
+  }
+
+  /* ---------- plates analogy: same upward direction as the stack ---------- */
+  function platesScene(sim, st) {
+    const nodes = [{ key: 'static', x: 0, y: 0, html: '<rect x="230" y="430" width="300" height="16" rx="6" class="shelf"/>' + T(380, 470, '선반 (바닥) = main 쪽', 'col-sub', ' text-anchor="middle"') + '<line x1="70" y1="420" x2="70" y2="90" class="axis" marker-end="url(#ah-axis)"/>' + T(84, 100, '쌓이는 방향 ↑', 'axis-t grow') }];
+    const plates = st.plates || [];
+    plates.forEach((p, i) => {
+      const y = 380 - i * 58;
+      nodes.push({ key: 'PL:' + p, x: 380, y: y + 20, html: '<ellipse rx="130" ry="26" class="plate-e"/><ellipse cy="-6" rx="96" ry="16" class="plate-in"/>' + T(0, 2, '접시 ' + p, 'plate-t', ' text-anchor="middle"'), cls: 'plate', attrs: { 'data-id': 'plate-' + p }, enter: { op: 0, dy: -140 }, exit: { op: 0, dy: -140 } });
+    });
+    const topY = plates.length ? 380 - (plates.length - 1) * 58 + 26 : 410;
+    nodes.push({ key: 'top', x: 524, y: topY, html: T(0, 0, plates.length ? '← 맨 위 (top)' : '(비어 있음)', 'plate-top') + T(0, 22, plates.length ? '여기서만 넣고 뺌' : '', 'tos-s') });
+    if (st.action) nodes.push({ key: 'act', x: 110, y: 30, html: '<rect width="220" height="56" rx="12" class="act-box"/>' + T(110, 36, st.action, 'act-t', ' text-anchor="middle"') });
+    return nodes;
+  }
+
+  const BUILD = { mem: memScene, py: pyScene, compile: compileScene, plates: platesScene };
+
+  /* ---------- Stage: the shared animation renderer ---------- */
+  const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  const lerp = (a, b, t) => a + (b - a) * t;
+  function arrowD(a) {
+    if (a.bend === 'loop') return 'M' + a.x1 + ',' + a.y1 + ' C' + (a.x1 + 70) + ',' + a.y1 + ' ' + (a.x2 + 70) + ',' + a.y2 + ' ' + a.x2 + ',' + a.y2;
+    const k = Math.max(50, Math.abs(a.x2 - a.x1) * 0.55);
+    return 'M' + a.x1 + ',' + a.y1 + ' C' + (a.x1 + k) + ',' + a.y1 + ' ' + (a.x2 - k) + ',' + a.y2 + ' ' + a.x2 + ',' + a.y2;
+  }
+  function targetOf(n) {
+    if (n.arrow) return { x1: n.arrow.x1, y1: n.arrow.y1, x2: n.arrow.x2, y2: n.arrow.y2, op: n.op === undefined ? 1 : n.op };
+    if (n.rect) return { x: n.rect.x, y: n.rect.y, w: n.rect.w, h: n.rect.h, op: n.op === undefined ? 1 : n.op };
+    return { x: n.x, y: n.y, op: n.op === undefined ? 1 : n.op };
+  }
+
+  function Stage(host, kind) {
+    this.host = host;
+    host.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" class="mem k-' + kind + '" role="img" aria-label="' + ({ mem: '스택과 힙 그림', py: 'Python 이름과 객체 개념도', compile: '컴파일러 장부', plates: '접시 쌓기 비유' }[kind]) + '">' + DEFS + '<g class="layer"></g></svg>';
+    this.layer = host.querySelector('.layer');
+    this.els = {};   // key -> {el, inner, node, cur}
+    this.anim = null;
+  }
+  Stage.prototype.apply = function (rec, v) {
+    const n = rec.node;
+    rec.cur = v;
+    if (n.arrow) {
+      rec.el.setAttribute('d', arrowD({ x1: v.x1, y1: v.y1, x2: v.x2, y2: v.y2, bend: n.arrow.bend }));
+      rec.el.style.opacity = v.op;
+    } else if (n.rect) {
+      rec.el.setAttribute('x', v.x); rec.el.setAttribute('y', v.y);
+      rec.el.setAttribute('width', Math.max(0, v.w)); rec.el.setAttribute('height', Math.max(0, v.h));
+      rec.el.style.opacity = v.op;
+    } else {
+      rec.el.setAttribute('transform', 'translate(' + v.x.toFixed(2) + ',' + v.y.toFixed(2) + ')');
+      rec.el.style.opacity = v.op;
+    }
+  };
+  Stage.prototype.create = function (n) {
+    let el, inner = null;
+    if (n.arrow) { el = document.createElementNS(SVGNS, 'path'); el.setAttribute('marker-end', 'url(#' + n.marker + ')'); }
+    else if (n.rect) { el = document.createElementNS(SVGNS, 'rect'); el.setAttribute('rx', n.rect.rx || 0); }
+    else { el = document.createElementNS(SVGNS, 'g'); inner = document.createElementNS(SVGNS, 'g'); inner.setAttribute('class', 'inner'); inner.innerHTML = n.html; el.appendChild(inner); }
+    el.setAttribute('data-key', n.key);
+    return { el, inner, node: n, cur: null, html: n.html };
+  };
+  Stage.prototype.decorate = function (rec, n) {
+    rec.el.setAttribute('class', (n.cls || '') + (rec.leaving ? ' leaving' : ''));
+    const old = rec.node.attrs || {};
+    Object.keys(old).forEach((k) => { if (!n.attrs || !(k in n.attrs)) rec.el.removeAttribute(k); });
+    if (n.attrs) Object.keys(n.attrs).forEach((k) => rec.el.setAttribute(k, n.attrs[k]));
+    if (n.arrow && n.marker) rec.el.setAttribute('marker-end', 'url(#' + n.marker + ')');
+    rec.node = n;
+  };
+  // Finish any running transition: jump to targets, drop leaving nodes and ghosts.
+  Stage.prototype.finish = function () {
+    if (!this.anim) return;
+    cancelAnimationFrame(this.anim.raf);
+    this.anim.items.forEach((it) => this.apply(it.rec, it.to));
+    this.cleanup();
+    this.anim = null;
+    this.host.closest('.sim') && this.host.closest('.sim').removeAttribute('data-animating');
+  };
+  // Freeze a running transition where it is (used when a new step arrives mid-flight).
+  Stage.prototype.freeze = function () {
+    if (!this.anim) return;
+    cancelAnimationFrame(this.anim.raf);
+    this.cleanup();
+    this.anim = null;
+  };
+  Stage.prototype.cleanup = function () {
+    Object.keys(this.els).forEach((k) => { const r = this.els[k]; if (r.leaving) { r.el.remove(); delete this.els[k]; } });
+    this.layer.querySelectorAll('.ghost').forEach((g) => g.remove());
+    Object.keys(this.els).forEach((k) => { const r = this.els[k]; if (r.inner) r.inner.style.opacity = ''; });
+  };
+  Stage.prototype.render = function (nodes, dur) {
+    this.freeze();
+    const items = [];
+    const seen = {};
+    nodes.forEach((n) => {
+      seen[n.key] = true;
+      let rec = this.els[n.key];
+      const isNew = !rec;
+      const to = targetOf(n);
+      let from;
+      if (rec) {
+        from = rec.cur || to;
+        if (!n.arrow && !n.rect && rec.html !== n.html) {
+          // crossfade: old content fades out as a ghost while the new content fades in
+          if (dur > 0) {
+            const ghost = rec.inner.cloneNode(true);
+            ghost.setAttribute('class', 'inner ghost');
+            rec.el.insertBefore(ghost, rec.inner);
+            items.push({ ghost, delay: 0 });
+            rec.inner.style.opacity = 0;
+            items.push({ fadeIn: rec.inner, delay: 0.15 });
+          }
+          rec.inner.innerHTML = n.html;
+          rec.html = n.html;
+        }
+      } else {
+        rec = this.create(n);
+        this.els[n.key] = rec;
+        rec.fresh = true;
+        const e = n.enter || { op: 0 };
+        if (n.arrow) from = { x1: to.x1, y1: to.y1, x2: to.x1, y2: to.y1, op: 0 };
+        else if (n.rect) from = { x: to.x + (e.dx || 0), y: to.y + (e.dy || 0), w: to.w, h: to.h, op: e.op === undefined ? to.op : e.op };
+        else from = { x: to.x + (e.dx || 0), y: to.y + (e.dy || 0), op: e.op === undefined ? to.op : e.op };
+      }
+      rec.leaving = false;
+      this.decorate(rec, n);
+      this.layer.appendChild(rec.el);
+      // start values are on the element immediately, so a step arriving before
+      // the first animation frame always has a defined current state
+      if (rec.fresh || !rec.cur) { this.apply(rec, from); rec.fresh = false; }
+      items.push({ rec, from, to, delay: (isNew && n.enterDelay !== undefined) ? n.enterDelay : (n.delay || 0) });
+    });
+    Object.keys(this.els).forEach((k) => {
+      if (seen[k]) return;
+      const rec = this.els[k];
+      rec.leaving = true;
+      rec.el.classList.add('leaving');
+      const c = rec.cur || targetOf(rec.node);
+      const x = rec.node.exit || {};
+      let to;
+      if (rec.node.arrow) to = { x1: c.x1, y1: c.y1, x2: c.x1, y2: c.y1, op: 0 };
+      else if (rec.node.rect) to = { x: c.x + (x.dx || 0), y: c.y + (x.dy || 0), w: c.w, h: c.h, op: 0 };
+      else to = { x: c.x + (x.dx || 0), y: c.y + (x.dy || 0), op: 0 };
+      items.push({ rec, from: c, to, delay: 0 });
+    });
+    if (!dur) {
+      items.forEach((it) => { if (it.rec) this.apply(it.rec, it.to); });
+      this.anim = { items: items.filter((i) => i.rec), raf: 0 };
+      this.finish();
+      return;
+    }
+    const sim = this.host.closest('.sim');
+    if (sim) sim.setAttribute('data-animating', '1');
+    const t0 = performance.now();
+    const anim = { items: items.filter((i) => i.rec), raf: 0, t0, dur };
+    this.anim = anim;
+    const frame = (now) => {
+      const p = Math.min(1, (now - t0) / dur);
+      items.forEach((it) => {
+        const lt = ease(Math.max(0, Math.min(1, (p - it.delay) / (1 - it.delay))));
+        if (it.ghost) { it.ghost.style.opacity = 1 - Math.min(1, lt * 1.6); return; }
+        if (it.fadeIn) { it.fadeIn.style.opacity = lt; return; }
+        const v = {};
+        Object.keys(it.to).forEach((k) => { v[k] = lerp(it.from[k] === undefined ? it.to[k] : it.from[k], it.to[k], lt); });
+        this.apply(it.rec, v);
+      });
+      if (sim) sim.setAttribute('data-progress', p.toFixed(2));
+      if (p < 1) anim.raf = requestAnimationFrame(frame);
+      else this.finish();
+    };
+    anim.raf = requestAnimationFrame(frame);
+  };
+
+  window.SCENE = { build: BUILD, Stage };
+})();
+
+</script>
+<script>
+/* Deck engine: navigation, simulators, quizzes, notes, cinema mode.
+   No eval, no network. All results come from window.SIMS / window.QUIZZES. */
+(function () {
+  'use strict';
+
+  const EX = window.EXAMPLES || {};
+  const SIMS = window.SIMS || {};
+  const QUIZZES = window.QUIZZES || {};
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- code highlighting (token spans, escaped) ---------- */
+  const RUST_KW = new Set(['fn', 'let', 'mut', 'use', 'return', 'struct', 'impl', 'pub', 'if', 'else', 'for', 'in', 'while', 'loop', 'match', 'true', 'false']);
+  const PY_KW = new Set(['import', 'from', 'def', 'return', 'if', 'else', 'for', 'in', 'is', 'not', 'and', 'or', 'True', 'False', 'None']);
+  const TYPES = new Set(['String', 'Vec', 'i32', 'u8', 'usize', 'str', 'Rc', 'bool', 'char', 'list', 'int']);
+  function highlight(line, lang) {
+    const re = /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(\/\/.*$|#(?!\[).*$)|(\b\d+\b)|([A-Za-z_][A-Za-z0-9_]*!?)|(\s+)|(.)/g;
+    let out = '', m;
+    const kw = lang === 'python' ? PY_KW : RUST_KW;
+    while ((m = re.exec(line)) !== null) {
+      if (m[1]) out += '<span class="tk-str">' + esc(m[1]) + '</span>';
+      else if (m[2]) {
+        if (lang === 'python' ? m[2][0] === '#' : m[2][0] === '/') out += '<span class="tk-com">' + esc(m[2]) + '</span>';
+        else out += esc(m[2]);
+      } else if (m[3]) out += '<span class="tk-num">' + m[3] + '</span>';
+      else if (m[4]) {
+        const w = m[4];
+        if (w.endsWith('!')) out += '<span class="tk-mac">' + esc(w) + '</span>';
+        else if (kw.has(w)) out += '<span class="tk-kw">' + w + '</span>';
+        else if (TYPES.has(w)) out += '<span class="tk-ty">' + w + '</span>';
+        else out += esc(w);
+      } else out += esc(m[5] || m[6] || '');
+    }
+    return out;
+  }
+  function langOf(name) { return name.endsWith('.py') ? 'python' : 'rust'; }
+  function codeLines(name) { return (EX[name] || '// missing example: ' + name).replace(/\n$/, '').split('\n'); }
+  function codeHTML(name, opts) {
+    opts = opts || {};
+    const lang = langOf(name);
+    return '<ol class="code' + (opts.clickable ? ' clickable' : '') + '" data-file="' + esc(name) + '">' +
+      codeLines(name).map((l, i) => {
+        const n = i + 1;
+        const inner = '<span class="ln">' + n + '</span><span class="lc">' + (highlight(l, lang) || '&nbsp;') + '</span>';
+        return opts.clickable
+          ? '<li data-line="' + n + '"><button type="button" class="line-btn" data-line="' + n + '" aria-pressed="false">' + inner + '</button></li>'
+          : '<li data-line="' + n + '">' + inner + '</li>';
+      }).join('') + '</ol>';
+  }
+  function codeHead(name, extra) {
+    const lang = langOf(name);
+    return '<div class="code-head"><span class="lang lang-' + lang + '">' + (lang === 'python' ? 'Python' : 'Rust') + '</span>' +
+      '<span class="fname">' + esc(name) + '</span>' + (extra || '') + '</div>';
+  }
+
+  /* ---------- static code blocks ---------- */
+  function renderEvidence() {
+    $$('[data-evidence-out]').forEach((el) => {
+      const e = (window.EXPECTED || {})[el.getAttribute('data-evidence-out')];
+      el.textContent = e && e.stdout ? e.stdout.replace(/\n$/, '') : '(missing)';
+    });
+    $$('[data-evidence-toolchain]').forEach((el) => { el.textContent = (window.TOOLCHAIN || '').replace(/\n$/, ''); });
+  }
+
+  function renderStaticCode() {
+    $$('[data-code]').forEach((el) => {
+      const name = el.getAttribute('data-code');
+      el.innerHTML = codeHead(name, el.getAttribute('data-note') ? '<span class="cnote">' + esc(el.getAttribute('data-note')) + '</span>' : '') + codeHTML(name);
+    });
+  }
+
+  /* ---------- simulator component ---------- */
+  const simInst = {};
+  let speed = 1;
+  let motion = 800;   // step transition length in ms (짧게 450, 보통 800, 느리게 1300)
+  let playing = null;
+  const motionMs = () => (reduceMotion ? 0 : motion);
+
+  function buildSim(el) {
+    const id = el.getAttribute('data-sim');
+    const sim = SIMS[id];
+    if (!sim) { el.textContent = 'missing sim ' + id; return; }
+    const isCompile = sim.kind === 'compile';
+    const badge = isCompile
+      ? '<span class="badge b-compile">컴파일 검사 그림: 실행하지 않음</span>'
+      : sim.kind === 'plates' ? '<span class="badge b-analogy">비유</span>' : '<span class="badge b-sim">시뮬레이션: 미리 계산한 결과</span>';
+    const vizTitle = { mem: 'Rust 메모리 그림: 교육용 배치 (메모리 덤프 아님)', py: 'Python 개념도: 이름표와 객체 (실제 메모리 배치 아님)', compile: '컴파일러는 실행 전에 이렇게 검사합니다', plates: '접시 쌓기' }[sim.kind];
+    el.classList.add('k-' + sim.kind);
+    el.innerHTML =
+      '<div class="sim-grid">' +
+      (sim.example ? '<div class="sim-code">' + codeHead(sim.example) + codeHTML(sim.example) + (isCompile ? '<div class="err-slot"></div>' : '') + '</div>' : '') +
+      '<div class="sim-viz"><div class="viz-head"><span>' + vizTitle + '</span>' + badge + '</div><div class="viz-body"></div>' +
+      (sim.kind === 'compile' ? '' : '<div class="ev" aria-hidden="true"></div>') + '</div>' +
+      '</div>' +
+      '<div class="sim-foot">' +
+      '<div class="caption" aria-live="polite"></div>' +
+      (sim.kind === 'plates' ? '' : '<div class="out"><div class="out-h">' + (isCompile ? '출력' : '출력 (미리 계산한 결과)') + '</div><pre class="out-b"></pre></div>') +
+      '<div class="controls" role="group" aria-label="단계 조작">' +
+      '<button type="button" data-act="reset" title="처음으로 (R)">⟲ 처음</button>' +
+      '<button type="button" data-act="prev" title="이전 단계 (,)">◀ 이전 단계</button>' +
+      '<span class="counter" aria-live="polite"></span>' +
+      '<button type="button" data-act="next" class="primary" title="다음 단계 (.)">다음 단계 ▶</button>' +
+      '<button type="button" data-act="play" class="ghost" title="자동 시연 (P)">▶ 자동 시연</button>' +
+      '</div></div>';
+    const inst = { id, sim, el, i: 0, stage: new window.SCENE.Stage($('.viz-body', el), sim.kind) };
+    simInst[id] = inst;
+    el.addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-act]');
+      if (!b) return;
+      const act = b.getAttribute('data-act');
+      if (act === 'play') { togglePlay(inst); return; }
+      stopPlay();
+      if (act === 'reset') setStep(inst, 0, 0);
+      if (act === 'prev') setStep(inst, inst.i - 1);
+      if (act === 'next') setStep(inst, inst.i + 1);
+    });
+    setStep(inst, 0, 0);
+  }
+
+  // dur: undefined -> current motion setting, 0 -> instant (reset, deep link, reduced motion)
+  function setStep(inst, i, dur) {
+    const n = inst.sim.steps.length;
+    i = Math.max(0, Math.min(n - 1, i));
+    inst.i = i;
+    const st = inst.sim.steps[i];
+    const el = inst.el;
+    el.setAttribute('data-step', String(i));
+    el.setAttribute('data-steps', String(n));
+    const changed = i !== +el.getAttribute('data-shown');
+    inst.stage.render(window.SCENE.build[inst.sim.kind](inst.sim, st), changed ? (dur === undefined ? motionMs() : dur) : 0);
+    el.setAttribute('data-shown', String(i));
+    const slot = $('.err-slot', el);
+    if (slot) slot.innerHTML = st.error ? '<div class="rustc"><div class="rustc-h">✕ rustc 1.96.1 실제 오류 메시지 (발췌)</div><pre>' + esc(st.error) + '</pre></div>' : '';
+    $('.caption', el).innerHTML = '<span class="cap-step">' + (i === 0 ? '시작' : i + '단계') + '</span> ' + st.say;
+    const evEl = $('.ev', el);
+    if (evEl) { evEl.textContent = st.ev || ''; evEl.classList.toggle('show', !!st.ev); }
+    const out = $('.out-b', el);
+    if (out) {
+      if (inst.sim.kind === 'compile') {
+        out.className = 'out-b ' + (st.phase === 'error' ? 'norun' : '');
+        out.textContent = st.phase === 'error' ? '✕ 실행 안 됨: 출력 0줄' : '(검사가 끝나야 실행할 수 있음)';
+      } else out.textContent = st.out.length ? st.out.join('\n') : ' ';
+    }
+    $('.counter', el).textContent = '단계 ' + i + ' / ' + (n - 1);
+    $('[data-act="prev"]', el).disabled = i === 0;
+    $('[data-act="reset"]', el).disabled = i === 0;
+    $('[data-act="next"]', el).disabled = i === n - 1;
+    $$('.code li', el).forEach((li) => {
+      const on = +li.getAttribute('data-line') === st.line;
+      li.classList.toggle('active', on);
+      li.classList.toggle('err', on && st.phase === 'error' && inst.sim.kind === 'compile' && !!st.error);
+    });
+    // highlight linked elements on the same slide
+    const slide = el.closest('.slide');
+    if (slide) $$('[data-lit]', slide).forEach((x) => x.classList.toggle('lit', st.lit.indexOf(x.getAttribute('data-lit')) >= 0));
+  }
+
+  function togglePlay(inst) {
+    if (playing && playing.inst === inst) { stopPlay(); return; }
+    stopPlay();
+    if (inst.i >= inst.sim.steps.length - 1) setStep(inst, 0);
+    const btn = $('[data-act="play"]', inst.el);
+    btn.textContent = '❚❚ 일시정지';
+    btn.setAttribute('aria-pressed', 'true');
+    document.body.classList.add('playing');
+    const tick = () => {
+      if (inst.i >= inst.sim.steps.length - 1) { stopPlay(); return; }
+      setStep(inst, inst.i + 1);
+      playing.timer = setTimeout(tick, motionMs() + 2400 / speed);
+    };
+    playing = { inst, timer: setTimeout(tick, 2400 / speed) };
+  }
+  function stopPlay() {
+    if (!playing) return;
+    clearTimeout(playing.timer);
+    const btn = $('[data-act="play"]', playing.inst.el);
+    btn.textContent = '▶ 자동 시연';
+    btn.setAttribute('aria-pressed', 'false');
+    playing = null;
+    document.body.classList.remove('playing');
+  }
+
+  /* ---------- quizzes ---------- */
+  const quizInst = {};
+  function buildQuiz(el) {
+    const id = el.getAttribute('data-quiz');
+    const q = QUIZZES[id];
+    if (!q) { el.textContent = 'missing quiz ' + id; return; }
+    quizInst[id] = { id, q, el };
+    (QB[q.type])(el, q);
+    el.setAttribute('data-state', 'idle');
+  }
+  function quizShell(q, body) {
+    return '<div class="quiz-h"><span class="qlabel">' + esc(q.label) + '</span>' + (q.q ? '<span class="qtext">' + esc(q.q) + '</span>' : '') + '</div>' + body +
+      '<div class="quiz-f"><div class="feedback" aria-live="polite"></div><button type="button" class="qreset" data-qact="reset">⟲ 다시 하기</button></div>';
+  }
+  function resultBlock(opt) {
+    if ((opt.result === 'ok' || opt.res === 'ok') && opt.goal === false) return '<div class="res res-ok res-miss" data-goal="miss"><b>✓ 컴파일 통과.</b> <b class="miss">✕ 하지만 목표는 못 이룸.</b> 실행 결과 (미리 계산):<pre>' + esc(opt.out.join('\n')) + '</pre></div>';
+    if (opt.result === 'ok' || opt.res === 'ok') return '<div class="res res-ok"><b>✓ 컴파일 통과.</b> 실행 결과 (미리 계산):<pre>' + esc(opt.out.join('\n')) + '</pre></div>';
+    if (opt.result === 'error' || opt.res === 'error') return '<div class="res res-err"><b>✕ 컴파일 오류. 실행되지 않음.</b><pre>' + esc(opt.err) + '</pre></div>';
+    return '<div class="res res-later"><b>다음 시간에.</b></div>';
+  }
+  const QB = {
+    choice(el, q) {
+      el.innerHTML = quizShell(q, '<div class="choices">' + q.choices.map((c, i) => '<button type="button" class="choice" data-i="' + i + '"><span class="ck">' + String.fromCharCode(65 + i) + '</span>' + esc(c.t) + '</button>').join('') + '</div>');
+      el.onclick = (e) => {
+        const b = e.target.closest('.choice');
+        if (b && el.getAttribute('data-state') === 'idle') {
+          const c = q.choices[+b.dataset.i];
+          $$('.choice', el).forEach((x, i) => { x.disabled = true; if (q.choices[i].ok) x.classList.add('right'); });
+          b.classList.add('picked', c.ok ? 'right' : 'wrong');
+          el.setAttribute('data-state', c.ok ? 'correct' : 'wrong');
+          $('.feedback', el).innerHTML = (c.ok ? '<b class="fb-ok">✓ 정답</b> ' : '<b class="fb-no">✕ 다시 생각해 보기</b> ') + esc(c.why) +
+            (c.ok ? '' : ' <span class="fb-ans">정답: ' + esc(q.choices.find((x) => x.ok).t) + '</span>');
+        }
+        if (e.target.closest('[data-qact="reset"]')) { QB.choice(el, q); el.setAttribute('data-state', 'idle'); }
+      };
+    },
+    sort(el, q) {
+      el.innerHTML = quizShell(q, '<div class="sort">' + q.items.map((it, i) =>
+        '<div class="srow" data-i="' + i + '"><code>' + esc(it.t) + '</code><div class="seg"><button type="button" data-v="copy" aria-pressed="false">Copy (복사)</button><button type="button" data-v="move" aria-pressed="false">Move (이동)</button></div><span class="smark"></span></div>').join('') +
+        '</div><button type="button" class="grade" data-qact="grade">채점하기</button>');
+      el.onclick = (e) => {
+        const b = e.target.closest('.seg button');
+        if (b && el.getAttribute('data-state') === 'idle') {
+          $$('button', b.parentNode).forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        }
+        if (e.target.closest('[data-qact="grade"]') && el.getAttribute('data-state') === 'idle') {
+          let score = 0, answered = 0;
+          $$('.srow', el).forEach((r) => {
+            const it = q.items[+r.dataset.i];
+            const p = $('[aria-pressed="true"]', r);
+            if (p) answered++;
+            const ok = p && p.dataset.v === it.a;
+            if (ok) score++;
+            r.classList.add(ok ? 'right' : 'wrong');
+            $('.smark', r).textContent = (ok ? '✓ ' : '✕ ') + it.why;
+          });
+          el.setAttribute('data-state', score === q.items.length ? 'correct' : 'wrong');
+          el.setAttribute('data-score', String(score));
+          $('.feedback', el).innerHTML = '<b>' + score + ' / ' + q.items.length + '</b> 맞음.' + (answered < q.items.length ? ' (고르지 않은 칸은 오답으로 셉니다)' : '') + ' 핵심: Copy는 타입이 정합니다. 힙 버퍼를 소유하면 Copy가 될 수 없습니다.';
+        }
+        if (e.target.closest('[data-qact="reset"]')) { QB.sort(el, q); el.setAttribute('data-state', 'idle'); el.removeAttribute('data-score'); }
+      };
+    },
+    fix(el, q) {
+      el.innerHTML = quizShell(q,
+        '<div class="fix-grid"><div class="fix-left">' + codeHead(q.broken, '<span class="badge b-compile">오류 버전</span>') + codeHTML(q.broken) +
+        '<div class="res res-err"><b>✕ 컴파일 오류</b><pre>' + esc(q.err) + '</pre></div></div>' +
+        '<div class="fix-right"><div class="choices">' + q.choices.map((c, i) => '<button type="button" class="choice" data-i="' + i + '"><span class="ck">' + String.fromCharCode(65 + i) + '</span>' + esc(c.t) + '</button>').join('') + '</div><div class="fix-res"></div></div></div>');
+      const errLi = $('.fix-left .code li[data-line="' + q.errLine + '"]', el);
+      if (errLi) errLi.classList.add('err');
+      el.onclick = (e) => {
+        const b = e.target.closest('.choice');
+        if (b) {
+          const c = q.choices[+b.dataset.i];
+          $$('.choice', el).forEach((x) => x.classList.remove('picked', 'right', 'wrong', 'neutral'));
+          b.classList.add('picked', c.ok === true ? 'right' : c.ok === false ? 'wrong' : 'neutral');
+          el.setAttribute('data-state', c.ok === true ? 'correct' : c.ok === false ? 'wrong' : 'later');
+          el.setAttribute('data-choice', b.dataset.i);
+          $('.fix-res', el).innerHTML = (c.ex ? codeHead(c.ex, '<span class="badge b-sim">선택한 고침</span>') + codeHTML(c.ex) : '') + resultBlock(c);
+          $('.feedback', el).innerHTML = (c.ok === true ? '<b class="fb-ok">✓ 좋은 고침</b> ' : c.ok === false ? '<b class="fb-no">✕ 목표를 못 이룸</b> ' : '<b>예고</b> ') + esc(c.why);
+        }
+        if (e.target.closest('[data-qact="reset"]')) { QB.fix(el, q); el.setAttribute('data-state', 'idle'); el.removeAttribute('data-choice'); }
+      };
+    },
+    lines(el, q) {
+      el.innerHTML = quizShell(q, '<div class="lines-grid"><div class="lines-wrap">' + codeHead(q.example, '<span class="cnote">줄을 눌러 고르기</span>') + codeHTML(q.example, { clickable: true }) + '</div><div class="lines-side"><button type="button" class="grade" data-qact="grade">채점하기</button><div class="line-why"></div></div></div>');
+      el.onclick = (e) => {
+        const b = e.target.closest('.line-btn');
+        if (b && el.getAttribute('data-state') === 'idle') b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true'));
+        if (e.target.closest('[data-qact="grade"]') && el.getAttribute('data-state') === 'idle') {
+          const picked = $$('.line-btn[aria-pressed="true"]', el).map((x) => +x.dataset.line).sort((a, b2) => a - b2);
+          const ok = picked.join(',') === q.answer.join(',');
+          $$('.line-btn', el).forEach((x) => {
+            const n = +x.dataset.line;
+            const should = q.answer.indexOf(n) >= 0, sel = x.getAttribute('aria-pressed') === 'true';
+            if (should) x.parentNode.classList.add('ans');
+            if (sel && !should) x.parentNode.classList.add('wrongpick');
+          });
+          el.setAttribute('data-state', ok ? 'correct' : 'wrong');
+          $('.line-why', el).innerHTML = Object.keys(q.why).map((n) => '<div><b>' + n + '번 줄</b> ' + esc(q.why[n]) + '</div>').join('');
+          $('.feedback', el).innerHTML = ok ? '<b class="fb-ok">✓ 정답</b> 12번 줄 take(word) 하나뿐입니다.' : '<b class="fb-no">✕ 아쉬워요</b> 정답은 12번 줄입니다. 13번 줄 show(num)은 Copy라 이동이 아닙니다.';
+        }
+        if (e.target.closest('[data-qact="reset"]')) { QB.lines(el, q); el.setAttribute('data-state', 'idle'); }
+      };
+    },
+    compilepick(el, q) {
+      el.innerHTML = quizShell(q, '<div class="cp-grid">' + q.options.map((o, i) => '<div class="cp" data-i="' + i + '">' + codeHead(o.ex) + codeHTML(o.ex) +
+        '<button type="button" class="choice" data-i="' + i + '"><span class="ck">' + String.fromCharCode(65 + i) + '</span>이것이 컴파일된다</button><div class="cp-res"></div></div>').join('') + '</div>');
+      el.onclick = (e) => {
+        const b = e.target.closest('.choice');
+        if (b && el.getAttribute('data-state') === 'idle') {
+          const o = q.options[+b.dataset.i];
+          $$('.cp', el).forEach((cp, i) => { $('.cp-res', cp).innerHTML = resultBlock(q.options[i]) + '<p class="why">' + esc(q.options[i].why) + '</p>'; $('.choice', cp).disabled = true; });
+          b.classList.add('picked', o.ok ? 'right' : 'wrong');
+          el.setAttribute('data-state', o.ok ? 'correct' : 'wrong');
+          $('.feedback', el).innerHTML = o.ok ? '<b class="fb-ok">✓ 정답</b> 칸이 모두 Copy인 튜플만 Copy입니다.' : '<b class="fb-no">✕ 반대예요</b> String이 든 튜플은 이동됩니다.';
+        }
+        if (e.target.closest('[data-qact="reset"]')) { QB.compilepick(el, q); el.setAttribute('data-state', 'idle'); }
+      };
+    },
+    tf(el, q) {
+      el.innerHTML = quizShell(q, '<div class="tf">' + q.items.map((it, i) => '<div class="tfrow" data-i="' + i + '" data-state="idle"><span class="tft">' + esc(it.t) + '</span><div class="seg"><button type="button" data-v="true">참</button><button type="button" data-v="false">거짓</button></div><div class="tfwhy"></div></div>').join('') + '</div>');
+      el.onclick = (e) => {
+        const b = e.target.closest('.seg button');
+        if (b) {
+          const r = b.closest('.tfrow');
+          if (r.getAttribute('data-state') !== 'idle') return;
+          const it = q.items[+r.dataset.i];
+          const ok = (b.dataset.v === 'true') === it.a;
+          r.setAttribute('data-state', ok ? 'correct' : 'wrong');
+          b.classList.add('picked', ok ? 'right' : 'wrong');
+          $$('button', r).forEach((x) => { x.disabled = true; });
+          $('.tfwhy', r).textContent = (ok ? '✓ ' : '✕ ') + it.why;
+          const rows = $$('.tfrow', el);
+          if (rows.every((x) => x.getAttribute('data-state') !== 'idle')) {
+            const sc = rows.filter((x) => x.getAttribute('data-state') === 'correct').length;
+            el.setAttribute('data-state', sc === rows.length ? 'correct' : 'wrong');
+            el.setAttribute('data-score', String(sc));
+            $('.feedback', el).innerHTML = '<b>' + sc + ' / ' + rows.length + '</b> 맞음.';
+          } else el.setAttribute('data-state', 'partial');
+        }
+        if (e.target.closest('[data-qact="reset"]')) { QB.tf(el, q); el.setAttribute('data-state', 'idle'); el.removeAttribute('data-score'); }
+      };
+    }
+  };
+
+  /* ---------- cost calculator (slide 18) ---------- */
+  function buildCost(el) {
+    const NS = [1, 10, 100, 1000, 10000, 100000, 1000000];
+    el.innerHTML =
+      '<div class="cost-ops" role="radiogroup" aria-label="연산 고르기">' +
+      [['copy', 'let y = x;  (x: i32)', 'Copy'], ['move', 'let t = s;  (s: String)', 'Move'], ['clone', 'let t = s.clone();', 'Clone']].map((o, i) =>
+        '<button type="button" role="radio" data-op="' + o[0] + '" aria-checked="' + (i === 1) + '"><b>' + o[2] + '</b><code>' + esc(o[1]) + '</code></button>').join('') +
+      '</div>' +
+      '<label class="cost-size">s의 길이 (바이트): <output class="cost-n">1000</output>' +
+      '<input type="range" min="0" max="6" step="1" value="3" aria-label="문자열 길이" class="cost-range"></label>' +
+      '<div class="bars">' +
+      '<div class="bar"><span class="bl">설명표/값 복사</span><span class="bt"><i class="bf b1"></i></span><span class="bv v1"></span></div>' +
+      '<div class="bar"><span class="bl">힙 바이트 복사</span><span class="bt"><i class="bf b2"></i></span><span class="bv v2"></span></div>' +
+      '<div class="bar"><span class="bl">새 힙 할당</span><span class="bt"><i class="bf b3"></i></span><span class="bv v3"></span></div>' +
+      '<div class="bar"><span class="bl">원래 이름</span><span class="bt plain"></span><span class="bv v4"></span></div>' +
+      '</div><p class="cost-note">개념 모델: 64비트 기준 String 설명표는 24바이트(size_of::&lt;String&gt;(), rustc 1.96.1 확인). 실제 걸리는 시간은 기계, 할당기, 데이터에 따라 다릅니다.</p>';
+    const state = { op: 'move', k: 3 };
+    function upd() {
+      const n = NS[state.k];
+      $('.cost-n', el).textContent = n.toLocaleString('en-US');
+      const d = { copy: [4, 0, 0, 'x 그대로 유효 (Copy)'], move: [24, 0, 0, 's 사용 금지 (이동됨)'], clone: [24, n, 1, 's 그대로 유효 (새 주인 t 따로)'] }[state.op];
+      const w = (b) => (b <= 0 ? 0 : Math.min(100, (Math.log10(b + 1) / Math.log10(1000001)) * 100));
+      $('.b1', el).style.width = w(d[0]) + '%';
+      $('.b2', el).style.width = w(d[1]) + '%';
+      $('.b3', el).style.width = (d[2] ? 18 : 0) + '%';
+      $('.v1', el).textContent = d[0] + ' B';
+      $('.v2', el).textContent = d[1].toLocaleString('en-US') + ' B';
+      $('.v3', el).textContent = d[2] + '개';
+      $('.v4', el).textContent = d[3];
+      $('.cost-size', el).classList.toggle('dim', state.op === 'copy');
+      el.setAttribute('data-op', state.op);
+      el.setAttribute('data-n', String(n));
+      el.setAttribute('data-heap-bytes', String(d[1]));
+    }
+    el.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-op]');
+      if (!b || b === el) return;
+      state.op = b.dataset.op;
+      $$('[role="radio"]', el).forEach((x) => x.setAttribute('aria-checked', String(x === b)));
+      upd();
+    });
+    $('.cost-range', el).addEventListener('input', (e) => { state.k = +e.target.value; upd(); });
+    el.resetCost = () => { state.op = 'move'; state.k = 3; $('.cost-range', el).value = 3; $$('[role="radio"]', el).forEach((x) => x.setAttribute('aria-checked', String(x.dataset.op === 'move'))); upd(); };
+    upd();
+  }
+
+  /* ---------- deck navigation ---------- */
+  const slides = $$('.slide');
+  let cur = 0;
+  let suppressHash = false;
+
+  function minutesBefore(i) { return slides.slice(0, i).reduce((a, s) => a + (+s.dataset.min || 0), 0); }
+
+  function go(i, opts) {
+    opts = opts || {};
+    i = Math.max(0, Math.min(slides.length - 1, i));
+    stopPlay();
+    Object.keys(simInst).forEach((k) => simInst[k].stage.finish());
+    slides.forEach((s, k) => {
+      const on = k === i;
+      s.hidden = !on;
+      s.classList.toggle('active', on);
+      s.setAttribute('aria-hidden', String(!on));
+    });
+    cur = i;
+    const s = slides[i];
+    $('#sec-name').textContent = s.dataset.section || '';
+    $('#slide-title').textContent = s.dataset.title || '';
+    $('#counter').textContent = (i + 1) + ' / ' + slides.length;
+    $('#progress i').style.width = ((i + 1) / slides.length * 100) + '%';
+    $('#prev-slide').disabled = i === 0;
+    $('#next-slide').disabled = i === slides.length - 1;
+    const notes = $('.notes', s);
+    $('#notes-body').innerHTML = notes ? notes.innerHTML : '<p>노트 없음</p>';
+    $('#notes-time').textContent = '이 장 ' + (s.dataset.min || 0) + '분, 시작 ' + minutesBefore(i) + '분 → ' + (minutesBefore(i) + (+s.dataset.min || 0)) + '분 / 총 60분';
+    $$('#index-list a').forEach((a) => a.classList.toggle('cur', +a.dataset.go === i + 1));
+    if (!suppressHash && !opts.fromHash) {
+      const h = '#slide-' + (i + 1);
+      if (location.hash !== h) history.replaceState(null, '', h);
+    }
+    document.body.setAttribute('data-slide', String(i + 1));
+    document.body.classList.toggle('dark', s.classList.contains('s-chapter'));
+  }
+  function primarySim() {
+    const all = $$('.sim', slides[cur]);
+    const el = all.find((x) => !x.closest('.tabpanel[hidden]')) || all[0];
+    return el ? simInst[el.getAttribute('data-sim')] : null;
+  }
+
+  function buildTabs(slide) {
+    const tabs = $$('[data-tab]', slide);
+    tabs.forEach((t) => {
+      t.addEventListener('click', () => {
+        stopPlay();
+        Object.keys(simInst).forEach((k) => simInst[k].stage.finish());
+        tabs.forEach((x) => x.setAttribute('aria-selected', String(x === t)));
+        $$('.tabpanel', slide).forEach((p) => { p.hidden = p.getAttribute('data-panel') !== t.getAttribute('data-tab'); });
+      });
+    });
+  }
+
+  function parseHash() {
+    const m = /^#slide-(\d+)(?:\/step-(\d+))?$/.exec(location.hash || '');
+    if (!m) return null;
+    return { n: +m[1], step: m[2] !== undefined ? +m[2] : null };
+  }
+  function applyHash() {
+    const h = parseHash();
+    if (!h) return false;
+    go(h.n - 1, { fromHash: true });
+    if (h.step !== null) { const p = primarySim(); if (p) setStep(p, h.step, 0); }
+    return true;
+  }
+
+  /* ---------- overlays, notes, cinema, scaling ---------- */
+  function toggleNotes(force) {
+    const on = force !== undefined ? force : !document.body.classList.contains('notes-open');
+    document.body.classList.toggle('notes-open', on);
+    $('#notes-btn').setAttribute('aria-expanded', String(on));
+    $('#notes-panel').hidden = !on;
+    fit();
+  }
+  function toggleOverlay(id, force) {
+    const o = $(id);
+    const on = force !== undefined ? force : o.hidden;
+    $$('.overlay').forEach((x) => { if (x !== o) x.hidden = true; });
+    o.hidden = !on;
+    if (on) { const f = $('a, button', o); if (f) f.focus(); }
+  }
+  function toggleCinema(force) {
+    const on = force !== undefined ? force : !document.body.classList.contains('cinema');
+    document.body.classList.toggle('cinema', on);
+    if (on) toggleNotes(false);
+    fit();
+  }
+  function toggleFullscreen() {
+    try {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
+    } catch (e) { /* fullscreen not available */ }
+  }
+  function fit() {
+    const stage = $('#stage');
+    const wrap = $('#stage-wrap');
+    const reading = window.innerWidth < 820;
+    document.body.classList.toggle('reading', reading);
+    if (reading) { stage.style.transform = ''; stage.style.left = ''; stage.style.top = ''; return; }
+    const r = wrap.getBoundingClientRect();
+    const sc = Math.min(r.width / 1600, r.height / 900);
+    stage.style.transform = 'scale(' + sc + ')';
+    stage.style.left = Math.round((r.width - 1600 * sc) / 2) + 'px';
+    stage.style.top = Math.round((r.height - 900 * sc) / 2) + 'px';
+    document.body.style.setProperty('--sc', sc);
+  }
+
+  function buildIndex() {
+    const list = $('#index-list');
+    let html = '', lastSec = null;
+    slides.forEach((s, i) => {
+      if (s.dataset.section !== lastSec) {
+        if (lastSec !== null) html += '</ol>';
+        lastSec = s.dataset.section;
+        html += '<h3>' + esc(lastSec) + '</h3><ol>';
+      }
+      html += '<li><a href="#slide-' + (i + 1) + '" data-go="' + (i + 1) + '"><span class="ix-n">' + (i + 1) + '</span>' + esc(s.dataset.title) + '<span class="ix-m">' + s.dataset.min + '분</span></a></li>';
+    });
+    list.innerHTML = html + '</ol>';
+  }
+
+  function isTyping(t) {
+    if (!t || !t.tagName) return false;
+    const tag = t.tagName.toLowerCase();
+    return tag === 'input' || tag === 'textarea' || tag === 'select' || t.isContentEditable;
+  }
+
+  function onKey(e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (isTyping(e.target)) return;
+    const k = e.key;
+    const p = primarySim();
+    switch (k) {
+      case 'ArrowRight': case 'PageDown': go(cur + 1); break;
+      case 'ArrowLeft': case 'PageUp': go(cur - 1); break;
+      case 'Home': go(0); break;
+      case 'End': go(slides.length - 1); break;
+      case '.': if (p) { stopPlay(); setStep(p, p.i + 1); } break;
+      case ',': if (p) { stopPlay(); setStep(p, p.i - 1); } break;
+      case 'r': case 'R': if (p) { stopPlay(); setStep(p, 0, 0); } break;
+      case 'p': case 'P': if (p) togglePlay(p); break;
+      case 'n': case 'N': toggleNotes(); break;
+      case 'c': case 'C': toggleCinema(); break;
+      case 'f': case 'F': toggleFullscreen(); break;
+      case 'i': case 'I': toggleOverlay('#index'); break;
+      case '?': toggleOverlay('#help'); break;
+      case 'Escape':
+        if ($$('.overlay').some((o) => !o.hidden)) $$('.overlay').forEach((o) => { o.hidden = true; });
+        else if (document.body.classList.contains('cinema')) toggleCinema(false);
+        else if (document.body.classList.contains('notes-open')) toggleNotes(false);
+        else return;
+        break;
+      default: return;
+    }
+    e.preventDefault();
+  }
+
+  function init() {
+    renderStaticCode();
+    renderEvidence();
+    $$('.sim').forEach(buildSim);
+    $$('.quiz').forEach(buildQuiz);
+    $$('.costcalc').forEach(buildCost);
+    buildIndex();
+    slides.forEach(buildTabs);
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('click', (e) => {
+      const g = e.target.closest('[data-go]');
+      if (g) { e.preventDefault(); go(+g.dataset.go - 1); $$('.overlay').forEach((o) => { o.hidden = true; }); }
+    });
+    $('#prev-slide').onclick = () => go(cur - 1);
+    $('#next-slide').onclick = () => go(cur + 1);
+    $('#notes-btn').onclick = () => toggleNotes();
+    $('#notes-close').onclick = () => toggleNotes(false);
+    $('#index-btn').onclick = () => toggleOverlay('#index');
+    $('#help-btn').onclick = () => toggleOverlay('#help');
+    $('#cinema-btn').onclick = () => toggleCinema();
+    $('#fs-btn').onclick = () => toggleFullscreen();
+    $('#cinema-exit').onclick = () => toggleCinema(false);
+    $$('.overlay [data-close]').forEach((b) => { b.onclick = () => { b.closest('.overlay').hidden = true; }; });
+    $('#speed').addEventListener('change', (e) => { speed = +e.target.value || 1; });
+    $('#motion').addEventListener('change', (e) => { motion = +e.target.value || 800; });
+    window.addEventListener('resize', fit);
+    window.addEventListener('hashchange', applyHash);
+    document.documentElement.classList.add('js');
+    if (!applyHash()) go(0);
+    fit();
+  }
+
+  window.__deck = {
+    go: (n) => go(n - 1), cur: () => cur + 1, count: () => slides.length,
+    sim: (id) => simInst[id] && { i: simInst[id].i, n: simInst[id].sim.steps.length },
+    setStep: (id, i, dur) => setStep(simInst[id], i, dur),
+    animating: () => Object.keys(simInst).some((k) => !!simInst[k].stage.anim),
+    motion: () => motionMs(),
+    playing: () => !!playing, minutes: () => minutesBefore(slides.length)
+  };
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+
+</script>
+</body>
+</html>
