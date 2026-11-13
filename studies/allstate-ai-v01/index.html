@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>올스테이트의 AI | 고객 서비스에서 보험 구매까지</title>
+<style>
+:root {
+  color-scheme: light;
+  --navy: #10283b;
+  --ink: #183447;
+  --muted: #4f6572;
+  --teal: #006b61;
+  --mint: #e3f3ed;
+  --amber: #8a4f12;
+  --sand: #fff1d9;
+  --paper: #f7f6f0;
+  --line: #cdd9d6;
+  font-family: "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans CJK KR", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); line-height: 1.65; }
+a { color: var(--teal); text-underline-offset: .2em; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:disabled { opacity: .48; cursor: default; }
+:focus-visible { outline: 3px solid #b9680e; outline-offset: 4px; }
+.skip { position: absolute; top: -5rem; left: 1rem; z-index: 2; background: white; padding: .5rem 1rem; }
+.skip:focus { top: 1rem; }
+.wrap { width: min(1160px, calc(100% - 48px)); margin-inline: auto; }
+.masthead { background: var(--navy); color: white; padding: 2rem 0 2.35rem; border-bottom: 5px solid #47aa98; }
+.eyebrow { font-size: .85rem; font-weight: 750; letter-spacing: .045em; color: #aee2d7; margin: 0 0 .55rem; }
+h1, h2, h3, p, blockquote { margin: 0; }
+h1 { font-size: clamp(2rem, 5.2vw, 4rem); letter-spacing: -.065em; line-height: 1.14; }
+h1 span { display: block; color: #b7e8dd; }
+.intro { margin-top: 1rem; color: #e0ecef; max-width: 47rem; }
+.asof { color: #c5d6df; font-size: .83rem; margin-top: .9rem; }
+nav { border-bottom: 1px solid var(--line); background: #fff; }
+nav ul { margin-block: 0; padding-block: .7rem; padding-inline: 0; list-style: none; display: flex; flex-wrap: wrap; gap: .25rem 1.5rem; }
+nav a { display: inline-block; padding-block: .45rem; font-size: .9rem; font-weight: 750; text-decoration: none; }
+nav a:hover { text-decoration: underline; }
+main { padding-block: .5rem 3rem; }
+section { padding-block: 2.5rem; border-bottom: 1px solid var(--line); }
+.section-head { display: flex; align-items: baseline; gap: .85rem; margin-bottom: .5rem; }
+.number { font-size: .95rem; color: var(--teal); font-weight: 800; font-variant-numeric: tabular-nums; }
+h2 { font-size: clamp(1.45rem, 3.1vw, 2.35rem); letter-spacing: -.055em; line-height: 1.23; }
+h3 { font-size: 1.35rem; letter-spacing: -.035em; line-height: 1.3; }
+.lede { color: var(--muted); margin-bottom: 1.15rem; }
+.split { display: grid; grid-template-columns: 1.45fr 1fr; gap: 1rem; align-items: stretch; }
+.panel { border: 1px solid var(--line); background: #fff; border-radius: 14px; padding: clamp(1rem, 2.7vw, 1.6rem); min-width: 0; }
+.graph-panel { background: #edf4f1; }
+.graph { position: relative; height: 335px; }
+.graph svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.edge { stroke: #4a837a; stroke-width: 2; fill: none; vector-effect: non-scaling-stroke; }
+.edge.plan { stroke: #96612b; stroke-dasharray: 6 5; }
+.graph.has-selection .edge:not(.active) { opacity: .3; }
+.edge.active { stroke-width: 4; }
+.node, .external { position: absolute; width: 44%; transform: translate(-50%, -50%); padding: .55rem .45rem; text-align: center; border-radius: 10px; background: white; border: 1px solid #76a399; line-height: 1.35; overflow-wrap: anywhere; }
+.node strong, .external strong { display: block; font-size: clamp(.91rem, 2vw, 1.17rem); }
+.node small, .external small { display: block; margin-top: .2rem; font-size: .77rem; color: var(--muted); }
+.node:hover, .node[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--teal); background: var(--mint); }
+.node[data-node="allie"] { left: 50%; top: 16%; background: var(--navy); color: white; }
+.node[data-node="allie"] small { color: #bce6de; }
+.node[data-node="ask"] { left: 24%; top: 50%; }
+.node[data-node="paa"] { left: 76%; top: 50%; border: 2px dashed #a1662b; background: var(--sand); }
+.node[data-node="answer"] { left: 76%; top: 84%; }
+.external { left: 24%; top: 84%; border-style: dashed; }
+.map-tools, .step-tools { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .85rem; justify-content: space-between; }
+.legend { font-size: .8rem; color: var(--muted); }
+.line { display: inline-block; width: 1.4rem; border-top: 2px solid #4a837a; vertical-align: middle; margin-right: .25rem; }
+.line.dashed { border-top: 2px dashed #96612b; margin-left: .5rem; }
+.pill { display: inline-block; font-size: .76rem; font-weight: 800; padding: .14rem .55rem; border-radius: 4px; background: var(--mint); color: var(--teal); }
+.pill.plan, .pill.example { color: var(--amber); background: var(--sand); }
+.detail h3, .step-detail h3 { margin: .55rem 0 .65rem; }
+.detail p + p { margin-top: .75rem; }
+.detail .source, .source { color: var(--muted); font-size: .83rem; margin-top: .8rem; }
+.control, .choice { border: 1px solid #8ca6a1; background: white; border-radius: 8px; padding: .45rem .75rem; font-weight: 750; min-height: 44px; }
+.control:hover:not(:disabled), .choice:hover { background: #eef6f3; }
+.control.primary, .choice[aria-pressed="true"] { background: var(--teal); color: white; border-color: var(--teal); }
+.control.primary:hover:not(:disabled), .choice[aria-pressed="true"]:hover { background: #00574e; }
+.flow { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: clamp(.9rem, 2.5vw, 1.5rem); }
+.choices { display: flex; flex-wrap: wrap; gap: .5rem; margin: .55rem 0 .65rem; }
+.route-info { font-size: .9rem; color: var(--muted); }
+.stepper { list-style: none; padding: 0; margin: 1.2rem 0 .85rem; display: grid; grid-template-columns: repeat(5, 1fr); gap: .45rem; }
+.stepper li { position: relative; min-width: 0; }
+.stepper li + li::before { content: ""; position: absolute; left: -.45rem; width: .45rem; top: 1.26rem; border-top: 2px solid #88a8a1; }
+.step { width: 100%; height: 100%; padding: .45rem .22rem .55rem; border: 1px solid var(--line); border-radius: 8px; background: #f1f6f4; text-align: center; line-height: 1.25; font-weight: 750; font-size: .84rem; overflow-wrap: anywhere; }
+.step span { display: grid; place-items: center; margin: 0 auto .33rem; width: 1.6rem; height: 1.6rem; border-radius: 50%; background: white; color: var(--teal); }
+.step[aria-pressed="true"] { color: #fff; background: var(--teal); border-color: var(--teal); }
+.step-detail { padding: clamp(.9rem, 2vw, 1.25rem); background: #f2f7f5; border-radius: 9px; }
+.step-detail dl { margin: .7rem 0; display: grid; grid-template-columns: max-content 1fr; gap: .2rem .7rem; }
+dt { font-weight: 800; color: var(--teal); }
+dd { margin: 0; }
+blockquote { padding: .5rem .7rem; margin-top: .5rem; border-left: 3px solid #bb7e35; background: #fff9ed; }
+.step-tools { margin-top: .85rem; justify-content: flex-end; }
+.step-count { margin-right: auto; color: var(--muted); font-size: .88rem; }
+.metric { font-size: clamp(1.4rem, 4vw, 2.1rem); font-weight: 820; color: var(--teal); letter-spacing: -.04em; line-height: 1.25; }
+.case-layout { grid-template-columns: 1.6fr 1fr; }
+.case-layout .choices { margin-top: 0; }
+.case-detail { border-top: 1px solid var(--line); padding-top: .85rem; }
+.case-detail p + p { margin-top: .55rem; }
+.plans { background: #fff9ed; }
+.plans h3 { margin-top: .55rem; }
+.plans ul { padding-left: 1.2rem; margin-bottom: 0; }
+.plans li + li { margin-top: .55rem; }
+.strategy { display: grid; grid-template-columns: repeat(3, 1fr); gap: .55rem; margin: 0 0 1rem; }
+.strategy .choice { text-align: left; }
+.strategy .choice span { display: block; font-size: .78rem; opacity: .9; }
+.governance { margin-top: 1rem; }
+.governance p, .strategy-detail p, .questions ul { margin-top: .55rem; }
+.questions { margin-top: 1rem; background: var(--navy); color: white; }
+.questions ul { padding-left: 1.2rem; margin-bottom: 0; }
+.sources { border-bottom: 0; padding-bottom: 0; }
+.sources ul { padding-left: 1.15rem; }
+@media (max-width: 760px) {
+  .wrap { width: calc(100% - 32px); }
+  .split { grid-template-columns: minmax(0, 1fr); }
+  .masthead { padding-block: 1.6rem; }
+  nav ul { display: grid; grid-template-columns: repeat(2, 1fr); column-gap: .65rem; }
+  section { padding-block: 1.8rem; }
+  .graph { height: 295px; }
+  .strategy { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">보험과 AI · 사례로 배우기</p>
+    <h1>올스테이트의 AI <span>고객 서비스에서 보험 구매까지</span></h1>
+    <p class="intro">이미 운영 중인 고객 서비스 AI와 출시를 준비 중인 보험 구매 도우미가 어떤 기반을 공유하는지 살펴봅니다.</p>
+    <p class="asof">공개자료 기준 2026.11.13 | 학습용 개념도, 공식 아키텍처·출시 화면 아님</p>
+  </div>
+</header>
+<nav aria-label="페이지 목차">
+  <ul class="wrap">
+    <li><a href="#relationships">01 시스템 관계</a></li>
+    <li><a href="#purchase">02 PAA 구매 흐름</a></li>
+    <li><a href="#operations">03 운영 사례와 수치</a></li>
+    <li><a href="#strategy">04 전략과 감독</a></li>
+  </ul>
+</nav>
+<main class="wrap" id="main" tabindex="-1">
+  <section id="relationships" aria-labelledby="relationships-title">
+    <div class="section-head"><span class="number" aria-hidden="true">01</span><h2 id="relationships-title">하나의 기반, 서로 다른 두 서비스</h2></div>
+    <p class="lede">카드를 선택하면 어떤 시스템과 연결되고 무슨 역할을 하는지 볼 수 있습니다.</p>
+    <div class="split">
+      <div class="panel graph-panel">
+        <div class="graph" id="graph" role="group" aria-label="ALLIE, Ask Allstate, PAA와 Answer Financial의 관계">
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="edge" data-connect="allie ask" d="M50 16 V33 H24 V50"/>
+            <path class="edge plan" data-connect="allie paa" d="M50 16 V33 H76 V50"/>
+            <path class="edge plan" data-connect="paa answer" d="M76 50 V84"/>
+            <path class="edge plan" data-connect="paa" d="M24 84 V67 H70 V50"/>
+          </svg>
+          <button class="node" type="button" data-node="allie" aria-pressed="false" aria-controls="map-detail"><strong>ALLIE</strong><small>공통 AI 생태계</small></button>
+          <button class="node" type="button" data-node="ask" aria-pressed="false" aria-controls="map-detail"><strong>Ask Allstate</strong><small>운영 중 · 고객 서비스</small></button>
+          <button class="node" type="button" data-node="paa" aria-pressed="false" aria-controls="map-detail"><strong>PAA</strong><small>2027년 초 출시 예정</small></button>
+          <div class="external"><strong>외부 개인 AI</strong><small>PAA에 연결 예정</small></div>
+          <button class="node" type="button" data-node="answer" aria-pressed="false" aria-controls="map-detail"><strong>Answer Financial</strong><small>보험사 비교·중개</small></button>
+        </div>
+        <div class="map-tools">
+          <span class="legend"><i class="line"></i>현재 연결 <i class="line dashed"></i>공개된 연결 계획</span>
+          <button class="control" type="button" id="map-reset" aria-controls="map-detail">전체 관계 보기</button>
+        </div>
+      </div>
+      <div class="panel detail" id="map-detail" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section id="purchase" aria-labelledby="purchase-title">
+    <div class="section-head"><span class="number" aria-hidden="true">02</span><h2 id="purchase-title">PAA로 보험을 알아본다면</h2></div>
+    <p class="lede"><span class="pill example">학습용 예시</span> 공개된 구매 계획을 다섯 단계로 풀어본 흐름입니다. PAA는 2027년 초 출시 예정입니다.</p>
+    <div class="flow">
+      <div role="group" aria-label="구매 흐름 진입 경로">
+        <strong>어디서 시작할까요?</strong>
+        <div class="choices">
+          <button type="button" class="choice" data-route="direct" aria-pressed="true" aria-controls="step-detail">고객이 직접</button>
+          <button type="button" class="choice" data-route="external" aria-pressed="false" aria-controls="step-detail">외부 AI를 통해</button>
+        </div>
+      </div>
+      <p class="route-info" id="route-info"></p>
+      <ol class="stepper" id="stepper" aria-label="구매 흐름의 다섯 단계"></ol>
+      <div class="step-detail" id="step-detail" aria-live="polite"></div>
+      <div class="step-tools">
+        <span class="step-count" id="step-count"></span>
+        <button type="button" class="control" id="flow-reset">처음부터</button>
+        <button type="button" class="control" id="previous">이전</button>
+        <button type="button" class="control primary" id="next">다음</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="operations" aria-labelledby="operations-title">
+    <div class="section-head"><span class="number" aria-hidden="true">03</span><h2 id="operations-title">실제로 쓰이는 AI와 운영 수치</h2></div>
+    <p class="lede">올스테이트가 2026년 3분기 실적 발표에서 공개한 수치입니다. 투자 대비 효과는 독립적으로 검증된 수치가 공개되지 않았습니다. <a href="https://www.allstateinvestors.com/static-files/1d644d1f-64ae-427f-88f8-943c108a7d96" target="_blank" rel="noopener">실적 발표 자료 4~5쪽</a></p>
+    <div class="split case-layout">
+      <div class="panel">
+        <div class="choices" id="case-choices" role="group" aria-label="운영 사례 선택"></div>
+        <div class="case-detail" id="case-detail" aria-live="polite"></div>
+      </div>
+      <aside class="panel plans" aria-labelledby="plans-title">
+        <span class="pill plan">향후 계획 · 미운영</span>
+        <h3 id="plans-title">회사가 예고한 확대 범위</h3>
+        <ul>
+          <li><strong>고객 서비스</strong> · 음성으로 청구 요금·납부 안내, ASC 외 상품으로 확대</li>
+          <li><strong>보험금 청구</strong> · 긴급출동, 렌터카 예약, 청구 접수와 다음 절차 안내, 진행 상태 답변과 선제 알림</li>
+          <li><strong>제품 보호 플랜</strong> · 디지털 채널에서 문제 해결 안내</li>
+        </ul>
+        <p class="source"><a href="https://www.allstateinvestors.com/static-files/1d644d1f-64ae-427f-88f8-943c108a7d96" target="_blank" rel="noopener">실적 발표 자료 4쪽</a></p>
+      </aside>
+    </div>
+  </section>
+
+  <section id="strategy" aria-labelledby="strategy-title">
+    <div class="section-head"><span class="number" aria-hidden="true">04</span><h2 id="strategy-title">AI가 맡는 역할은 어떻게 넓어지나</h2></div>
+    <p class="lede"><span class="pill example">학습을 위한 해석</span> 공개 사례를 역할에 따라 세 단계로 읽어봅니다. 회사가 제시한 공식 단계 구분 아님.</p>
+    <div class="strategy" id="strategy-choices" role="group" aria-label="전략 해석 단계 선택"></div>
+    <div class="panel strategy-detail" id="strategy-detail" aria-live="polite"></div>
+    <aside class="panel governance" aria-labelledby="governance-title">
+      <h3 id="governance-title">누가 AI 위험을 감독하나</h3>
+      <p>이사회 위험·수익 위원회가 감독하고 최고위험책임자(CRO)와 최고법무책임자(CLO)가 후원합니다. 회사는 AI 사용 목록을 관리하고 위험을 평가하며, 테스트와 모니터링을 수행하는 체계를 공개했습니다. 개별 시스템의 오류율은 이 체계만으로 알 수 없습니다.</p>
+      <p class="source"><a href="https://www.sec.gov/Archives/edgar/data/899051/000089905126000063/all-20260410.htm" target="_blank" rel="noopener">SEC 공시 · 2026년 주주총회 위임장, AI 거버넌스</a></p>
+    </aside>
+    <aside class="panel questions" aria-labelledby="questions-title">
+      <h3 id="questions-title">다음 공개자료에서 확인할 질문</h3>
+      <ul>
+        <li>실제 운영 범위는?</li>
+        <li>사람의 승인은 어디에?</li>
+        <li>비용·전환율 개선은 입증됐나?</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section class="sources" id="sources" aria-labelledby="sources-title">
+    <h2 id="sources-title">출처</h2>
+    <ul>
+      <li><a href="https://www.allstateinvestors.com/static-files/1d644d1f-64ae-427f-88f8-943c108a7d96" target="_blank" rel="noopener">Allstate 2026년 3분기 실적 발표 자료 4~5쪽</a></li>
+      <li><a href="https://www.roic.ai/quote/ALL-PI/transcripts/2026-year/3-quarter" target="_blank" rel="noopener">2026년 11월 5일 실적 발표 통화 기록 · ROIC AI</a></li>
+      <li><a href="https://www.sec.gov/Archives/edgar/data/899051/000089905126000063/all-20260410.htm" target="_blank" rel="noopener">Allstate 2026년 주주총회 위임장 · SEC</a></li>
+    </ul>
+    <p class="source">올스테이트와 제휴하지 않은 독립 학습 자료입니다.</p>
+  </section>
+</main>
+<script>
+const earnings = 'https://www.allstateinvestors.com/static-files/1d644d1f-64ae-427f-88f8-943c108a7d96';
+const transcript = 'https://www.roic.ai/quote/ALL-PI/transcripts/2026-year/3-quarter';
+const earningsLink = (pages) => `<a href="${earnings}" target="_blank" rel="noopener">실적 발표 자료 ${pages}쪽</a>`;
+const callLink = `<a href="${transcript}" target="_blank" rel="noopener">11월 5일 통화 기록</a>`;
+
+const nodes = {
+  overview: {
+    status: '공개 자료 요약', title: '같은 생태계에서 출발합니다',
+    body: 'ALLIE는 공통 AI 생태계입니다. 기존 고객을 돕는 Ask Allstate와 보험 구매를 돕도록 개발 중인 PAA가 이 기반을 함께 씁니다. Ask Allstate는 PAA의 이전 버전이 아닙니다.',
+    extra: '외부 개인 AI도 PAA에 접근할 수 있도록 할 계획입니다. 여러 보험사의 상품을 비교하는 데에는 Answer Financial이 연결됩니다.', pages: '4~5',
+  },
+  allie: {
+    status: '공개된 공통 기반', title: 'ALLIE',
+    body: 'Large Language Intelligent Ecosystem의 약자입니다. AI 기능을 여러 업무와 서비스에서 쓸 수 있게 묶은 생태계이며, 하나의 기반 모델을 가리키는 이름이 아닙니다.',
+    extra: 'Ask Allstate와 PAA는 이 생태계를 쓰는 별개의 서비스입니다.', pages: '4~5',
+  },
+  ask: {
+    status: '운영 중', title: 'Ask Allstate',
+    body: '2026년 7월부터 올스테이트의 ASC 자동차보험 고객을 대상으로 서비스 문의에 답하고 있습니다.',
+    extra: 'PAA가 겨냥하는 일은 보험 구매입니다. Ask Allstate에서 PAA로 넘어가는 제품 전환은 공개되지 않았습니다.', pages: '4',
+  },
+  paa: {
+    status: '2027년 초 출시 예정', title: 'PAA',
+    body: '보험 구매를 돕는 개인 AI 도우미(Personal Agentic Assistant)입니다. 올스테이트는 고객 상황에 맞는 보장 안내, 정확한 보험료 산출, 절차를 한 흐름에서 처리하는 것을 목표로 제시했습니다.',
+    extra: '외부 개인 AI도 연결할 계획입니다. 회사는 여러 사이트에 각각 견적을 요청하는 경우보다 외부 AI의 계산량을 줄일 가능성을 언급했습니다. 구체적인 출시일은 공개되지 않았습니다.', pages: '5',
+  },
+  answer: {
+    status: '보험 비교·중개', title: 'Answer Financial',
+    body: '여러 보험사를 연결하는 보험 중개사입니다. PAA에서 한 번에 여러 보험사를 비교하는 데 활용할 계획입니다.',
+    extra: '비교 범위는 연결된 보험사에 따릅니다. 시장 전체를 비교한다는 근거는 공개되지 않았습니다.', pages: '5',
+  },
+};
+
+const graph = document.querySelector('#graph');
+const nodeButtons = [...graph.querySelectorAll('[data-node]')];
+function showNode(key) {
+  const node = nodes[key];
+  graph.classList.toggle('has-selection', key !== 'overview');
+  nodeButtons.forEach(button => button.setAttribute('aria-pressed', button.dataset.node === key));
+  graph.querySelectorAll('.edge').forEach(edge => {
+    edge.classList.toggle('active', edge.dataset.connect.split(' ').includes(key));
+  });
+  document.querySelector('#map-detail').innerHTML = `
+    <span class="pill ${key === 'paa' ? 'plan' : ''}">${node.status}</span>
+    <h3>${node.title}</h3><p>${node.body}</p><p>${node.extra}</p>
+    <p class="source">${earningsLink(node.pages)} · ${callLink}</p>`;
+}
+nodeButtons.forEach(button => button.addEventListener('click', () => showNode(button.dataset.node)));
+document.querySelector('#map-reset').addEventListener('click', () => showNode('overview'));
+showNode('overview');
+
+const routes = {
+  direct: { info: '고객이 PAA에 직접 보험 비교를 요청하는 흐름입니다.', actor: '고객', action: '차량이 바뀐 상황과 비교하고 싶은 항목을 PAA에 말합니다.' },
+  external: { info: '고객의 외부 개인 AI가 PAA에 요청을 전달하는 흐름입니다. 연동 방식은 공개되지 않았습니다.', actor: '고객과 외부 개인 AI', action: '고객은 자신의 AI에 비교를 요청하고, 외부 AI가 그 요청을 PAA에 전달합니다.' },
+};
+const steps = [
+  { label: '요청', title: '필요한 보장을 말하기', quote: '차를 바꿨으니 보장과 보험료를 비교해줘',
+    intent: '회사는 PAA를 고객과 외부 개인 AI 양쪽에 제공할 계획입니다.' },
+  { label: '상황 파악', title: '어떤 보장이 필요한지 파악하기', actor: 'PAA',
+    action: '차가 바뀌었다는 점을 바탕으로 고객이 어떤 보장을 비교하려는지 살핍니다.',
+    intent: '회사는 고객의 상황에 맞게 보장을 안내하는 것을 목표로 제시했습니다.' },
+  { label: '보험사 연결', title: '비교할 수 있는 보험사 찾기', actor: 'PAA와 Answer Financial',
+    action: 'Answer Financial을 통해 연결된 보험사의 상품과 견적을 비교할 수 있도록 모읍니다.',
+    intent: '회사는 Answer Financial을 활용해 여러 보험사를 한 번에 비교할 계획입니다. 보험사는 고객에게 상품을 제시할 접점을 넓힐 수 있다고 설명했습니다.' },
+  { label: '견적·보장', title: '견적과 보장 차이 설명하기', actor: 'PAA',
+    action: '보험료와 함께 어떤 상황에서 보장을 받는지, 상품별로 무엇이 다른지 설명합니다.',
+    intent: '회사는 정확한 보험료 산출과 보장 맥락 제공을 목표로 제시했습니다.' },
+  { label: '확인·연결', title: '고객이 확인한 뒤 거래 절차로 연결하기', actor: '고객과 PAA',
+    action: '고객이 선택한 조건을 확인하고 거래 절차로 넘어가는 장면입니다. 고객 확인은 흐름을 설명하기 위해 넣은 단계입니다.',
+    intent: '회사는 거래 절차를 한 흐름에서 처리하는 것을 목표로 제시했습니다.',
+    unknown: 'PAA가 보험계약을 어디까지 스스로 확정할 수 있는지, 면허가 필요한 업무를 누가 맡는지, 사람이 어디에서 검토하는지는 공개되지 않았습니다.' },
+];
+
+let route = 'direct';
+let currentStep = 0;
+const stepper = document.querySelector('#stepper');
+stepper.innerHTML = steps.map((step, index) => `<li><button type="button" class="step" data-step="${index}" aria-controls="step-detail"><span>${index + 1}</span>${step.label}</button></li>`).join('');
+const stepButtons = [...stepper.querySelectorAll('button')];
+const routeButtons = [...document.querySelectorAll('[data-route]')];
+const previous = document.querySelector('#previous');
+const next = document.querySelector('#next');
+function showStep(index) {
+  currentStep = index;
+  const step = steps[index];
+  const entry = routes[route];
+  routeButtons.forEach(button => button.setAttribute('aria-pressed', button.dataset.route === route));
+  stepButtons.forEach((button, position) => button.setAttribute('aria-pressed', position === index));
+  document.querySelector('#route-info').textContent = entry.info;
+  document.querySelector('#step-count').textContent = `${steps.length}단계 중 ${index + 1}단계`;
+  document.querySelector('#step-detail').innerHTML = `
+    <span class="pill example">학습용 예시 · ${index + 1}단계</span><h3>${step.title}</h3>
+    <dl><dt>누가</dt><dd>${step.actor ?? entry.actor}</dd><dt>무엇을</dt><dd>${step.action ?? entry.action}</dd></dl>
+    ${step.quote ? `<blockquote>예시 요청 “${step.quote}”</blockquote>` : ''}
+    <p class="source"><span class="pill">공개된 계획</span> ${step.intent} ${earningsLink('5')} · ${callLink}</p>
+    ${step.unknown ? `<p class="source"><span class="pill plan">미공개 범위</span> ${step.unknown}</p>` : ''}`;
+  previous.disabled = index === 0;
+  next.disabled = index === steps.length - 1;
+}
+function moveStep(offset, control) {
+  showStep(currentStep + offset);
+  if (control.disabled) stepButtons[currentStep].focus();
+}
+routeButtons.forEach(button => button.addEventListener('click', () => {
+  route = button.dataset.route;
+  showStep(0);
+}));
+stepButtons.forEach((button, index) => button.addEventListener('click', () => showStep(index)));
+previous.addEventListener('click', () => moveStep(-1, previous));
+next.addEventListener('click', () => moveStep(1, next));
+document.querySelector('#flow-reset').addEventListener('click', () => {
+  route = 'direct';
+  showStep(0);
+});
+showStep(0);
+
+const cases = [
+  { label: '기술', metric: '1,200만 줄 · 1분기의 3.6배', body: '2026년 3분기에 AI를 활용해 작성하거나 변경한 코드 분량입니다.', scope: '코드 줄 수만으로 코드 품질이나 개발 생산성의 변화를 판단할 수 없습니다.' },
+  { label: '보험금 청구', metric: '연간 1,000만 건', body: 'AI가 작성하거나 검토한 보험금 청구 관련 발신 이메일 수입니다.', scope: '집계 대상은 이메일입니다. 보험금 지급 거절이나 보장 여부를 AI가 독자적으로 결정했다는 근거는 이 수치에 없습니다.' },
+  { label: '고객 서비스', metric: 'ASC 서비스 채팅의 15% · 설문 응답자의 88%', body: 'Ask Allstate는 2026년 7월 ASC 자동차보험 고객에게 제공되기 시작했습니다. 9월까지 ASC 서비스 채팅의 15%를 처리했고, 설문 응답자의 88%가 필요를 충족했다고 답했습니다.', scope: 'ASC는 올스테이트 전체 자동차보험 계약의 약 24%, 주택보험 계약의 약 15%를 차지합니다. 별도로 회사는 2025년 4월부터 ASC 고객 100만 명이 AI 보험료 설명 기능을 이용했다고 보고했습니다. 이 수치는 Ask Allstate 이용 실적과 별개입니다.' },
+  { label: '제품 보호 플랜', metric: '통화 100만 건 이상', body: '제품 보호 플랜의 대화형 AI Smart Concierge가 처리한 통화 수입니다.', scope: '집계 대상은 제품 보호 플랜 통화입니다.' },
+];
+const strategies = [
+  { label: '직원을 돕는 AI', status: '운영 사례 · 기술과 청구', body: '코드를 작성·변경하고 청구 관련 이메일을 작성·검토하는 데 AI를 씁니다. 직원이 들이는 시간을 줄이거나 응대 품질을 높일 가능성이 있습니다. 공개된 작업량으로 효과의 크기까지 알 수는 없습니다.' },
+  { label: '고객 업무를 수행하는 AI', status: '운영 사례와 확대 계획', body: 'Ask Allstate는 채팅 문의에 답하고 Smart Concierge는 전화를 받습니다. 고객이 문의를 해결하는 절차를 줄일 수 있습니다. 청구 접수와 진행 상태 안내 등은 별도로 예고된 확대 범위입니다.' },
+  { label: '고객의 AI와 거래하는 보험사', status: 'PAA · 2027년 초 출시 예정', body: '고객이 쓰는 외부 개인 AI가 PAA에 연결되면 보험사는 상품을 제시할 새 접점을 얻습니다. 공개자료는 이 방향을 보여줍니다. 실제 연동 방식, 특정 외부 AI와의 계약, 자동 인수심사 범위, PAA 매출과 투자 대비 효과는 확인되지 않았습니다.' },
+];
+
+function makeChoices(container, items, panel, render) {
+  const buttons = items.map((item, index) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'choice';
+    button.setAttribute('aria-controls', panel.id);
+    if (container.id === 'strategy-choices') {
+      const number = document.createElement('span');
+      number.textContent = `단계 ${index + 1}`;
+      button.append(number);
+    }
+    button.append(item.label);
+    button.addEventListener('click', () => select(index));
+    container.append(button);
+    return button;
+  });
+  function select(index) {
+    buttons.forEach((button, position) => button.setAttribute('aria-pressed', index === position));
+    panel.innerHTML = render(items[index]);
+  }
+  select(0);
+}
+makeChoices(document.querySelector('#case-choices'), cases, document.querySelector('#case-detail'), item => `
+  <p><span class="pill">운영 중 · 회사 발표 수치</span></p>
+  <h3 class="metric">${item.metric}</h3><p>${item.body}</p><p>${item.scope}</p>
+  <p class="source">${earningsLink('4')}</p>`);
+makeChoices(document.querySelector('#strategy-choices'), strategies, document.querySelector('#strategy-detail'), item => `
+  <span class="pill example">${item.status}</span><p>${item.body}</p>
+  <p class="source">${earningsLink('4~5')} · ${callLink}</p>`);
+</script>
+</body>
+</html>
