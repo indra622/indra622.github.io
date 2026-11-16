@@ -1,0 +1,1740 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>FSI Claude Code 워크샵 인터랙티브 학습 보고서 v01</title>
+<meta name="description" content="2026-11-16 공개 워크샵 자료 기준의 FSI Claude Code Deep Dive 워크샵 인터랙티브 학습 보고서. 외부 요청 없이 열리는 단일 HTML 파일.">
+<style>
+:root {
+  --paper: #f8f4ea;
+  --paper-2: #f0e9d9;
+  --paper-3: #e8dfca;
+  --ink: #1f1d1a;
+  --ink-2: #3f3b35;
+  --muted: #645f55;
+  --rule: #d6cdb8;
+  --accent: #b6512b;
+  --accent-ink: #8a3a1b;
+  --accent-soft: #fbeee6;
+  --teal: #0f6b64;
+  --teal-ink: #0b4f4a;
+  --teal-soft: #e5f1ef;
+  --focus: #1a5fb4;
+  --sans: "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", "Pretendard", "Segoe UI", system-ui, sans-serif;
+  --serif: "Noto Serif KR", "Nanum Myeongjo", "AppleMyungjo", "Batang", Georgia, serif;
+  --measure: 42rem;
+  --side: 17.5rem;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: auto; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 1.0625rem;
+  line-height: 1.75;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+img, svg { max-width: 100%; }
+h1, h2, h3, h4 { line-height: 1.3; margin: 0; color: var(--ink); }
+h2 { font-family: var(--serif); font-size: clamp(1.7rem, 1.2rem + 1.8vw, 2.5rem); font-weight: 700; letter-spacing: -0.01em; }
+h3 { font-size: 1.2rem; font-weight: 700; margin: 2rem 0 0.6rem; }
+h4 { font-size: 1.05rem; font-weight: 700; }
+p { margin: 0 0 0.9rem; max-width: var(--measure); }
+ul, ol { margin: 0 0 1rem; padding-left: 1.3rem; max-width: var(--measure); }
+li { margin-bottom: 0.4rem; }
+a { color: var(--teal-ink); text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
+a:hover { color: var(--accent-ink); }
+code { font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; font-size: 0.92em; background: var(--paper-2); padding: 0.05em 0.3em; border-radius: 3px; }
+mark { background: #f7d9c4; color: var(--ink); padding: 0 0.1em; border-radius: 2px; }
+
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 3px; }
+/* 라우트 이동 시 프로그램이 제목에 주는 포커스는 링을 그리지 않는다 (키보드 사용자의 실제 포커스 이동은 유지) */
+h2[tabindex="-1"]:focus, h3[tabindex="-1"]:focus { outline: none; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.skip { position: absolute; left: 0.75rem; top: -3rem; background: var(--ink); color: var(--paper); padding: 0.5rem 0.9rem; z-index: 100; border-radius: 4px; }
+.skip:focus { top: 0.75rem; }
+
+/* 레이아웃 */
+.app { display: grid; grid-template-columns: var(--side) minmax(0, 1fr); min-height: 100vh; }
+.sidebar {
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  background: var(--paper-2); border-right: 1px solid var(--rule);
+  padding: 1.5rem 1.1rem 1.2rem; display: flex; flex-direction: column; gap: 1rem;
+}
+.brand-kicker { margin: 0; font-size: 0.8rem; color: var(--accent-ink); font-weight: 700; letter-spacing: 0.02em; }
+.brand-title { margin: 0.1rem 0 0; font-family: var(--serif); font-weight: 700; font-size: 1.2rem; line-height: 1.3; }
+.brand-meta { margin: 0.2rem 0 0; font-size: 0.82rem; color: var(--muted); }
+.day-filter { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+.chip {
+  font: inherit; font-size: 0.86rem; border: 1px solid var(--rule); background: var(--paper);
+  color: var(--ink-2); border-radius: 999px; padding: 0.25rem 0.75rem; cursor: pointer;
+}
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.nav-root { list-style: none; padding: 0; margin: 0; max-width: none; }
+.nav-root .nav-group { margin-bottom: 0.9rem; }
+.nav-day { margin: 0 0 0.3rem; font-size: 0.78rem; color: var(--muted); font-weight: 700; letter-spacing: 0.02em; }
+.nav-root li { margin: 0; }
+.nav-root a {
+  display: flex; gap: 0.5rem; align-items: baseline; padding: 0.42rem 0.55rem; border-radius: 5px;
+  color: var(--ink); text-decoration: none; font-size: 0.93rem; line-height: 1.4;
+}
+.nav-root a:hover { background: var(--paper-3); }
+.nav-root a[aria-current="page"] { background: var(--ink); color: var(--paper); }
+.nav-code { flex: 0 0 3.2rem; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.03em; color: var(--accent-ink); }
+.nav-root a[aria-current="page"] .nav-code { color: #f2c9b0; }
+.nav-foot { margin: auto 0 0; font-size: 0.8rem; color: var(--muted); max-width: none; }
+
+.page { min-width: 0; }
+.topbar {
+  position: sticky; top: 0; z-index: 20; display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;
+  background: rgba(248, 244, 234, 0.96); border-bottom: 1px solid var(--rule); padding: 0.7rem 2.2rem;
+}
+.search { flex: 1 1 18rem; min-width: 0; }
+.search input {
+  width: 100%; font: inherit; font-size: 0.98rem; padding: 0.55rem 0.8rem; border-radius: 6px;
+  border: 1px solid #b9ae95; background: #fffdf7; color: var(--ink);
+}
+.search input::placeholder { color: #6f675a; }
+.top-actions { display: flex; gap: 0.5rem; }
+.btn {
+  font: inherit; font-size: 0.92rem; padding: 0.5rem 0.95rem; border-radius: 6px; cursor: pointer;
+  border: 1px solid var(--ink); background: var(--ink); color: var(--paper); white-space: nowrap;
+}
+.btn.ghost { background: transparent; color: var(--ink); border-color: #9f9579; }
+.btn[aria-pressed="true"] { background: var(--accent-ink); border-color: var(--accent-ink); color: #fff; }
+.btn:hover { filter: brightness(1.08); }
+
+.nav-toggle { display: none; }
+.scrim { display: none; }
+
+.search-panel {
+  margin: 0 2.2rem; padding: 1rem 1.2rem; background: #fffdf7; border: 1px solid var(--rule); border-radius: 8px;
+  margin-top: 0.9rem; box-shadow: 0 6px 18px rgba(60, 50, 30, 0.08);
+}
+.search-panel[hidden] { display: none; }
+.search-help, .search-status { font-size: 0.92rem; color: var(--muted); margin: 0 0 0.5rem; max-width: none; }
+.results { list-style: none; padding: 0; margin: 0; max-width: none; }
+.results li { border-top: 1px solid var(--rule); padding: 0.7rem 0; margin: 0; }
+.results li:first-child { border-top: 0; }
+.results a { color: var(--ink); text-decoration: none; display: block; }
+.results a:hover .res-label { text-decoration: underline; }
+.res-label { font-weight: 700; color: var(--teal-ink); font-size: 0.95rem; }
+.res-snip { display: block; font-size: 0.92rem; color: var(--ink-2); margin-top: 0.2rem; line-height: 1.6; }
+
+main#main { padding: 2.2rem 2.2rem 4rem; outline: none; }
+.view { max-width: 60rem; }
+.view-head { margin-bottom: 1.4rem; padding-bottom: 1.2rem; border-bottom: 1px solid var(--rule); }
+.eyebrow { margin: 0 0 0.45rem; font-size: 0.82rem; color: var(--accent-ink); font-weight: 700; letter-spacing: 0.02em; max-width: none; }
+.lede { font-family: var(--serif); font-size: 1.22rem; line-height: 1.7; color: var(--ink-2); margin-top: 0.8rem; }
+.note { font-size: 0.93rem; color: var(--muted); }
+
+.mode { display: inline-flex; margin-top: 1rem; border: 1px solid #9f9579; border-radius: 6px; overflow: hidden; }
+.mode button {
+  font: inherit; font-size: 0.92rem; padding: 0.4rem 1rem; border: 0; background: var(--paper); color: var(--ink); cursor: pointer;
+}
+.mode button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.mode button + button { border-left: 1px solid #9f9579; }
+
+.summary .points li { margin-bottom: 0.55rem; }
+.expand { margin-top: 1.2rem; }
+.expand .btn { background: var(--teal); border-color: var(--teal); }
+[data-mode="detail"] .expand { display: none; }
+[data-mode="summary"] .detail { display: none; }
+
+.block { margin: 2.2rem 0 0; }
+.block > h3 { margin-top: 0; }
+.dsec { margin-top: 1.6rem; }
+.dsec:first-of-type { margin-top: 1.4rem; }
+
+dl.facts { display: grid; grid-template-columns: max-content 1fr; gap: 0.45rem 1.2rem; margin: 0 0 1rem; max-width: var(--measure); }
+dl.facts dt { font-weight: 700; color: var(--accent-ink); }
+dl.facts dd { margin: 0; }
+
+figure.flow-fig { margin: 1rem 0 1.4rem; background: #fffdf7; border: 1px solid var(--rule); border-radius: 8px; padding: 0.8rem; overflow-x: auto; }
+figure.flow-fig svg { display: block; width: 100%; min-width: 620px; height: auto; }
+figure.flow-fig figcaption { font-size: 0.9rem; color: var(--muted); margin-top: 0.5rem; }
+
+ol.narr { padding-left: 1.4rem; }
+.axes { list-style: none; padding: 0; max-width: none; border-top: 1px solid var(--rule); }
+.axes li { border-bottom: 1px solid var(--rule); padding: 0.8rem 0; margin: 0; display: grid; grid-template-columns: 9.5rem 1fr; gap: 0.2rem 1rem; }
+.axes .ax-title { font-weight: 700; font-family: var(--serif); font-size: 1.08rem; }
+.axes .ax-route { display: block; font-size: 0.85rem; color: var(--teal-ink); font-weight: 700; }
+.axes p { margin: 0; }
+
+.route-index { list-style: none; padding: 0; margin: 0; max-width: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: 0.6rem; }
+.route-index li { margin: 0; }
+.route-index li[hidden] { display: none; }
+.route-index a {
+  display: block; height: 100%; padding: 0.7rem 0.85rem; border: 1px solid var(--rule); border-radius: 7px; background: #fffdf7; text-decoration: none; color: var(--ink);
+}
+.route-index a:hover { border-color: var(--teal); }
+.route-index .ri-code { display: block; font-size: 0.8rem; color: var(--accent-ink); font-weight: 700; }
+.route-index .ri-title { font-weight: 700; line-height: 1.4; }
+
+details.fullsec { border-top: 1px solid var(--rule); padding: 0.6rem 0; max-width: var(--measure); }
+details.fullsec:last-of-type { border-bottom: 1px solid var(--rule); }
+details.fullsec > summary { cursor: pointer; font-family: var(--serif); font-weight: 700; font-size: 1.08rem; padding: 0.3rem 0; list-style: revert; }
+details.fullsec > p { margin-top: 0.6rem; }
+
+.sources { font-size: 0.93rem; margin-top: 1.4rem; max-width: none; }
+.sources a { margin-right: 0.8rem; white-space: nowrap; }
+.crosslinks { list-style: none; padding: 0; margin: 0; max-width: none; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.crosslinks li { margin: 0; }
+.crosslinks a { display: inline-block; border: 1px solid var(--teal); color: var(--teal-ink); border-radius: 999px; padding: 0.25rem 0.8rem; text-decoration: none; font-size: 0.92rem; }
+.crosslinks a:hover { background: var(--teal-soft); }
+
+.lab { background: var(--paper-2); border-radius: 8px; padding: 1.1rem 1.2rem; max-width: var(--measure); }
+.lab h3 { margin-top: 0; font-size: 1.1rem; }
+.tasks li { margin-bottom: 0.35rem; }
+
+.checks-list { list-style: none; padding: 0; max-width: none; }
+.checks-list li { margin: 0; }
+
+/* 교육용 도구 */
+.tool { border: 1px solid var(--rule); background: #fffdf7; border-radius: 10px; padding: 1.2rem 1.25rem; margin-top: 1.4rem; max-width: 52rem; }
+.tool-head { display: flex; justify-content: space-between; gap: 0.5rem; align-items: baseline; flex-wrap: wrap; margin-bottom: 0.4rem; }
+.tool-head h3 { margin: 0; font-size: 1.1rem; }
+.tag { font-size: 0.78rem; font-weight: 700; color: var(--accent-ink); background: var(--accent-soft); border-radius: 4px; padding: 0.15rem 0.5rem; }
+.tool .note { margin-bottom: 0.9rem; }
+.tool fieldset { border: 0; padding: 0; margin: 0 0 1rem; min-width: 0; }
+.tool legend { font-weight: 700; margin-bottom: 0.4rem; padding: 0; font-size: 0.97rem; }
+.opt { display: flex; gap: 0.5rem; align-items: flex-start; margin: 0.25rem 0; cursor: pointer; font-size: 0.97rem; line-height: 1.5; }
+.opt input { margin-top: 0.42rem; accent-color: var(--teal); width: 1.05rem; height: 1.05rem; flex: 0 0 auto; }
+.opt input:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.result { border-left: 4px solid var(--teal); background: var(--teal-soft); padding: 0.8rem 0.95rem; border-radius: 0 6px 6px 0; margin-top: 0.8rem; }
+.result.block-res { border-left-color: var(--accent); background: var(--accent-soft); }
+.result strong { font-size: 1.05rem; }
+.result p { margin: 0.35rem 0 0; font-size: 0.95rem; max-width: none; }
+
+.steps-tabs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.2rem 0 0.9rem; }
+.steps-tabs button {
+  font: inherit; font-size: 0.9rem; border: 1px solid #9f9579; background: var(--paper); color: var(--ink); border-radius: 6px; padding: 0.35rem 0.7rem; cursor: pointer;
+}
+.steps-tabs button[aria-pressed="true"] { background: var(--teal-ink); border-color: var(--teal-ink); color: #fff; }
+.step-panel { border-left: 4px solid var(--accent); padding: 0.2rem 0 0.2rem 0.95rem; }
+.step-panel p { margin: 0.3rem 0; font-size: 0.97rem; max-width: none; }
+.step-nav { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.9rem; flex-wrap: wrap; }
+.step-nav .count { font-size: 0.9rem; color: var(--muted); }
+
+.bars { margin: 0.4rem 0 0.8rem; }
+.bar-row { display: grid; grid-template-columns: 9rem 1fr 4.5rem; gap: 0.6rem; align-items: center; margin: 0.35rem 0; font-size: 0.92rem; }
+.bar-track { height: 1.1rem; background: var(--paper-3); border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; transition: width 0.25s ease; }
+.bar-fill.b1 { background: var(--ink); }
+.bar-fill.b2 { background: var(--accent); }
+.bar-fill.b3 { background: var(--teal); }
+.bar-val { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.budget-sum { font-size: 0.95rem; color: var(--ink-2); margin: 0.6rem 0 0; }
+input[type="range"] { width: 100%; accent-color: var(--teal); }
+.slider-row { display: grid; grid-template-columns: 1fr; gap: 0.1rem; margin-bottom: 0.8rem; }
+.slider-row label { font-size: 0.95rem; display: flex; justify-content: space-between; gap: 0.5rem; }
+.slider-row output { font-variant-numeric: tabular-nums; color: var(--accent-ink); font-weight: 700; }
+
+.check-prog { font-size: 0.95rem; color: var(--ink-2); margin: 0.4rem 0 0.6rem; }
+.check-reset { margin-top: 0.7rem; }
+
+.print-only { display: none; }
+
+.site-foot { border-top: 1px solid var(--rule); padding: 1.2rem 2.2rem 2rem; color: var(--muted); font-size: 0.9rem; }
+.site-foot p { max-width: var(--measure); margin-bottom: 0.4rem; }
+
+.ref-list { font-size: 0.95rem; }
+
+/* 전체 펼쳐 보기 */
+body.full .view[hidden] { display: block; }
+body.full [data-mode="summary"] .detail { display: block; }
+body.full [data-mode="detail"] .expand { display: none; }
+
+/* 반응형 */
+@media (max-width: 1080px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar {
+    position: fixed; left: 0; top: 0; width: min(20rem, 86vw); z-index: 60; height: 100vh;
+    transform: translateX(-102%); transition: transform 0.25s ease; box-shadow: 0 0 24px rgba(0,0,0,0.18);
+  }
+  .sidebar.open { transform: none; }
+  .nav-toggle { display: inline-flex; }
+  .scrim { display: block; position: fixed; inset: 0; background: rgba(31, 29, 26, 0.38); z-index: 50; }
+  .scrim[hidden] { display: none; }
+  .topbar, .search-panel { margin-left: 0; }
+  main#main, .topbar { padding-left: 1.2rem; padding-right: 1.2rem; }
+  .search-panel { margin-left: 1.2rem; margin-right: 1.2rem; }
+  .site-foot { padding-left: 1.2rem; padding-right: 1.2rem; }
+}
+@media (max-width: 640px) {
+  body { font-size: 1rem; line-height: 1.7; }
+  .topbar { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; padding: 0.7rem 1rem; }
+  .nav-toggle { grid-column: 1 / 2; justify-self: start; }
+  .top-actions { grid-column: 2 / 3; justify-self: end; }
+  .search { grid-column: 1 / -1; order: 3; }
+  .top-actions .btn { padding: 0.45rem 0.6rem; font-size: 0.85rem; }
+  .nav-toggle { padding: 0.45rem 0.6rem; font-size: 0.85rem; }
+  main#main { padding: 1.4rem 1rem 3rem; }
+  .search-panel { margin: 0.6rem 1rem 0; }
+  .axes li { grid-template-columns: 1fr; }
+  dl.facts { grid-template-columns: 1fr; gap: 0.1rem 0; }
+  dl.facts dt { margin-top: 0.5rem; }
+  .bar-row { grid-template-columns: 6.2rem 1fr 3.8rem; }
+  figure.flow-fig { margin-left: -0.2rem; margin-right: -0.2rem; }
+  .lede { font-size: 1.1rem; }
+  .site-foot { padding-left: 1rem; padding-right: 1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
+
+/* 인쇄: 모든 세션과 개요의 전체 내용을 라우트와 무관하게 출력한다 */
+@media print {
+  @page { size: A4; margin: 16mm 14mm; }
+  body { background: #fff; color: #000; font-size: 10.5pt; line-height: 1.55; }
+  .sidebar, .topbar, .search-panel, .scrim, .skip, .mode, .expand, .screen-only, .site-foot, .nav-foot { display: none !important; }
+  .app { display: block; }
+  .page { display: block; }
+  main#main { padding: 0; }
+  .view[hidden] { display: block !important; }
+  [data-mode] .detail { display: block !important; }
+  .view { max-width: none; break-before: page; page-break-before: always; }
+  .view:first-child { break-before: auto; page-break-before: auto; }
+  details.fullsec { display: block; }
+  details.fullsec > summary { list-style: none; }
+  details.fullsec > * { display: block; }
+  h2, h3 { break-after: avoid; page-break-after: avoid; }
+  p, li { orphans: 3; widows: 3; }
+  .lab, .tool, .result { break-inside: avoid; }
+  .print-only { display: block !important; }
+  .tool { border: 1px solid #999; background: #fff; }
+  .result { background: #f2f2f2; border-left-color: #000; }
+  .lede { color: #000; }
+  a { color: #000; text-decoration: underline; }
+  .sources a { white-space: normal; }
+  .view-head { border-bottom-color: #999; }
+  .expand { display: none !important; }
+  .lab { background: #f4f4f4; }
+  figure.flow-fig { border-color: #999; }
+  figure.flow-fig svg { min-width: 0; }
+}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<div class="app">
+  <aside id="site-nav" class="sidebar" aria-label="보고서 목차">
+    <div class="brand">
+      <p class="brand-kicker">Claude Code 워크샵</p>
+      <p class="brand-title">인터랙티브 학습 보고서</p>
+      <p class="brand-meta">v01 | 공개 자료 기준 2026-11-16</p>
+    </div>
+
+    <div class="day-filter" role="group" aria-label="Day 필터">
+      <button type="button" class="chip" data-day="all" aria-pressed="true">전체</button>
+      <button type="button" class="chip" data-day="1" aria-pressed="false">Day 1</button>
+      <button type="button" class="chip" data-day="2" aria-pressed="false">Day 2</button>
+    </div>
+
+    <nav aria-label="세션 경로">
+      <ul class="nav-root" id="nav-root"></ul>
+    </nav>
+
+    <p class="nav-foot">요약과 해설입니다. 실습 완료나 발언록이 아닙니다.</p>
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
+
+  <div class="page">
+    <header class="topbar">
+      <button type="button" id="nav-toggle" class="btn ghost nav-toggle" aria-controls="site-nav" aria-expanded="false">목차 열기</button>
+      <form class="search" id="search-form" role="search">
+        <label class="sr-only" for="q">보고서 전체 검색</label>
+        <input id="q" name="q" type="search" autocomplete="off" placeholder="검색: 정책, 비용, 플러그인, 차단" aria-controls="search-panel" aria-describedby="search-help">
+      </form>
+      <div class="top-actions">
+        <button type="button" id="full-toggle" class="btn" aria-pressed="false">전체 펼쳐 보기</button>
+        <button type="button" id="print-btn" class="btn ghost">인쇄</button>
+      </div>
+    </header>
+
+    <section class="search-panel" id="search-panel" aria-label="검색 결과" hidden>
+      <p id="search-help" class="search-help">검색어를 입력하면 개요와 모든 세션의 상세 내용에서 찾습니다. 여러 단어를 쓰면 모두 포함된 항목만 보입니다.</p>
+      <p id="search-status" class="search-status" role="status" aria-live="polite"></p>
+      <ol id="search-results" class="results"></ol>
+    </section>
+
+    <main id="main" tabindex="-1">
+      <div id="views"></div>
+    </main>
+
+    <footer class="site-foot">
+      <p>이 파일은 외부 스크립트, 글꼴, 이미지를 불러오지 않습니다. 원문 링크만 네트워크가 필요합니다.</p>
+      <p>기준: 2026-11-16 공개 자료. 기능과 수치는 자료 표기 버전을 따르며, 측정된 성과나 절감 효과를 담지 않습니다.</p>
+    </footer>
+  </div>
+</div>
+
+<template id="flow-svg">
+  <svg class="flow" viewBox="0 0 960 300" role="img" aria-labelledby="flow-title flow-desc">
+    <title id="flow-title">워크샵 두 날의 흐름과 데이터 경로</title>
+    <desc id="flow-desc">위쪽은 이틀의 교육 흐름이다. 실행 구조 이해에서 시작해 정책, 역할별 에이전트, 플러그인, 재사용, 비용 통제로 이어진다. 아래쪽은 실습의 데이터 경로로, 도구 실행은 실행 환경에서, 추론은 Bedrock 경로에서 이루어진다.</desc>
+    <g font-family="Apple SD Gothic Neo, Malgun Gothic, Noto Sans KR, sans-serif" font-size="15">
+      <rect x="10" y="20" width="136" height="64" rx="6" fill="#fffdf7" stroke="#1f1d1a" stroke-width="1.4"/>
+      <text x="78" y="48" text-anchor="middle" fill="#1f1d1a" font-weight="700">실행 구조</text>
+      <text x="78" y="68" text-anchor="middle" fill="#4d4a44" font-size="13">CH1</text>
+      <rect x="170" y="20" width="136" height="64" rx="6" fill="#fffdf7" stroke="#1f1d1a" stroke-width="1.4"/>
+      <text x="238" y="48" text-anchor="middle" fill="#1f1d1a" font-weight="700">정책과 차단</text>
+      <text x="238" y="68" text-anchor="middle" fill="#4d4a44" font-size="13">CH2, R1</text>
+      <rect x="330" y="20" width="136" height="64" rx="6" fill="#fffdf7" stroke="#1f1d1a" stroke-width="1.4"/>
+      <text x="398" y="48" text-anchor="middle" fill="#1f1d1a" font-weight="700">역할 분담</text>
+      <text x="398" y="68" text-anchor="middle" fill="#4d4a44" font-size="13">CH3</text>
+      <rect x="490" y="20" width="136" height="64" rx="6" fill="#fff4ec" stroke="#b6512b" stroke-width="1.6"/>
+      <text x="558" y="48" text-anchor="middle" fill="#8a3a1b" font-weight="700">플러그인 배포</text>
+      <text x="558" y="68" text-anchor="middle" fill="#4d4a44" font-size="13">CH4, R2</text>
+      <rect x="650" y="20" width="136" height="64" rx="6" fill="#eef6f5" stroke="#0f6b64" stroke-width="1.6"/>
+      <text x="718" y="48" text-anchor="middle" fill="#0b4f4a" font-weight="700">비용 측정</text>
+      <text x="718" y="68" text-anchor="middle" fill="#4d4a44" font-size="13">CH5</text>
+      <rect x="810" y="20" width="136" height="64" rx="6" fill="#eef6f5" stroke="#0f6b64" stroke-width="1.6"/>
+      <text x="878" y="48" text-anchor="middle" fill="#0b4f4a" font-weight="700">조직 통제</text>
+      <text x="878" y="68" text-anchor="middle" fill="#4d4a44" font-size="13">CH6</text>
+      <path d="M146 52 H170 M306 52 H330 M466 52 H490 M626 52 H650 M786 52 H810" stroke="#1f1d1a" stroke-width="1.4" fill="none" marker-end="url(#arr)"/>
+      <text x="480" y="112" text-anchor="middle" fill="#4d4a44" font-size="13">Day 1 (실행과 통제) → Day 2 (재사용과 운영)</text>
+
+      <rect x="10" y="150" width="260" height="58" rx="6" fill="#fffdf7" stroke="#1f1d1a" stroke-width="1.2"/>
+      <text x="140" y="176" text-anchor="middle" fill="#1f1d1a" font-weight="700">사용자 요청과 세션</text>
+      <text x="140" y="196" text-anchor="middle" fill="#4d4a44" font-size="13">입력된 문장과 지침</text>
+      <rect x="350" y="150" width="260" height="58" rx="6" fill="#fffdf7" stroke="#1f1d1a" stroke-width="1.2"/>
+      <text x="480" y="176" text-anchor="middle" fill="#1f1d1a" font-weight="700">실행 환경 (EC2)</text>
+      <text x="480" y="196" text-anchor="middle" fill="#4d4a44" font-size="13">파일 읽기, 편집, 명령 실행</text>
+      <rect x="690" y="150" width="260" height="58" rx="6" fill="#eef6f5" stroke="#0f6b64" stroke-width="1.4"/>
+      <text x="820" y="176" text-anchor="middle" fill="#0b4f4a" font-weight="700">추론 경로 (Bedrock)</text>
+      <text x="820" y="196" text-anchor="middle" fill="#4d4a44" font-size="13">모델 판단, 추론 프로필에 따름</text>
+      <path d="M270 179 H350" stroke="#1f1d1a" stroke-width="1.4" fill="none" marker-end="url(#arr)"/>
+      <path d="M610 179 H690" stroke="#0f6b64" stroke-width="1.6" fill="none" marker-end="url(#arr2)"/>
+      <text x="480" y="236" text-anchor="middle" fill="#4d4a44" font-size="13">읽힌 내용은 컨텍스트가 되어 추론 경로로 이동한다. 도구가 로컬에서 돌았다고 외부 전달이 없었다는 뜻은 아니다.</text>
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1f1d1a"/></marker>
+        <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#0f6b64"/></marker>
+      </defs>
+    </g>
+  </svg>
+</template>
+
+<script>
+/* 콘텐츠 데이터. 출처: 2026-11-16 공개 워크샵 자료 기준의 v01 종합 보고서와 세션별 요약, 공개 HTML 추출본.
+   이 파일은 실제 강의 발언록이나 실습 완료 기록이 아니다. 기능과 수치는 자료의 버전 표기를 따른다. */
+window.WORKSHOP = {
+  meta: {
+    title: "FSI Claude Code Deep Dive 워크샵 인터랙티브 학습 보고서 v01",
+    shortTitle: "Claude Code 워크샵 인터랙티브 v01",
+    version: "v01",
+    asOf: "2026년 11월 16일"
+  },
+
+  links: {
+    portal: { label: "실습 포털", url: "https://www.atomai.click/claude-code-workshop/" },
+    edm: { label: "행사 안내와 전체 일정", url: "https://www.atomai.click/claude-code-workshop/eDM.html" },
+    toc: { label: "강의자료 전체 목차", url: "https://www.atomai.click/claude-code-workshop/reactive/toc.html" },
+    capOverview: { label: "캡스톤 전체 개요와 완주 기준", url: "https://www.atomai.click/claude-code-workshop/ClaudeCode_Capstone_Overview.html" },
+    github: { label: "워크샵 GitHub 저장소", url: "https://github.com/whchoi98/claude-code-workshop" },
+    preflight: { label: "실습 환경 사전 점검", url: "https://www.atomai.click/claude-code-workshop/ClaudeCode_Preflight_Check.html" }
+  },
+
+  overview: {
+    facts: [
+      ["행사", "FSI Claude Code Deep Dive Workshop"],
+      ["일정", "2026년 11월 16일(Day 1)과 17일(Day 2), 양일 10:00~18:00"],
+      ["장소", "센터필드 18층"],
+      ["문서", "v01, 작성 기준일 2026년 11월 16일"],
+      ["근거", "공개 행사 안내, 챕터 강의자료 6종, 실습과 캡스톤 안내 (공개 HTML 22건을 읽은 추출본)"]
+    ],
+    scope: "이 보고서는 워크샵의 교육 내용과 실습 설계를 종합한 초안이다. 행사 종료 후의 참석 결과 보고서가 아니며, 참가자의 실습 성공 여부, 현장 질의응답, 실제 비용 절감 효과를 담지 않는다. 아래 오프닝은 공개 자료를 바탕으로 쓴 보고서용 도입문이며, 실제 개회사나 강사의 발언을 옮긴 것이 아니다.",
+    opening: "생성형 AI를 업무에 들이는 첫 단계에서는 무엇을 만들 수 있는지가 관심의 중심이다. 그러나 금융 서비스 조직에서 운영으로 넘어가려면 다른 질문에 답해야 한다. 어떤 데이터를 읽게 할지, 어떤 행동을 허용할지, 누가 같은 도구를 다시 쓸지, 비용과 책임을 어떻게 관리할지가 그것이다. 이 워크샵은 이 질문들을 하나의 실행 흐름으로 잇는다.",
+    narrative: [
+      "첫날은 실행의 경계를 세운다. 에이전트가 무엇을 읽고 어떤 도구를 호출하는지 이해한 뒤, Bedrock 연결, 정책 배포, 데이터 유출 방지, 역할별 권한 분리를 실습한다.",
+      "둘째 날은 그 경계 안에서 재사용과 운영을 다룬다. 스킬, 에이전트, 훅을 플러그인으로 묶어 다른 환경에 설치하고, 사용량을 관측하며 지출 한도를 적용하는 흐름이다.",
+      "두 번의 캡스톤이 이 연결을 확인한다. R1은 데이터에 맞는 역할과 차단 장치를 만들고, R2는 같은 구성을 새 환경에 설치해 서로 다른 업무에 재사용했는지 본다."
+    ],
+    axes: [
+      { title: "실행 이해", body: "모델의 답변뿐 아니라 파일 접근, 명령 실행, 외부 도구 호출까지 파악한다.", routes: "CH1" },
+      { title: "통제 설계", body: "지침을 적는 것과 기술적으로 행동을 차단하는 것을 구분하고, 차단이 실제로 작동하는지 확인한다.", routes: "CH2, R1" },
+      { title: "업무 분담", body: "역할마다 필요한 정보와 도구만 주어 위임한다. 읽기 전용 검토자는 이름이 아니라 실제 도구 범위로 판단한다.", routes: "CH3, R1" },
+      { title: "재사용과 배포", body: "개인 설정을 설치 가능한 버전 있는 자산으로 바꾸고, 새 환경에서 같은 구성이 작동하는지 확인한다.", routes: "CH4, R2" },
+      { title: "측정과 운영", body: "품질을 유지하면서 사용량을 줄이고, 관측, 정산, 차단을 나누어 조직 차원의 지출을 관리한다.", routes: "CH5, CH6" }
+    ],
+    implications: [
+      "도입 단위는 도구 계정이 아니라 업무 묶음이어야 한다. 대상 데이터, 분석 역할, 결과 형식, 검토 기준, 허용 행동을 함께 정의해야 한다.",
+      "성과는 생성 속도만으로 평가하기 어렵다. 검토 시간, 수정 횟수, 오류와 누락, 작업당 사용량을 함께 봐야 한다. 이 항목은 보고서가 제안하는 평가 관점이며 워크샵에서 측정된 수치가 아니다.",
+      "최소 권한과 재사용은 서로 보완한다. 역할과 도구 범위가 명확할수록 배포 대상도 명확해진다.",
+      "교육에서의 차단 장면과 설치 성공은 출발점이다. 데이터 범위, 네트워크와 인증, 배포 책임, 버전 관리, 장애 대응, 사람의 검토와 승인이 추가되어야 운영 가능한 상태가 된다."
+    ],
+    fullReport: [
+      { h: "1. 오프닝: AI가 일하는 방식보다 조직이 AI와 일하는 방식을 묻다", ps: [
+        "행사 안내에는 첫날 10:00~10:10 AWS 인사와 워크샵 안내가 예정되어 있다. 공개 자료로 확인할 수 있는 것은 일정과 교육 취지까지다. 실제 오프닝 발언과 현장 메시지는 후속 기록에서 보완할 사항이다.",
+        "이틀의 목표는 인상적인 시연 하나를 만드는 데 있지 않다. 개인 환경에서 잘 되던 방식을 팀에서도 반복할 수 있게 만들고, 그 반복이 허용된 데이터와 권한, 측정 가능한 비용 안에서 이루어지도록 설계하는 데 있다. 활용법 교육이면서 배포, 통제, 검증, 운영의 기초를 함께 다루는 과정이다."
+      ]},
+      { h: "2. 종합 요약", ps: [
+        "워크샵을 관통하는 주제는 개인의 생산성 도구를 조직이 배포하고 관리할 수 있는 업무 기반으로 바꾸는 것이다. 기능을 많이 아는 것보다 기능 사이의 관계를 이해하고 하나의 운영 구조로 묶는 데 의미가 있다.",
+        "보고서의 종합 관점은 다섯 가지다. 실행 이해, 통제 설계, 업무 분담, 재사용과 배포, 측정과 운영이다. 이 다섯 축은 별도의 과제가 아니다. 도구를 늘리면 데이터 경로와 비용도 달라지고, 통제를 강화하면 정상 업무가 영향을 받을 수 있다."
+      ]},
+      { h: "3. 이틀을 하나로 묶는 교육 구조", ps: [
+        "첫날의 질문은 에이전트가 무슨 일을 하며 어디까지 하게 할지다. 둘째 날의 질문은 그 방식을 다른 사람도 다시 쓰게 하고 계속 운영하려면 무엇이 필요한지다. 흐름은 실행 구조 이해에서 시작해 연결과 정책, 역할별 에이전트와 차단 장치, 플러그인 배포, 같은 구성으로 다른 업무 수행, 품질과 사용량 확인으로 이어진다.",
+        "관리자는 인증, 모델 접근, 정책 강제, 데이터 경로, 기록과 비용 한도에 관심을 둔다. 실무자는 자료를 찾고 업무를 나누고 형식이 정해진 결과물을 만드는 데 관심을 둔다. 워크샵은 두 관점을 분리하지 않는다. Subagent는 실무자에게는 분석 담당자이지만 관리자에게는 도구 권한과 모델 사용을 제한하는 실행 단위다."
+      ]},
+      { h: "4. 실행 기반: 모델, 도구, 데이터 경로를 함께 이해하기", ps: [
+        "워크샵은 Claude Code를 모델과 도구가 결합한 실행 환경으로 설명한다. 요청을 받으면 정보를 모으고, 도구로 작업을 수행하고, 결과를 확인하며 다음 행동을 정한다. 이 실행을 둘러싼 지침, 권한, 도구 연결 구조를 하네스라고 부를 수 있다.",
+        "실습 환경은 참가자별 EC2와 브라우저 기반 code-server를 쓰고, 모델 호출은 Amazon Bedrock으로 연결한다. 도구가 EC2에서 돌아도 읽은 정보가 그 안에만 남는 것은 아니다. 모델에 전달되는 파일 내용과 명령 출력은 추론 경로로 이동한다. 접속 리전과 실제 추론 처리 범위도 같지 않을 수 있으므로 모델 ID와 추론 프로필을 함께 확인해야 한다.",
+        "사전 점검은 Workshop Studio 참여, IDE 접속, Claude Code와 Bedrock 연결, 게이트웨이 도달 여부, 실습 데이터 준비를 확인한다. 이는 조직 배포의 축소판이다. 설치로 배포가 끝나지 않고 인증과 통신, 정책과 데이터가 실제로 작업 가능한 상태인지 확인해야 한다."
+      ]},
+      { h: "5. 통제 기반: 지침과 강제 장치를 구분하기", ps: [
+        "CLAUDE.md는 프로젝트의 규칙과 작업 맥락을 전달하는 문서다. managed settings는 관리자가 설정을 배포하고 적용하는 수단이다. 권한 규칙, 훅, 샌드박스, 모델 호출 단계의 가드레일은 각각 다른 위치에서 행동과 데이터 흐름을 제한한다. 원본을 읽지 말라고 적었다는 사실과 원본에 접근할 수 없다는 상태는 다르다.",
+        "데이터 통제에는 최소 다섯 관점이 필요하다. 입력 요청의 민감정보, 도구가 읽거나 실행하려는 대상의 허용 범위, 모델 호출 단계의 추가 검사, MCP와 외부 통신이 만드는 반출 경로, 차단과 허용의 기록이다. 각 장치는 같은 일을 중복하지 않고 서로 다른 구간을 다룬다. 프롬프트 검사가 도구 실행 중에 새로 읽는 모든 데이터를 보호하지는 않는다.",
+        "보안 실습은 훅의 의존성이 없거나 스크립트가 실행되지 않는 상황까지 다룬다. 검사 장치가 고장 나도 요청이 통과하는 fail-open과, 고장 시 진행을 막는 fail-closed를 구분한다. 검증에는 차단되어야 할 요청, 정상적으로 통과해야 할 요청, 검사 장치가 고장 난 요청을 모두 넣어야 한다.",
+        "일부 랩은 정책을 바꾸어 차단 효과를 본 뒤 원래 상태로 되돌리도록 안내한다. 이 원복은 교육 환경을 다음 단계에 맞추기 위한 것이며, 운영 환경에서 보안 정책을 풀라는 뜻이 아니다. 조직 적용에서는 변경 전 상태, 적용 범위, 검증 결과, 복구 절차를 함께 관리해야 한다."
+      ]},
+      { h: "6. 업무 기반: 역할을 나누고 검토를 독립시키기", ps: [
+        "분석 예시는 소비 분석, 포트폴리오 분석, 위험 검토를 서로 다른 역할로 나눈다. 각 역할은 무엇을 분석할지, 언제 호출할지, 어떤 도구를 쓸지, 어떤 형식으로 결과를 돌려줄지 정의한다. 긴 분석 과정을 별도 컨텍스트에 두고 핵심 결과만 합치는 데 유리하다.",
+        "읽기 전용 검토자에게 파일 저장을 요청했을 때 저장되지 않는 것을 확인하는 실습이 이 차이를 보여 준다. 수정하지 않는다는 설명과 수정 도구가 주어지지 않은 상태는 다르다. 다만 다른 도구가 파일을 바꿀 수 있는지도 봐야 하므로, 점검 대상은 에이전트의 이름이나 설명문이 아니라 허용된 도구 전체다.",
+        "병렬 실행은 독립적인 조사의 대기 시간을 줄일 수 있지만 각 에이전트의 모델 요청 비용은 합산된다. Subagent의 수를 늘리는 것 자체를 생산성 향상으로 보기 어렵다. 분리할 수 있는 업무인지, 역할 사이에 중복이 없는지, 결과를 합치는 기준이 있는지, 난도에 맞는 모델을 쓰는지 함께 평가해야 한다."
+      ]},
+      { h: "7. 재사용 기반: 잘 쓴 프롬프트에서 설치 가능한 업무 도구로", ps: [
+        "에이전트는 역할과 실행 범위를 나누는 단위이고, 스킬은 반복 절차와 결과 형식을 전달하는 단위다. MCP는 외부 데이터와 도구를 연결하고, 훅은 정해진 시점에 검사나 기록을 수행한다. 플러그인은 이 구성요소를 묶어 설치하고 배포하게 한다. 결과 형식이 매번 달라지면 절차를 정리할 문제이고, 접근 범위가 지나치게 넓으면 권한을 살필 문제다.",
+        "팀 스타터 킷 실습은 반복 계산을 하는 스킬과 분석 에이전트, DLP 훅을 묶어 마켓플레이스에 등록하고 설치한다. 배포되는 것은 코드 파일만이 아니다. 분석 역할, 계산 절차, 결과 형식, 금지 행동이 함께 전달된다. 따라서 버전, 설치 출처, 필요한 설정, 비밀정보의 분리, 사용 확인, 비활성화 경로를 관리해야 한다.",
+        "Mods는 화면과 동작을 바꾸는 확장이지만, 워크샵은 다른 확장 수단으로 해결할 수 있는지 먼저 보라고 권한다. 사용자 권한으로 실행되는 코드 확장은 단순 지침 파일과 같은 신뢰 수준으로 취급할 수 없기 때문이다."
+      ]},
+      { h: "8. 캡스톤: 제작에서 재사용으로", ps: [
+        "첫날 캡스톤 R1은 세 가지 데이터 접근 중 하나를 고른다. 가명 마이데이터 기반 고객 상담 준비, 서울 부동산 공공데이터를 MCP로 연결한 시세와 이상 거래 점검, 참가자가 고른 기존 MCP를 활용한 조사다. 공통 구조는 역할이 구분된 Subagent 두 개 이상, 실제로 차단하는 가드레일 하나 이상, 작업 지침과 설정 정리다. 첫 라운드는 앱의 완성도보다 둘째 날 배포할 구성요소를 확보하는 단계다.",
+        "둘째 날 R2에서는 첫날의 구성요소를 플러그인으로 묶어 마켓플레이스에 올리고 새 폴더에 설치한다. 이어서 정기 분석 리포트, 기획안 작성, 선택 과제인 AgentCore 앱 중 두 가지 이상을 수행한다. 새 폴더에서 설치하는 이유는 원래 폴더의 파일이나 개인 설정에 우연히 기댄 성공을 가려내기 위해서다.",
+        "재사용의 핵심 증거는 여섯 가지로 정리된다. 역할별 에이전트와 권한의 정의, 위험 요청의 차단과 정상 요청의 통과, 버전 있는 플러그인 설치, 새 환경에서의 서로 다른 업무 수행, 결과와 배포물에 키나 개인정보가 없음, 설치 상태와 파일과 실행 결과로 재사용을 설명할 수 있음이다. 결과 문서나 웹 화면은 목적의 전부가 아니라 재사용 도구가 작동했다는 증거다."
+      ]},
+      { h: "9. 운영 기반: 개인의 토큰 절감과 조직의 비용 통제 연결하기", ps: [
+        "개인 최적화는 컨텍스트와 사용량을 확인하고 기준선을 남기는 데서 시작한다. 이후 항상 전달되는 지침을 줄이거나, 큰 출력이 대화에 들어오기 전에 필요한 정보만 남기거나, 작업별 모델을 조정한다. 중요한 것은 적게 쓰는 행위가 아니라 같은 업무를 수행할 때 무엇이 바뀌었는지 비교하는 것이다.",
+        "압축과 캐시는 상충 관계가 있다. 압축은 요청 크기를 줄이지만 압축 자체에 모델 호출이 필요하고 중요한 맥락이 빠질 수 있다. 캐시는 유지 조건과 수명에 따라 효과가 달라진다. 공개 자료의 단가 예시나 평균 비용은 이 워크샵이나 특정 조직에서 측정한 절감 효과로 옮겨 적지 않았다.",
+        "조직 비용 관리는 관측, 정산, 차단이라는 세 질문에 답해야 한다. 관측은 어떤 사용자와 작업과 모델에서 사용량이 났는지, 정산은 실제 청구액이 얼마이고 추정치와 어떻게 다른지, 차단은 정한 기준을 넘었을 때 이후 요청을 어떻게 처리하는지다. 예산 알림이 발생하는 것과 요청이 실제로 거부되는 것은 다른 기능이다. 계측하지 않은 사용자가 있으면 대시보드가 전체 지출을 대표하지 못한다.",
+        "사용량을 보는 기록도 데이터 관리 대상이다. 토큰과 추정 비용, 호출 시간 같은 계측 정보와 프롬프트 본문, 도구 인자, 응답 본문은 민감도가 다르다. 게이트웨이의 한도 역시 추정 단가, 저장소 장애 시 허용 또는 차단, 사용자 식별정보 보존을 함께 고려해야 하는 운영 기능이다. 진행 중인 응답의 즉시 중단이나 최종 청구액의 보장으로 확대 해석해서는 안 된다."
+      ]},
+      { h: "10. 금융 서비스 조직에 주는 시사점", ps: [
+        "다음 내용은 특정 조직의 도입을 확정한 권고가 아니라 워크샵 구성에서 도출한 적용 관점이다. 도입 단위는 도구 계정보다 업무 묶음이다. 누가 어떤 모델을 쓸지만이 아니라, 어떤 입력으로 어떤 결과를 만들고 무엇으로 검토할지를 먼저 구체화해야 한다.",
+        "빠르게 초안이 만들어져도 검토와 재작업에 시간이 더 들면 최종 업무 시간은 줄지 않을 수 있다. 파일럿을 평가한다면 생성 시간, 사람의 검토 시간, 수정 횟수, 오류와 누락, 작업당 사용량을 함께 봐야 한다. 워크샵 결과를 운영 검증이 끝난 시스템으로 보기보다, 조건을 구체화할 수 있는 실행 가능한 원형으로 보는 것이 적절하다."
+      ]},
+      { h: "11. 결론: 진짜 산출물은 다시 사용할 수 있는 업무 방식이다", ps: [
+        "이번 워크샵은 Claude Code의 기능을 배우는 과정이면서, 에이전트를 조직 안에서 어떻게 다룰지 익히는 과정이다. 실행 구조를 이해하고, 정책과 가드레일로 경계를 만들고, 역할별 업무를 나누고, 그 구성을 설치 가능한 자산으로 바꾸며, 사용량과 지출을 관리한다.",
+        "이틀을 아우르는 핵심은 AI로 무엇을 만들었는가에서, 같은 업무 방식을 다른 환경에서도 안전하고 일관되게 다시 실행할 수 있는가로 평가 기준을 옮기는 데 있다."
+      ]},
+      { h: "부록 A. 자료와 사실의 확인 범위", ps: [
+        "공개 자료로 확인한 내용은 행사 일정과 대상, 교육 환경, 오프닝과 마무리의 예정 구성, 6개 챕터의 강의자료 본문, 정책과 DLP, 역할별 에이전트, 플러그인, 비용 실습 구성, 두 차례 캡스톤의 선택 규칙과 배포 및 재사용 요구사항이다.",
+        "확인하지 않은 내용은 실제 오프닝과 강의 발언, 현장 질의응답, 실제 참석 인원과 참가자별 완주 여부, 실습 명령의 재실행과 보안 통제의 독립 우회 검증, 행사 대시보드의 실제 사용량과 비용과 품질 개선 효과, 모든 PDF와 HTML 장표의 내용 일치 여부다. 여러 강의자료는 Claude Code v2.1.319와 2026년 11월 8일 리허설 검증을 표기한다. 이 보고서는 이를 자료의 전제로 쓰며, 기능의 현재 지원 상태를 별도 제품 검증으로 확정하지 않는다. 선택형 AgentCore 과제와 이전 회차 예시는 이번 행사의 필수 성과로 포함하지 않았다."
+      ]}
+    ]
+  },
+
+  sessions: [
+    {
+      id: "ch1", route: "CH1", day: 1, kind: "chapter", component: "stepper",
+      title: "Claude Code는 어떻게 동작하는가",
+      short: "실행 구조와 데이터 경로",
+      message: "에이전트의 답변뿐 아니라, 정보를 읽고 도구를 실행하는 전체 흐름이 관리 대상이다.",
+      points: [
+        "모델은 다음 행동을 판단하고, Claude Code는 파일 읽기와 편집, 명령 실행 도구를 연결한다. 이 실행 틀을 하네스라고 이해할 수 있다.",
+        "수집, 수행, 검증이 반복되는 구조다. 작업 통제는 답변 검토뿐 아니라 도구 호출 지점에도 필요하다.",
+        "프로젝트 지침, 대화, 파일 내용, 도구 결과가 모델 판단의 재료다. 무엇을 읽는지가 노출 범위와 토큰 사용량에 함께 영향을 준다.",
+        "실습의 도구 실행은 EC2에서, 추론은 Bedrock 경로에서 이루어진다. 접속 리전과 처리 범위는 추론 프로필까지 확인해야 한다."
+      ],
+      meaning: "이 세션은 뒤의 정책, 역할 분담, 비용 관리를 이해하는 공통 기반이다. 파일이 실행 환경에 있다는 것과 그 내용이 환경 밖으로 전달되지 않는다는 것은 같은 뜻이 아니다. 체크포인트도 외부 시스템에서 발생한 모든 행동을 되돌리는 장치로 보아서는 안 된다.",
+      evidence: "사전 점검에서 code-server와 Bedrock 연결 확인, /status와 /context 출력, 세션 JSONL과 도구 실행 순서, /rewind의 되돌리기 범위.",
+      sections: [
+        { id: "structure", h: "실행 구조: 모델과 하네스는 역할이 다르다", ps: [
+          "모델은 지금 무엇을 할지 판단하는 쪽이고, Claude Code는 그 판단을 실제 행동으로 옮기는 쪽이다. 파일을 읽고, 편집하고, 명령을 실행하는 도구가 모델과 환경을 잇는다. 이 연결을 감싸는 지침, 권한, 도구 구성이 하네스다.",
+          "이 구분이 중요한 이유는 관리 대상이 답변의 내용에만 머물지 않기 때문이다. 에이전트가 어떤 파일을 열었는지, 어떤 명령을 실행했는지, 어떤 외부 도구로 데이터를 보냈는지도 업무 결과와 연결된다. 따라서 답변만 검토하는 방식은 절반의 점검이다."
+        ]},
+        { id: "loop", h: "수집, 수행, 검증의 반복 루프", ps: [
+          "한 번의 요청에서 에이전트는 필요한 정보를 모으고, 도구로 작업하고, 결과를 확인한 뒤 다음 행동을 고른다. 이 루프는 한 번의 답변보다 여러 번의 도구 호출로 이루어진다. 그래서 통제 지점도 호출 단위에 있어야 한다.",
+          "세션 기록을 남기면 도구 호출의 순서를 되짚을 수 있다. 워크샵은 세션 JSONL과 도구 실행 순서를 관찰하게 하여, 답변의 근거가 된 행동을 확인하는 습관을 익히도록 한다."
+        ]},
+        { id: "context", h: "컨텍스트: 무엇을 읽히는가가 비용과 노출을 결정한다", ps: [
+          "모델이 판단하는 재료는 프로젝트 지침, 대화 내용, 읽은 파일, 도구 결과를 모두 포함한다. 큰 파일을 통째로 읽으면 토큰이 늘고, 민감한 내용이 추론 경로에 들어갈 가능성도 커진다. /context 명령으로 공간을 차지하는 항목을 보는 것이 첫 단계다.",
+          "CH5의 비용 실습이 이 개념을 그대로 이어받는다. 지금은 무엇이 컨텍스트에 들어가는지 보는 것, 그 다음에 줄일지 판단하는 것을 구분해 두면 된다."
+        ]},
+        { id: "path", h: "데이터 경로: 실행 장소와 추론 장소를 나눠 본다", ps: [
+          "실습에서 도구는 참가자별 EC2의 code-server 안에서 실행된다. 모델 호출은 Amazon Bedrock으로 연결된다. 두 장소가 다르기 때문에 도구가 로컬에서 실행되었다는 사실만으로 데이터가 환경 밖으로 나가지 않았다고 말할 수 없다.",
+          "접속 리전과 실제 추론 처리 범위도 같다고 가정하지 않는다. 자료는 추론 프로필의 범위에 따라 처리 위치가 달라질 수 있다고 설명한다. 조직 적용에서는 접속 주소와 함께 실제 모델 ID와 추론 프로필을 확인해야 한다."
+        ]},
+        { id: "rewind", h: "체크포인트와 되돌리기의 한계", ps: [
+          "/rewind는 세션 안에서 대화와 파일 변경을 이전 시점으로 되돌리는 장치다. 되돌리기의 범위를 실습에서 직접 확인하는 것이 목적이다. 그러나 외부 시스템에 이미 전달된 메시지나 API 호출은 되돌릴 수 없다.",
+          "따라서 체크포인트를 안전장치로 믿기보다, 되돌릴 수 있는 것과 없는 것을 구분하는 습관이 중요하다. 이 구분은 CH2의 통제 설계로 이어진다."
+        ]}
+      ],
+      lab: {
+        title: "사전 점검과 관찰 실습",
+        tasks: ["code-server와 Bedrock 연결 확인", "/status와 /context로 현재 상태 보기", "세션 JSONL과 도구 실행 순서 관찰", "/rewind 되돌리기 범위 확인"],
+        note: "실습 명령은 환경에 따라 결과가 다르다. 워크샵 자료의 명령을 그대로 옮기기보다, 어떤 출력이 무엇을 보여 주는지에 집중한다."
+      },
+      expected: ["연결 상태 확인 결과: 연결이 되었는지, 어떤 모델 경로인지", "컨텍스트 구성 관찰 메모: 어떤 항목이 많은 공간을 차지하는지", "실행 기록의 위치와 도구 호출 순서"],
+      cautions: ["이 보고서는 참가자의 실습 완료를 주장하지 않는다.", "파일이 실행 환경에 있다는 사실을 외부 전달 없음으로 해석하지 않는다."],
+      crosslinks: [{ label: "CH2 통제 설계", route: "ch2" }, { label: "CH5 컨텍스트 비용", route: "ch5" }],
+      links: [{ label: "강의자료 CH1", url: "https://www.atomai.click/claude-code-workshop/reactive/01-ch1-how-it-works.html" }, { label: "사전 점검", url: "https://www.atomai.click/claude-code-workshop/ClaudeCode_Preflight_Check.html" }]
+    },
+    {
+      id: "ch2", route: "CH2", day: 1, kind: "chapter", component: "layers",
+      title: "Bedrock 위에서 안전하게 쓰기",
+      short: "정책 배포와 다층 DLP",
+      message: "금지 사항을 문서에 적는 것에서 나아가, 정책이 실제 행동을 막는지 검증한다.",
+      points: [
+        "장기 키를 배포하는 대신 SSO 같은 단기 자격증명을 다루고, IAM 권한과 모델 접근 범위를 확인한다.",
+        "managed settings로 모델, 권한, 훅을 관리하고, 개인 설정으로 우회되는지 확인한다.",
+        "프롬프트 검사, 도구 권한, 훅, 샌드박스, Bedrock Guardrails, 외부 통신 통제는 서로 다른 위치를 다룬다. 하나의 검사로 모든 반출 경로가 막히지 않는다.",
+        "검사 스크립트가 고장 났을 때 fail-open과 fail-closed를 비교한다."
+      ],
+      meaning: "뒤에서 에이전트와 플러그인을 늘려도 유지되어야 할 경계를 만든다. 패턴 차단 실습은 완전한 DLP 인증이 아니며, auto mode도 조직의 권한 정책을 대신하지 않는다.",
+      evidence: "정책 배포 뒤 우회 시도의 거부, 정상 요청의 통과, 위험 요청의 차단, 훅 장애 시 차단을 각각 기록한다.",
+      sections: [
+        { id: "auth", h: "연결과 인증: 키보다 권한 범위를 본다", ps: [
+          "모델 접근에서 가장 먼저 줄여야 할 것은 장기 키다. 워크샵은 SSO 등 단기 자격증명을 쓰도록 안내하고, IAM 권한이 어떤 모델과 리전에 닿는지 확인하게 한다. 교육 환경의 인스턴스 역할은 실습을 위한 것이고, 조직의 사용자 인증 방식과는 다르다는 점을 구분해야 한다.",
+          "연결이 된다는 사실은 정책이 올바르다는 증거가 아니다. 어떤 권한이 실제로 열려 있는지 확인하는 것이 출발점이다."
+        ]},
+        { id: "lab1", h: "Lab 1: 정책 배포로 원본 데이터 읽기를 막기", ps: [
+          "이 랩의 역할은 IT보안과 플랫폼 담당자다. 분석팀이 Claude Code를 쓰기 시작하면서, 원본 고객 데이터 폴더를 읽지 못하게 해 달라는 요청이 왔다. 이 요청을 managed-settings.json 한 장으로 처리하는 것이 목표다.",
+          "관리 설정 파일은 /etc/claude-code/ 같은 시스템 경로에 둔다. 실습 환경에서는 sudo를 쓰지만, 회사 PC에서는 MDM이나 배포 도구로 같은 파일을 내려보낸다. 랩은 정책 배포, 사용자 설정으로 우회하려는 시도, 그 결과의 확인, 원복까지 여섯 개 Task로 구성된다.",
+          "중요한 확인은 정책이 적용되었는지다. 파일을 만들었다는 사실보다, 금지된 읽기 시도가 실제로 거부되는 기록이 증거가 된다. 원복은 백업을 되돌리는 절차로 안내되며, 다음 랩과 간섭하지 않도록 정리하는 목적이다."
+        ]},
+        { id: "lab2", h: "Lab 2: 가드레일과 DLP 훅", ps: [
+          "Claude Code에는 네이티브 DLP 기능이 없다는 전제에서 출발한다. 강의에서 본 다섯 층 중 핵심은 훅 층이다. 훅을 managed 정책으로 강제하면 사용자가 임의로 끌 수 없는 검사가 된다.",
+          "훅은 종료 코드로 판단을 전달한다. 워크샵 자료는 차단을 뜻하는 종료 코드와 일반 오류 종료를 구분하고, 오류가 나도 요청이 통과하는 fail-open 문제를 설명한다. onFailure 설정을 block으로 두면 오류 경로도 차단으로 처리하도록 할 수 있다. 다만 실제 적용 여부는 대상 버전에서 확인해야 한다.",
+          "실습 데이터의 주민등록번호, 카드번호, 휴대폰, 계좌번호는 형식만 맞춘 가짜 값이다. 실제 개인정보를 넣지 않는다. Lab 2는 필수 세 개와 선택 세 개의 Task, 그리고 원복으로 구성된다. 선택 트랙에는 샌드박스, Bedrock Guardrails, 확장 통제가 있다.",
+          "auto mode는 확인 창을 줄이는 기능이다. 사람의 확인과 분류기의 판단 사이에 경계를 긋는 것이 실습의 질문이다. 확인을 줄인다고 권한 정책이 대신 정해지지는 않는다."
+        ]},
+        { id: "layers", h: "다층 통제: 서로 다른 구간을 맡긴다", ps: [
+          "프롬프트 검사는 사용자가 입력한 요청을 본다. 도구 권한은 어떤 파일과 명령을 쓸 수 있는지 정한다. 훅은 도구 호출 전후에 검사를 끼워 넣는다. 샌드박스는 프로세스가 접근할 수 있는 파일 시스템과 네트워크 범위를 제한한다. 외부 통신 통제는 MCP와 외부 호출의 경로를 다룬다.",
+          "모델 단계의 검사만으로 로컬 명령 실행을 통제할 수는 없다. 도구가 새로 읽는 데이터는 프롬프트 검사를 지나지 않을 수 있다. 그래서 여러 층을 겹치되, 각 층이 무엇을 못 보는지도 함께 적어야 한다."
+        ]},
+        { id: "failure", h: "오류도 차단하는 설계: fail-open과 fail-closed", ps: [
+          "fail-open은 검사 장치에 문제가 생기면 요청을 통과시키는 방식이다. 가용성은 높지만 검사가 빠진 상태가 조용히 생긴다. fail-closed는 검사 장치가 고장 나면 진행을 막는 방식이다. 보안은 강해지지만 정상 업무가 멈출 수 있다.",
+          "검증에는 세 종류의 요청이 필요하다. 차단되어야 할 요청, 정상적으로 통과해야 할 요청, 검사 장치가 고장 난 상태에서의 요청이다. 세 번째를 빼면 보안 검증이 절반만 이루어진다."
+        ]},
+        { id: "limits", h: "패턴 차단의 한계와 원복의 의미", ps: [
+          "정규식 같은 패턴 차단은 형식이 맞는 값을 잡는 데 유용하지만, 모든 개인정보와 우회 경로를 막지는 못한다. 워크샵이 이를 완전한 DLP 인증으로 제시하지 않는 이유다.",
+          "랩 종료 후 원복을 하는 것은 교육 환경을 정리하기 위함이다. 운영 환경에서 보안 정책을 풀라는 뜻으로 읽으면 안 된다. 변경 전 상태, 적용 범위, 검증 결과, 복구 절차를 함께 관리해야 한다."
+        ]}
+      ],
+      lab: {
+        title: "Lab 1 정책 배포와 Lab 2 가드레일과 DLP",
+        tasks: ["Lab 1: 준비 포함 여섯 개 Task, 정책 배포와 우회 확인, 원복", "Lab 2: 필수 세 개와 선택 세 개 Task, 훅 적용과 auto mode 경계, 원복", "선택 트랙: Sandbox, Bedrock Guardrails, 확장 통제"],
+        note: "랩의 명령과 파일 경로는 실습 환경 기준이다. 개인 PC에서 같은 명령을 바로 실행하지 않는다."
+      },
+      expected: ["정책 적용 전후 원본 읽기 시도의 결과 기록", "정상 요청 통과, 위험 요청 차단, 훅 장애 시 처리 방식의 세 가지 기록", "원복 후 정책 파일이 백업과 같은 상태인지 확인한 메모"],
+      cautions: ["sudo와 시스템 경로 변경은 교육 환경에서만 한다. 회사 장비에서는 MDM 같은 관리 경로를 쓴다.", "실제 개인정보를 입력하지 않는다. 데이터는 형식만 맞춘 가짜 값이다.", "패턴 차단 통과는 DLP 인증이 아니다."],
+      crosslinks: [{ label: "CH1 실행 경로", route: "ch1" }, { label: "R1 가드레일 만들기", route: "r1" }, { label: "CH4 플러그인 훅 배포", route: "ch4" }],
+      links: [{ label: "강의자료 CH2", url: "https://www.atomai.click/claude-code-workshop/reactive/02-ch2-bedrock-safe.html" }, { label: "Lab 1 정책 배포", url: "https://www.atomai.click/claude-code-workshop/ClaudeCode_Ch2_HandsOnLab.html" }, { label: "Lab 2 가드레일과 DLP", url: "https://www.atomai.click/claude-code-workshop/ClaudeCode_Ch2_Guardrails_HandsOnLab.html" }]
+    },
+    {
+      id: "ch3", route: "CH3", day: 1, kind: "chapter", component: null,
+      title: "Subagent로 일 나눠 맡기기",
+      short: "역할 정의와 도구 범위",
+      message: "업무를 역할별로 나누되, 각 역할에 필요한 정보와 도구만 준다.",
+      points: [
+        "Subagent는 전용 지침과 작업 공간에서 분석하고 결과만 돌려준다. 긴 조사 과정을 메인 대화와 분리할 수 있다.",
+        "역할은 이름, 사용 시점, 도구, 모델, 출력 형식으로 정의한다. 자동 위임의 판단 근거가 되는 설명도 실제 업무와 이어져야 한다.",
+        "소비 분석, 포트폴리오 분석, 위험 검토처럼 역할을 나눈다. 읽기 전용 여부는 설명문이 아니라 실제 허용 도구 전체로 확인한다.",
+        "자동 위임, 명시 호출, 병렬 실행을 비교한다. 병렬화는 대기 시간을 줄여도 모델 사용량은 합산된다."
+      ],
+      meaning: "첫날 캡스톤의 분석 역할을 만들고, 둘째 날 플러그인에 담을 재료를 준비한다. 검토 에이전트를 두었다고 판단의 정확성이나 사람의 승인이 보장되지는 않는다.",
+      evidence: "세 역할 정의 파일, 가명 데이터로 작성한 세그먼트 제안서 segments.md, 검토 역할의 파일 저장 요청이 거부되는 기록.",
+      sections: [
+        { id: "role", h: "역할 정의: 무엇을 맡기고 무엇을 반환받는가", ps: [
+          "Subagent는 메인 대화와 분리된 컨텍스트에서 일하고, 핵심 결과만 메인으로 돌려준다. 긴 자료를 읽는 과정이 메인 대화를 채우지 않게 하는 것이 주된 이점이다.",
+          "역할 정의에는 이름, 사용 시점, 사용할 도구, 모델, 출력 형식이 들어간다. 사용 시점을 설명하는 문장은 자동 위임의 근거가 되므로, 실제 업무의 언어로 쓰는 것이 중요하다."
+        ]},
+        { id: "trio", h: "실습의 세 역할: 소비, 포트폴리오, 위험 검토", ps: [
+          "실습은 spending-analyst, portfolio-analyst, risk-reviewer 세 역할을 만든다. 앞의 두 역할은 가명 데이터를 분석해 각자의 관점에서 결과를 만든다. 세 번째 역할은 결과를 검토하는 쪽이다.",
+          "가명 데이터는 작업 폴더의 pseudo 디렉터리에 준비한다. 최종 산출물은 세그먼트 제안서 segments.md이며, 세 역할의 결과를 합쳐 작성한다."
+        ]},
+        { id: "readonly", h: "권한 분리: 설명문이 아니라 도구 전체를 본다", ps: [
+          "검토 역할에 파일 저장을 요청해 실제로 저장되지 않는지 확인하는 것이 핵심 실습이다. 저장이 막히면 권한 분리가 작동한 것이다. 그러나 쓰기 도구를 빼도 다른 도구가 파일을 바꿀 수 있으므로, 허용된 도구 전체를 점검해야 한다.",
+          "“수정하지 않는다”는 지침은 바람을 적은 것이고, 도구가 없는 상태는 제약이다. 조직 적용에서는 이 차이를 기록으로 남기는 것이 중요하다."
+        ]},
+        { id: "invoke", h: "호출 방식과 비용: 자동, 명시, 병렬", ps: [
+          "자동 위임은 Claude가 설명을 보고 역할을 고르는 방식이다. 명시 호출은 사용자가 역할을 직접 지정한다. 병렬 실행은 독립적인 조사를 동시에 돌린다. 각 방식은 통제성과 비용이 다르다.",
+          "병렬화는 기다리는 시간을 줄일 수 있지만, 각 에이전트의 모델 요청이 모두 비용으로 쌓인다. 같은 정보를 여러 역할에 반복 전달하는 것도 비용이다. 작은 작업까지 모두 위임하는 것은 효율적이지 않다."
+        ]},
+        { id: "headless", h: "선택 실습: 비대화형 실행과 결과 파싱", ps: [
+          "선택 실습은 claude -p를 써서 대화형 세션 없이 한 번에 실행하는 방법을 다룬다. 출력은 JSON 형식으로 받아 jq로 필요한 필드만 읽는다. 이 방식은 나중에 스크립트나 자동화에 넣을 때 필요하지만, 이번 보고서는 예약 실행을 구축하지 않는다.",
+          "비대화형 실행의 결과도 대화형 실행과 같은 검토를 거쳐야 한다. 출력이 형식상 맞다는 사실이 내용이 맞다는 증거는 아니다."
+        ]}
+      ],
+      lab: {
+        title: "Subagent 실습 흐름",
+        tasks: ["Task 1: 작업 폴더와 가명 데이터 준비", "Task 2: spending-analyst 정의와 등록 확인", "Task 3~4: portfolio-analyst와 risk-reviewer 정의", "Task 5: 세 역할로 세그먼트 제안서 작성과 헤드리스 실행(선택)"],
+        note: "Task 번호와 세부 단계는 자료의 구성을 따른다. 세부 명령은 실습 페이지에서 확인한다."
+      },
+      expected: ["세 역할 정의 파일과 등록 확인 결과", "segments.md 세그먼트 제안서", "검토 역할에 파일 저장을 요청했을 때의 결과 기록"],
+      cautions: ["검토 에이전트가 있어도 판단의 정확성과 사람의 승인이 보장되지 않는다.", "작은 작업을 무조건 위임하지 않는다. 분리 가능성과 비용을 먼저 본다."],
+      crosslinks: [{ label: "R1 역할 구성", route: "r1" }, { label: "CH4 플러그인으로 묶기", route: "ch4" }],
+      links: [{ label: "강의자료 CH3", url: "https://www.atomai.click/claude-code-workshop/reactive/03-ch3-subagents.html" }, { label: "실습 CH3", url: "https://www.atomai.click/claude-code-workshop/ClaudeCode_Ch3_HandsOnLab.html" }]
+    },
+    {
+      id: "r1", route: "R1", day: 1, kind: "capstone", component: null,
+      title: "내 agents와 가드레일",
+      short: "데이터 미션 선택과 실제 차단",
+      message: "고른 데이터에 맞는 에이전트와 실제로 작동하는 차단 장치를 만든다.",
+      points: [
+        "세 가지 미션 중 하나를 고른다. R1-A 고객 맞춤 서비스, R1-B 서울 부동산 시세, R1-C 내가 고른 MCP. 세 미션을 모두 하는 과제가 아니다.",
+        "역할별 Subagent를 두 개 이상 두고 역할과 도구 범위를 나눈다. 읽기 전용 검토 역할을 두는 방식이 권장된다.",
+        "데이터마다 경계가 다르다. 가명 마이데이터는 원본 접근과 개인정보 패턴, 공공데이터 MCP는 키 노출과 호출 범위, 기존 MCP는 외부 호스트와 도구 범위를 본다.",
+        "정상 요청은 통과하고, 위험 요청과 검사 장치의 오류 경로는 차단되는지 확인한다."
+      ],
+      meaning: "R1에서는 무엇을 다룰지 정하고, R2에서는 그것을 어떻게 다시 쓸지 증명한다. 운영 수준의 보안이 검증되었다는 뜻은 아니며, 플러그인 패키징은 다음 라운드의 과제다.",
+      evidence: "업무 정의, 역할별 에이전트 파일, 작업 지침과 설정, 가드레일, 정상 분석 결과와 차단 증거. 키와 개인정보가 결과 파일에 들어가지 않아야 한다.",
+      sections: [
+        { id: "mission", h: "미션 선택: 데이터에 맞춰 하나만 고른다", ps: [
+          "R1-A는 가명 마이데이터로 고객 한 명의 상담을 준비하는 반복 업무를 다룬다. R1-B는 서울 열린데이터광장의 실거래가 API를 MCP 서버로 감싸 시세와 이상 거래를 살펴본다. R1-C는 제공처가 공식으로 내놓은 MCP 서버 하나를 골라 연결한다.",
+          "하나를 고르는 이유는 깊이 때문이다. 세 미션을 얕게 모두 하면 R2에서 배포할 구성요소가 흐려진다. 트랙 A는 CH3 체크포인트에서 가져온 에이전트를 수정해 쓸 수 있다."
+        ]},
+        { id: "agents", h: "역할별 Subagent: 두 개 이상, 검토 역할은 읽기 전용", ps: [
+          "R1은 역할이 구분된 Subagent를 최소 두 개 만든다. 한 역할은 데이터를 다루고, 다른 역할은 결과를 검토한다. 검토 역할에 쓰기 도구를 주지 않으면 결과를 직접 바꾸지 못한다.",
+          "역할 설명에는 무엇을 다루고 무엇을 하지 않는지를 함께 적는다. 이 설명이 R2에서 플러그인의 계약이 된다."
+        ]},
+        { id: "boundary", h: "데이터별 경계: 무엇이 새어 나갈 수 있는지부터 본다", ps: [
+          "마이데이터 미션에서는 원본 파일 접근과 주민등록번호 같은 개인정보 패턴을 먼저 막아야 한다. 공공데이터 MCP 미션에서는 API 키가 결과나 로그에 노출되지 않는지, 호출 범위가 필요한 지역과 기간으로 한정되는지를 본다.",
+          "기존 MCP를 고른 미션에서는 외부 호스트와 도구 목록을 허용 목록으로 제한하고, 외부 호출이 어디까지 나가는지 기록한다. 세 경우 모두 결과 파일에 키와 개인정보가 남지 않았는지 마지막에 확인한다."
+        ]},
+        { id: "block", h: "실제 차단 확인: 금지 문구로 끝내지 않는다", ps: [
+          "가드레일은 CLAUDE.md에 금지 문장을 적는 것으로 끝나지 않는다. 훅이나 권한 규칙으로 실제 도구 호출을 막고, 그 결과를 증거로 남긴다. 정상 요청이 통과하는 것도 함께 확인해야 한다. 과하게 막아 업무가 멈추는 가드레일은 실패한 설계다.",
+          "검사 장치의 오류 경로도 시험한다. 훅 스크립트가 실행되지 않을 때 요청이 통과하는지 차단되는지를 확인한다. CH2에서 본 fail-open 문제가 여기서 실제 설계로 나타난다."
+        ]},
+        { id: "deliverable", h: "산출물과 완료 기준", ps: [
+          "완료 기준은 업무 정의, 역할별 에이전트 파일, 작업 지침과 설정, 가드레일, 정상 분석 결과와 차단 증거를 모두 갖추는 것이다. 이 중 하나라도 빠지면 R2에서 재사용할 구성요소가 불완전해진다.",
+          "결과를 공유할 때는 화면이나 파일에 키와 개인정보가 없는지 다시 본다. 완성도가 높은 화면은 완주의 증거가 아니다."
+        ]}
+      ],
+      lab: {
+        title: "R1 미션 세 가지 중 하나",
+        tasks: ["R1-A: 가명 마이데이터, 고객 상담 준비 에이전트와 원본 접근 가드레일", "R1-B: 서울 부동산 공공데이터 MCP, 두 개의 에이전트와 키 보호 가드레일", "R1-C: 기존 공식 MCP 서버, MCP 허용 목록과 외부 호출 범위 가드레일"],
+        note: "각 미션 페이지는 SETUP을 마친 뒤 단계를 시작하도록 구성되어 있다."
+      },
+      expected: ["업무 정의 한 문단과 역할 목록", "역할별 에이전트 파일", "정상 요청의 분석 결과와 위험 요청의 차단 기록"],
+      cautions: ["세 미션을 모두 하는 것이 아니다.", "결과 파일과 공유 화면에 키와 개인정보를 남기지 않는다."],
+      crosslinks: [{ label: "CH2 가드레일 원리", route: "ch2" }, { label: "R2 플러그인으로 묶기", route: "r2" }],
+      links: [{ label: "캡스톤 개요와 완주 기준", url: "https://www.atomai.click/claude-code-workshop/ClaudeCode_Capstone_Overview.html" }, { label: "R1-A 예시", url: "https://www.atomai.click/claude-code-workshop/ClaudeCode_Capstone_R1A_HandsOnLab.html" }, { label: "R1-B", url: "https://www.atomai.click/claude-code-workshop/ClaudeCode_Capstone_R1B_HandsOnLab.html" }, { label: "R1-C", url: "https://www.atomai.click/claude-code-workshop/ClaudeCode_Capstone_R1C_HandsOnLab.html" }]
+    },
+    {
+      id: "ch4", route: "CH4", day: 2, kind: "chapter", component: null,
+      title: "Claude Code 확장하기",
+      short: "스킬, 훅, 플러그인과 조직 배포",
+      message: "개인 설정을 다른 사람이 설치해 쓸 수 있는 팀의 업무 도구로 바꾼다.",
+      points: [
+        "스킬은 반복 절차, Subagent는 역할 분담, 훅은 검사와 기록, MCP는 외부 시스템 연결을 맡는다. 플러그인은 이들을 배포 단위로 묶는다.",
+        "이름과 버전, 구성 파일을 갖추고, 마켓플레이스 등록, 설치, 적용과 갱신을 구분한다. CLAUDE.md는 플러그인 밖의 지침 배포 경로로 다룬다.",
+        "출처 허용, 등록, 설치 강제, 사이드로드 제한은 서로 다른 통제다. 망분리 환경에서는 사전 배치도 검토한다.",
+        "Mods는 화면과 이벤트를 바꾸는 코드 확장이다. 기존 기능으로 해결할 수 있는지 먼저 보고, 코드의 출처와 실행 범위를 검토한다."
+      ],
+      meaning: "한 사람의 유용한 설정을 팀의 재사용 자산으로 바꾼다. 설치 성공만으로 실제 사용과 올바른 작동이 입증되지는 않는다. 버전 고정과 비활성화 경로, 적용 확인이 필요하다.",
+      evidence: "패키지 구조, 설치 결과, 구성요소 적용 상태, 기획서 산출물, 훅이 차단한 기록.",
+      sections: [
+        { id: "parts", h: "확장 수단은 맡는 일이 다르다", ps: [
+          "스킬은 절차와 출력 형식을 적은 SKILL.md로 정의된다. Subagent는 역할과 도구 범위를 가진 실행 단위다. 훅은 정해진 시점에 검사나 기록을 수행한다. MCP는 외부 데이터와 도구를 연결한다.",
+          "문제를 어디서 풀지 고르는 기준이 중요하다. 같은 절차를 매번 설명하고 있다면 스킬이, 접근 범위가 넓다면 권한과 도구가, 검사가 필요하다면 훅이 맞다."
+        ]},
+        { id: "package", h: "팀 표준 패키징: 등록과 설치와 적용을 나눈다", ps: [
+          "플러그인은 이름, 버전, 구성 파일을 갖춘 묶음이다. 마켓플레이스에 등록하는 것, 특정 환경에 설치하는 것, 설치된 것이 실제로 적용되는 것은 서로 다른 단계다. 셋을 따로 확인해야 재현 가능한 배포가 된다.",
+          "CLAUDE.md는 플러그인 안에 넣기보다, 프로젝트나 조직이 따로 배포하는 지침으로 다루는 편이 일반적이다. 어떤 것이 플러그인으로 배포되고 어떤 것이 지침으로 배포되는지 구분해 두어야 한다."
+        ]},
+        { id: "org", h: "조직 배포: 허용, 등록, 강제는 별개의 통제다", ps: [
+          "조직이 플러그인을 관리하려면 출처를 허용 목록으로 제한하고, 등록된 마켓플레이스를 관리하며, 설치를 강제하거나 사용자가 임의로 설치하는 것을 막는 여러 통제를 가진다. 이 통제들은 서로 대체하지 않는다.",
+          "망분리 환경에서는 인터넷에서 설치하는 대신 사전에 배치하는 방식을 검토한다. 이때도 버전과 검토 기록을 함께 남겨야 한다."
+        ]},
+        { id: "hooks", h: "플러그인 훅과 조직 강제 정책의 구분", ps: [
+          "플러그인에 든 훅은 그 플러그인이 설치된 환경에서 작동한다. 사용자가 플러그인을 끄면 훅도 꺼질 수 있다. 조직이 끌 수 없게 강제하려면 managed 정책에 따로 두어야 한다. R2 자료도 이 구분을 명시한다.",
+          "따라서 훅을 신뢰 가능한 통제로 만들려면, 플러그인 배포와 관리 정책을 나누어 설계해야 한다."
+        ]},
+        { id: "mods", h: "Mods의 신뢰 범위", ps: [
+          "Mods는 Claude Code 안에서 도는 코드다. 사용자 권한으로 실행되므로 단순한 지침 파일과 같은 신뢰 수준으로 볼 수 없다. 화면 패널이나 상태 표시처럼 꼭 필요한 경우에만 쓰고, 코드의 출처와 실행 범위를 검토한다.",
+          "실습에서 첫 mod를 만드는 부분은 선택 항목이다. 이 부분의 목적은 확장의 존재가 아니라 신뢰 범위를 생각하는 습관을 익히는 것이다."
+        ]},
+        { id: "lab", h: "실습 흐름: retirement-gap 스킬과 asset-team-kit", ps: [
+          "실습은 노후 연금 격차 계산을 retirement-gap 스킬로 고정한다. 이어 CH3의 세 에이전트와 CH2 Lab 2의 DLP 훅을 asset-team-kit 플러그인으로 묶고, 로컬 마켓플레이스에 올린 뒤 설치한다. 설치한 킷으로 연금상품 기획서를 완성한다.",
+          "랩은 Task 일곱 개와 선택 Task 하나로 구성된다. 기준은 Claude Code 2.1.287 이상이다. 자료는 파일을 손으로 짜기보다 Claude에게 시켜 만들라고 권하고, 아래 코드 블록은 막혔을 때의 정답지로 제시한다."
+        ]}
+      ],
+      lab: {
+        title: "Ch4 실습 흐름",
+        tasks: ["Task 1: retirement-gap 스킬 작성", "Task 2: 세 에이전트와 DLP 훅 포함 플러그인 구성", "Task 3: 로컬 마켓플레이스 등록과 설치", "Task 4: 킷으로 연금상품 기획서 작성과 훅 차단 확인", "Task 5~7: 원복과 점검, 선택 Task: 첫 mod"],
+        note: "Task 세부 내용은 실습 페이지의 순서를 따른다."
+      },
+      expected: ["플러그인 패키지 구조와 버전 정보", "설치 결과와 구성요소 적용 상태", "연금상품 기획서 산출물과 훅 차단 기록"],
+      cautions: ["설치 성공을 실제 작동의 증거로 대신하지 않는다.", "비활성화 경로와 원복 절차를 함께 확인한다."],
+      crosslinks: [{ label: "CH3 역할 정의", route: "ch3" }, { label: "CH2 DLP 훅", route: "ch2" }, { label: "R2 재사용 검증", route: "r2" }],
+      links: [{ label: "강의자료 CH4", url: "https://www.atomai.click/claude-code-workshop/reactive/04-ch4-extending.html" }, { label: "실습 CH4", url: "https://www.atomai.click/claude-code-workshop/ClaudeCode_Ch4_HandsOnLab.html" }]
+    },
+    {
+      id: "ch5", route: "CH5", day: 2, kind: "chapter", component: "budget",
+      title: "비용 효율적으로 쓰기",
+      short: "측정 기준선과 컨텍스트 엔지니어링",
+      message: "먼저 사용량을 측정하고, 같은 품질의 업무를 더 적은 토큰으로 수행한다.",
+      points: [
+        "/context로 공간을 차지하는 항목을 보고, /usage로 토큰과 추정 비용을 확인한다. 같은 과제의 기준선을 남겨야 변경 효과를 비교할 수 있다.",
+        "항상 전달되는 지침은 짧게 두고 반복 절차는 스킬로 분리한다. 큰 도구 출력은 필요한 정보만 남기되 원인 분석의 근거는 잃지 않는다.",
+        "쓰지 않는 MCP 연결을 줄이고 도구 정의의 지연 로드를 활용한다. 외부 도구를 들이기 전에 같은 효과를 공식 기능으로 낼 수 있는지 확인한다.",
+        "작업 연속성과 캐시 상태를 고려해 압축 시점을 정한다. 압축과 작은 모델이 항상 총비용을 줄이는 것은 아니다."
+      ],
+      meaning: "R2의 반복 업무를 지속 가능한 비용으로 수행하도록 연결한다. 세션 초기화와 대화 압축은 목적과 비용이 다르고, 추정 비용은 실제 AWS 청구액과 구분한다. 핵심은 토큰 최소화 자체가 아니라 업무 품질을 유지한 효율 개선이다.",
+      evidence: "기준선 측정값, 전후 사용량, 결과의 누락과 재시도와 재탐색 여부, 압축 전후의 작업 연속성 기록.",
+      sections: [
+        { id: "baseline", h: "측정부터 시작: 기준선 없이는 절감을 말할 수 없다", ps: [
+          "/context는 지금 컨텍스트에 무엇이 얼마나 들어 있는지 보여 준다. /usage는 토큰 사용량과 추정 비용을 보여 준다. 두 명령을 같은 과제에 대해 먼저 실행해 기준선을 남기는 것이 실습의 첫 번째 Task다.",
+          "기준선이 없으면 변경 후의 숫자가 좋아졌는지 알 수 없다. 숫자만 보면 결과가 빠졌을 수도 있으므로, 같은 과제의 결과 품질도 함께 기록해야 한다."
+        ]},
+        { id: "input", h: "입력 줄이기: 항상 로드되는 것과 필요할 때 로드되는 것", ps: [
+          "항상 전달되는 지침은 매 요청마다 비용으로 쌓인다. 긴 CLAUDE.md를 줄이고, 반복 절차는 스킬로 분리하면 필요할 때만 불러온다.",
+          "큰 도구 출력은 필요한 부분만 남기도록 출력 필터 훅을 쓸 수 있다. 실습은 거래 CSV를 매일 열어 보는 상황을 예로 든다. 다만 필터가 원인 분석에 필요한 행까지 버리면 절감이 아니라 품질 손실이다."
+        ]},
+        { id: "tools", h: "도구 정리: 연결된 것이 많을수록 무거워진다", ps: [
+          "MCP 서버를 연결하면 도구 정의가 컨텍스트에 실린다. 쓰지 않는 연결을 끄고, 지연 로드를 활용하면 시작 비용이 줄어든다.",
+          "외부 도구를 새로 들이기 전에는 같은 효과를 공식 기능으로 낼 수 있는지 먼저 확인한다. 도구가 많다는 것이 곧 생산성이라는 뜻은 아니다."
+        ]},
+        { id: "compact", h: "캐시, 압축, 모델 선택의 상충 관계", ps: [
+          "압축은 대화를 요약해 이후 요청을 작게 만든다. 그러나 압축에도 모델 호출이 필요하고, 요약 과정에서 중요한 맥락이 빠질 수 있다. 압축 후에는 같은 파일을 다시 탐색하는 비용이 생기기도 한다.",
+          "캐시는 유지 조건과 수명에 따라 효과가 다르다. 역할에 맞는 모델과 사고량을 고르는 것도 중요하지만, 작은 모델이 항상 총비용을 낮추지는 않는다. 재시도가 늘면 전체 비용은 오히려 커질 수 있다."
+        ]},
+        { id: "compaction", h: "압축을 내가 정한 때에 하기", ps: [
+          "실습의 마지막 Task는 압축을 자동으로 두지 않고, 작업의 경계에서 직접 하는 설계를 연습한다. 다음에 이어 할 정보와 버릴 정보를 미리 정하고 압축하면 맥락 손실을 줄일 수 있다.",
+          "압축 후에는 핵심 결정과 남은 작업을 짧게 적어 두는 것이 좋다. 이는 다음 세션이나 다른 사람에게 넘길 때도 쓰인다."
+        ]}
+      ],
+      lab: {
+        title: "Ch5 실습 흐름",
+        tasks: ["Task 1: /context와 /usage로 기준선 재기", "Task 2: 출력 필터 훅으로 거래 CSV 출력 줄이기", "Task 3: CLAUDE.md 다이어트와 모델 선택", "Task 4: 압축 설계"],
+        note: "기준 버전은 Claude Code 2.1.290 이상이다. 실제 절감률은 측정값이 있을 때만 말할 수 있다."
+      },
+      expected: ["기준선 측정값과 같은 과제의 전후 비교표", "결과 품질 기록: 누락, 재시도, 재탐색 여부", "압축 시점과 이어 쓸 정보 목록"],
+      cautions: ["추정 비용은 실제 AWS 청구액이 아니다.", "보고서의 컨텍스트 예산 도구는 예시이며 측정값이 아니다."],
+      crosslinks: [{ label: "CH1 컨텍스트 개념", route: "ch1" }, { label: "CH6 조직의 비용 관측", route: "ch6" }],
+      links: [{ label: "강의자료 CH5", url: "https://www.atomai.click/claude-code-workshop/reactive/05-ch5-cost-efficient.html" }, { label: "실습 CH5", url: "https://www.atomai.click/claude-code-workshop/ClaudeCode_Ch5_HandsOnLab.html" }]
+    },
+    {
+      id: "r2", route: "R2", day: 2, kind: "capstone", component: "checklist",
+      title: "내 plugin 배포와 재사용",
+      short: "공통 패키징과 두 가지 이상의 업무",
+      message: "같은 플러그인을 새 환경에 설치하고, 서로 다른 업무에 재사용했음을 증명한다.",
+      points: [
+        "R1의 에이전트와 스킬, 데이터 연결, 가드레일을 플러그인으로 묶고, 마켓플레이스에 올린 뒤 새 폴더에 설치한다.",
+        "R2-1 정기 분석 리포트, R2-2 기획안 작성, 선택 과제 R2-3 AgentCore 앱 중 두 가지 이상을 한다. AgentCore는 필수가 아니다.",
+        "리포트는 대상이나 기간만 바꿔 같은 형식으로 두 번 만든다. 기획안은 분석 결과를 다른 업무의 근거로 잇는다.",
+        "두 번째 업무를 위해 에이전트와 스킬을 새로 만들지 않았음을 파일 지문과 설치 상태로 확인한다."
+      ],
+      meaning: "이틀의 학습을 통합하는 최종 검증이다. 예쁜 앱이나 보고서만으로는 완주가 아니며, 다른 환경에서의 설치와 재사용이 핵심이다. 정기 리포트 과제는 반복 생성을 검증하는 것이고, 예약 자동화 구축은 포함하지 않는다.",
+      evidence: "버전과 README를 갖춘 플러그인, 설치 방법, 새 폴더에서의 실행 결과, 두 가지 이상 업무의 결과와 차단 장면. 모델의 자기 설명은 보조 증거다.",
+      sections: [
+        { id: "package", h: "공통 단계: R1 구성요소를 플러그인 하나로", ps: [
+          "R2 공통 단계는 R1에서 만든 에이전트, 새로 만드는 스킬, MCP 설정, 가드레일 훅을 플러그인 하나로 묶는 일이다. 로컬 마켓플레이스에 올리고, 원래 개발 폴더와 분리된 새 폴더에서 설치한다.",
+          "새 폴더에서 설치하는 이유는 원래 폴더의 파일이나 개인 설정에 우연히 기댄 성공을 가려내기 위해서다. 설치에 필요한 자원과 설정이 빠져 있다면 배포 가능한 도구로 보기 어렵다."
+        ]},
+        { id: "r21", h: "R2-1 정기 분석 리포트: 같은 형식으로 두 번", ps: [
+          "정기 리포트의 핵심은 매번 같은 절차와 같은 형식이다. 그 절차와 형식은 periodic-report 스킬에 들어 있다. 요청에는 대상과 기간만 준다. 예를 들어 같은 스킬에 다른 지역이나 다른 달을 넣어 두 번 실행한다.",
+          "확인할 것은 두 가지다. 결과의 형식이 같은지, 사용한 에이전트와 스킬이 모두 플러그인에서 왔는지다. 설치할 때 남긴 파일 지문과 비교하면 새로 짜지 않았다는 사실을 파일로 보일 수 있다."
+        ]},
+        { id: "r22", h: "R2-2 기획안 작성: 분석을 다음 업무의 근거로", ps: [
+          "R2-2는 R2-1과 같은 에이전트를 그대로 쓰고, 플러그인의 기획안 스킬이 정한 형식으로 상품이나 서비스 기획안을 만든다. 분석에서 제안으로 이어지는 흐름을 확인하는 것이 목적이다.",
+          "두 업무 모두 에이전트와 스킬을 새로 짜지 않았음을 보여야 한다. 기획안의 완성도보다, 같은 도구가 다른 종류의 출력을 내는지가 핵심이다."
+        ]},
+        { id: "r23", h: "R2-3 선택 과제: AgentCore에 같은 지침 올리기", ps: [
+          "R2-3는 설치한 my-kit의 에이전트 지침과 스킬 파일을 고치지 않고 Amazon Bedrock AgentCore harness의 시스템 프롬프트로 붙인다. 이후 Claude Code를 열지 않고 터미널 명령과 작은 Python 앱으로 호출해 같은 형식의 리포트가 나오는지 본다.",
+          "이 과제는 배포가 내 계정에 리소스를 만든다. 마지막에 리소스를 모두 지우는 정리 단계가 필수다. 또 비용이 드는 명령은 먼저 확인받는 규칙을 둔다. 지원 리전과 CLI 버전이 맞아야 자료의 명령이 그대로 작동한다. harness에는 Claude Code의 훅과 MCP 서버가 없으므로, 이 과제는 훅을 올리지 않는다."
+        ]},
+        { id: "evidence", h: "재사용의 증거: 파일과 실행 결과로 말한다", ps: [
+          "재사용의 증거는 여섯 가지로 정리된다. 역할별 에이전트와 권한이 정의되어 있는지, 위험 요청이 차단되고 정상 요청이 통과하는지, 버전 있는 플러그인으로 설치되는지, 새 환경에서 같은 구성으로 서로 다른 업무를 하는지, 결과와 배포물에 키나 개인정보가 없는지, 설치 상태와 파일과 실행 결과로 재사용을 설명할 수 있는지다.",
+          "모델이 플러그인을 사용했다고 설명하는 것은 보조 증거일 뿐이다. 파일 지문, 설치 목록, 실행 결과가 주된 근거여야 한다."
+        ]},
+        { id: "caution", h: "주의할 해석: 정기 리포트와 조직 강제", ps: [
+          "정기 리포트라는 이름이 예약 실행의 구축을 뜻하지는 않는다. 이 과제는 반복 생성과 재사용을 검증하며, 주기적인 자동 실행은 범위 밖이다.",
+          "플러그인의 훅을 조직이 강제하려면 별도의 managed 정책이 필요하다. 플러그인을 설치했다는 사실만으로 조직의 통제가 완성되지 않는다."
+        ]}
+      ],
+      lab: {
+        title: "R2 공통 단계와 미션 선택",
+        tasks: ["공통: R1 구성요소를 플러그인으로 묶고 마켓플레이스에 올리기", "공통: 새 폴더에 설치하고 켜진 플러그인 확인", "R2-1: 정기 리포트를 대상과 기간만 바꿔 두 번 실행", "R2-2: 기획안 작성, 같은 에이전트 재사용", "R2-3(선택): AgentCore harness에 올리고 호출한 뒤 리소스 정리"],
+        note: "두 가지 이상의 미션을 완료하면 완주로 본다. R2-3은 선택이며, 고르면 두 미션 중 하나로 센다."
+      },
+      expected: ["버전과 README를 갖춘 플러그인 구조", "새 폴더 설치 후 구성요소 지문 비교 결과", "두 가지 이상 업무의 결과 파일과 차단 장면", "선택 과제라면 리소스 정리 확인"],
+      cautions: ["배포물에 키나 개인정보가 없어야 한다.", "설치 후에도 가드레일이 작동하는지 다시 확인한다.", "보고서의 체크리스트는 이 브라우저에만 저장되며 완주 여부를 판정하지 않는다."],
+      crosslinks: [{ label: "R1 구성요소 만들기", route: "r1" }, { label: "CH4 플러그인 배포", route: "ch4" }, { label: "CH6 조직 운영", route: "ch6" }],
+      links: [{ label: "R2 공통 패키징", url: "https://www.atomai.click/claude-code-workshop/ClaudeCode_Capstone_R2_Package_HandsOnLab.html" }, { label: "R2-1 정기 분석 리포트", url: "https://www.atomai.click/claude-code-workshop/ClaudeCode_Capstone_R2_1_HandsOnLab.html" }, { label: "R2-2 기획안 작성", url: "https://www.atomai.click/claude-code-workshop/ClaudeCode_Capstone_R2_2_HandsOnLab.html" }, { label: "R2-3 AgentCore 앱", url: "https://www.atomai.click/claude-code-workshop/ClaudeCode_Capstone_R2_3_HandsOnLab.html" }]
+    },
+    {
+      id: "ch6", route: "CH6", day: 2, kind: "chapter", component: null,
+      title: "조직의 비용 보고 통제하기",
+      short: "관측, 정산, 차단의 분리",
+      message: "사용량 관측, 실제 청구 확인, 요청 차단을 구분하고 하나의 운영 체계로 연결한다.",
+      points: [
+        "OpenTelemetry로 토큰과 모델 호출, 추정 비용을 모아 사용자와 작업 단위로 본다. 계측이 빠진 사용자가 있으면 대시보드는 전체를 대표하지 못한다.",
+        "추정 단가, 계약 단가에 따른 표시 금액, 실제 AWS 청구액을 구분하고 대사한다. 단가 표시 설정은 청구 자체를 바꾸지 않는다.",
+        "Claude Apps Gateway의 사용자별 지출 한도를 다룬다. 예산 알림과 실제 요청 차단은 다른 기능이다.",
+        "토큰 지표 수집과 프롬프트, 도구 인자, 응답 본문 수집은 구분해야 한다. 상세 기록을 켤지, 어디에 보내고 얼마나 보존할지 따로 검토한다."
+      ],
+      meaning: "개인의 토큰 절감을 조직의 관측과 지출 관리로 확장한다. 한도 계산은 추정치에 기반하며 진행 중인 응답의 즉시 중단을 뜻하지 않는다. 저장소 장애 시 허용할지 차단할지도 운영 정책이다.",
+      evidence: "텔레메트리 전송 경로, 대시보드 집계, 사용자 한도의 적용과 해제, 계약 단가 표시, 한도 초과 후의 요청 거부와 정상 복구.",
+      sections: [
+        { id: "observe", h: "관측: 누가 무엇을 얼마나 썼는지 보는 경로", ps: [
+          "OpenTelemetry 텔레메트리는 토큰, 모델 호출, 추정 비용 같은 지표를 수집해 대시보드로 보낸다. 실습은 이 데이터가 어디로 가는지, 사용자와 작업 단위로 어떻게 집계되는지 확인하게 한다.",
+          "계측이 되지 않은 사용자나 환경이 있으면 대시보드의 합계는 전체 지출이 아니다. 관측의 범위를 먼저 정의해야 숫자의 의미가 생긴다."
+        ]},
+        { id: "reconcile", h: "정산: 표시 금액과 실제 청구액은 다르다", ps: [
+          "정산에는 세 숫자가 나온다. 추정 단가로 계산한 금액, 계약 단가를 반영한 표시 금액, 그리고 실제 AWS 청구액이다. 이 셋을 대사하는 것이 조직 비용 관리의 핵심 작업이다.",
+          "단가 표시 설정을 바꾸는 것은 보고의 표현을 바꾸는 일이다. 실제 청구를 바꾸는 기능이 아니므로 혼동하지 않아야 한다."
+        ]},
+        { id: "gateway", h: "통제: 예산 알림과 요청 차단은 다른 기능이다", ps: [
+          "Claude Apps Gateway는 그룹이나 사용자별로 허용 모델과 지출 한도를 둘 수 있다. 실습에서는 두 그룹 계정으로 모델 허용 목록이 어떻게 다르게 보이는지 비교하고, 관리자 입장에서 한도를 거는 흐름을 본다.",
+          "예산 알림은 사용량이 기준에 가까워졌음을 알려 준다. 한도 차단은 기준을 넘은 뒤 요청을 거부한다. 두 기능을 같은 것으로 설명하면 운영 책임이 흐려진다."
+        ]},
+        { id: "limits", h: "한도의 한계: 추정, 응답 중단, 저장소 장애", ps: [
+          "한도 판단에 쓰이는 값은 추정 단가에 기반한다. 따라서 실제 최종 청구액을 보장하지 않는다. 또 한도에 도달했다고 진행 중인 응답이 즉시 멈추는 것은 아니다. 이런 차이를 보고서와 운영 문서에 명확히 적어야 한다.",
+          "한도를 계산하는 저장소에 장애가 나면 요청을 허용할지 차단할지도 정해 두어야 한다. 이는 기술 설정이 아니라 운영 정책의 문제다."
+        ]},
+        { id: "records", h: "기록의 데이터 관리: 지표와 본문을 나눈다", ps: [
+          "토큰 지표는 사용량을 보는 데 필요하다. 그러나 프롬프트 본문, 도구 인자, 응답 본문은 내용에 따라 민감한 데이터다. 상세 기록을 켜는 순간 기록 자체가 데이터 관리 대상이 된다.",
+          "기록을 어디로 보내고 얼마나 보존할지, 누가 볼 수 있는지를 함께 정해야 한다. 사용량 관측과 상세 내용 수집을 같은 것으로 취급하지 않는 것이 출발점이다."
+        ]},
+        { id: "demo", h: "형식: 강사 데모 중심, 자율 실습 페이지 병행", ps: [
+          "이 세션은 강의와 강사 데모 중심으로 진행된다. Task 01의 텔레메트리 확인, Task 02~03의 지출 한도 일부, 선택 Task 04의 계약 단가 반영은 강사가 화면으로 보여 준다. 나머지 비교 실습은 행사 중 남는 시간이나 계정이 열려 있을 때 자율로 따라 할 수 있다.",
+          "따라서 이 세션을 모든 참가자가 직접 완료한 실습으로 기록하지 않는다. 보고서는 데모와 자율 실습을 구분해 설명한다."
+        ]}
+      ],
+      lab: {
+        title: "Ch6 데모와 자율 실습",
+        tasks: ["Task 01: OTel 텔레메트리의 전송 경로 확인", "Task 02: Apps Gateway 로그인과 그룹별 모델 정책", "Task 03: 관리자 입장에서 지출 한도 걸기", "선택 Task 04: modelPricing으로 계약 단가 반영"],
+        note: "Task 02~03은 게이트웨이 모드로 바꿔 진행하므로, 끝나면 원래 설정으로 돌려놓는 절차가 포함된다."
+      },
+      expected: ["텔레메트리 전송 경로 메모", "대시보드 집계 화면의 사용자와 작업 단위 확인 기록", "한도 초과 후의 요청 거부와 한도 해제 후 정상 복구 기록"],
+      cautions: ["이 보고서는 행사의 실제 사용량과 절감 성과를 확인된 수치로 제시하지 않는다.", "추정 금액을 실제 청구액으로 바꿔 말하지 않는다."],
+      crosslinks: [{ label: "CH5 측정과 기준선", route: "ch5" }, { label: "R2 재사용 검증", route: "r2" }],
+      links: [{ label: "강의자료 CH6", url: "https://www.atomai.click/claude-code-workshop/reactive/06-ch6-org-cost.html" }, { label: "자율 실습 CH6", url: "https://www.atomai.click/claude-code-workshop/ClaudeCode_Ch6_HandsOnLab.html" }]
+    }
+  ],
+
+  components: {
+    stepper: [
+      { title: "요청 입력", where: "사용자 입력은 세션 안에서 시작된다.", data: "요청 문장과 현재 세션의 지침이 함께 모델 판단의 재료가 된다.", check: "어떤 문장이 입력되었고, 민감정보가 들어 있는지 보았는가." },
+      { title: "컨텍스트 수집", where: "파일 읽기 도구는 실행 환경(EC2)에서 동작한다.", data: "읽힌 파일 내용이 모델에 전달되는 컨텍스트가 된다. 읽는 순간 추론 경로로 이동한다.", check: "무엇을 읽었고, 읽은 내용이 얼마나 컨텍스트를 차지하는가." },
+      { title: "도구 실행", where: "명령 실행과 편집은 실행 환경에서 이루어진다.", data: "명령 출력도 컨텍스트가 되어 다음 판단에 쓰인다.", check: "실행된 명령의 순서와 결과를 기록으로 확인할 수 있는가." },
+      { title: "모델 추론", where: "추론은 Bedrock 경로에서 이루어진다. 실제 처리 범위는 추론 프로필에 따른다.", data: "지금까지의 컨텍스트 전체가 추론 요청에 실린다.", check: "접속 리전과 추론 프로필을 구분해 확인했는가." },
+      { title: "결과 검증과 다음 행동", where: "결과 확인은 사람과 검토 역할이 맡는다.", data: "검증 결과에 따라 다시 수집하거나 작업을 끝낸다. 외부로 나간 행동은 체크포인트로 되돌릴 수 없다.", check: "되돌릴 수 있는 것과 없는 것을 구분해 두었는가." }
+    ],
+    layers: {
+      note: "이 시뮬레이터는 교육용 가상 결과다. 실제 DLP 탐지나 실행 로그가 아니며, 특정 제품의 동작을 보증하지 않는다.",
+      scenarios: [
+        { id: "s1", label: "정상 요청: 가명 데이터의 집계 질문", input: "가명 처리된 거래 집계를 요약해 달라", outcome: { open: "통과", closed: "통과" }, layer: "해당 없음", why: "민감 패턴이 없으므로 훅이 정상일 때 통과한다. 훅이 실패했다면 결과는 훅 오류 처리 방식(fail-open 또는 fail-closed)에 따라 갈린다." },
+        { id: "s2", label: "프롬프트에 형식이 맞는 주민등록번호 포함", input: "이 고객 번호 900101-1234567의 이력을 찾아 달라", outcome: { open: "훅이 실행되면 차단", closed: "훅이 실행되면 차단" }, layer: "훅(프롬프트 검사)", why: "훅이 정상 실행되면 패턴을 잡아 차단한다. 훅 자체가 고장 나면 아래 fail-open 또는 fail-closed 설정에 따라 결과가 갈린다." },
+        { id: "s3", label: "원본 폴더 raw/ 읽기 도구 호출", input: "raw 폴더의 고객 원본 파일을 열어 달라", outcome: { open: "차단", closed: "차단" }, layer: "managed 권한 규칙", why: "관리 정책의 읽기 거부 규칙이 도구 호출을 막는다. 훅의 장애와는 무관하게 작동하도록 설계하는 것이 목표다." },
+        { id: "s4", label: "검사 스크립트가 실행되지 않는 상황에서 일반 질문", input: "민감 패턴이 없는 일반 질문을 훅 장애 상태에서 보냄", outcome: { open: "통과", closed: "차단" }, layer: "훅 오류 처리", why: "민감 패턴이 없어도 검사 장치가 고장 나면 fail-closed는 진행을 막는다. 보안은 지키지만 정상 업무가 멈추는 비용이 생긴다. 이 시나리오는 오류 경로 설계의 트레이드오프를 보여 준다." }
+      ]
+    },
+    budget: {
+      note: "이 도구는 임의 단위의 예시 비율이다. 토큰 수, 비용, 절감률을 측정하거나 예측하지 않는다.",
+      sliders: [
+        { id: "guide", label: "항상 로드되는 지침 크기", value: 30 },
+        { id: "tools", label: "도구 출력 누적", value: 45 },
+        { id: "chat", label: "대화 기록 누적", value: 35 }
+      ],
+      compactLabel: "압축을 적용한 것으로 가정하고 대화 기록을 절반으로 계산"
+    },
+    checklist: {
+      title: "R2 완주 체크리스트 (이 브라우저에만 저장)",
+      note: "이 체크리스트는 학습자가 자기 점검하는 용도이며, 완주 여부를 판정하거나 결과를 제출하지 않는다.",
+      items: [
+        "플러그인 구조, 버전, README를 갖추었다",
+        "마켓플레이스 등록 후 새 폴더에 설치했다",
+        "설치 후 구성요소의 파일 지문을 비교했다",
+        "R2-1, R2-2, 선택 과제 R2-3 중 두 가지 이상 업무를 수행했다",
+        "위험 요청의 차단과 정상 요청의 통과 증거를 남겼다",
+        "배포물과 결과 파일에 키와 개인정보가 없음을 확인했다",
+        "자기 설명이 아니라 파일과 실행 결과를 증거로 보관했다"
+      ]
+    }
+  }
+};
+
+</script>
+<script>
+/* 렌더링, 해시 라우팅, 검색, 요약/상세 전환, Day 필터, 인쇄 준비, 교육용 도구.
+   DOM은 모두 createElement와 textContent로 만든다. 외부 요청이나 innerHTML 주입은 없다. */
+(function () {
+  'use strict';
+
+  var D = window.WORKSHOP;
+  var reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var CHECK_KEY = 'workshop-v01-r2-checklist';
+
+  /* ---------- DOM 헬퍼 ---------- */
+  function append(node, c) {
+    if (c === null || c === undefined || c === false) return;
+    node.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+  }
+  function h(tag, props, kids) {
+    var node = document.createElement(tag);
+    if (props) {
+      Object.keys(props).forEach(function (k) {
+        var v = props[k];
+        if (v === null || v === undefined || v === false) return;
+        if (k === 'class') node.className = v;
+        else if (k === 'text') node.textContent = v;
+        else if (k === 'on') Object.keys(v).forEach(function (ev) { node.addEventListener(ev, v[ev]); });
+        else if (k === 'data') Object.keys(v).forEach(function (d) { node.setAttribute('data-' + d, v[d]); });
+        else if (k === 'attrs') Object.keys(v).forEach(function (a) { node.setAttribute(a, v[a]); });
+        else if (v === true) node.setAttribute(k, '');
+        else node.setAttribute(k, String(v));
+      });
+    }
+    (kids || []).forEach(function (c) {
+      if (Array.isArray(c)) c.forEach(function (cc) { append(node, cc); });
+      else append(node, c);
+    });
+    return node;
+  }
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+  function ps(list) { return list.map(function (p) { return h('p', { text: p }); }); }
+  function linkOut(l) {
+    return h('a', { href: l.url, attrs: { target: '_blank', rel: 'noopener noreferrer' } }, [l.label]);
+  }
+
+  var main = $('#views');
+  var viewsById = {};
+  var navLinksById = {};
+
+  /* ---------- 개요 ---------- */
+  function buildOverview() {
+    var ov = D.overview;
+    var flowTpl = document.getElementById('flow-svg');
+    var flowNode = flowTpl ? flowTpl.content.cloneNode(true) : null;
+
+    var routeItems = [];
+    var routeList = h('ul', { class: 'route-index', attrs: { 'aria-label': '세션 경로' } }, D.sessions.map(function (s) {
+      var li = h('li', { data: { day: s.day } }, [
+        h('a', { href: '#' + s.id }, [
+          h('span', { class: 'ri-code', text: s.route + ' | Day ' + s.day }),
+          h('span', { class: 'ri-title', text: s.title })
+        ])
+      ]);
+      routeItems.push(li);
+      return li;
+    }));
+
+    var fullDetails = ov.fullReport.map(function (item, i) {
+      return h('details', { class: 'fullsec', id: 'sec-overview-full-' + (i + 1) }, [
+        h('summary', { text: item.h }),
+        ps(item.ps)
+      ]);
+    });
+
+    var about = h('section', { class: 'block', id: 'sec-overview-about' }, [
+      h('h3', { text: '자료 경계와 버전 기준' }),
+      h('ul', null, [
+        h('li', { text: '기준은 2026-11-16 공개 자료다. 실습 완료 보고, 발언록, 현장 질의응답은 포함하지 않는다.' }),
+        h('li', { text: '버전은 자료 표기를 따른다. 여러 강의자료가 Claude Code v2.1.319와 2026년 11월 8일 리허설 검증을 표기하며, 현재 지원 상태를 별도로 검증하지 않았다.' }),
+        h('li', { text: '측정된 사용량, 비용 절감률, 성과 수치는 없다. 교육용 도구의 값은 모두 예시다.' }),
+        h('li', { text: '실습 데이터는 형식만 맞춘 가짜 값이다. 이 파일에는 개인 경로, 계정, 키가 들어 있지 않다.' }),
+        h('li', { text: '이 파일은 외부 스크립트, 글꼴, 이미지를 불러오지 않는다. 아래 원문 링크만 네트워크가 필요하다.' })
+      ]),
+      h('h3', { text: '참고 원문' }),
+      h('ol', { class: 'ref-list' }, referenceLinks().map(function (l) { return h('li', null, [linkOut(l)]); }))
+    ]);
+
+    var sec = h('section', { class: 'view overview', id: 'view-overview', data: { route: 'overview' }, hidden: true, attrs: { 'aria-labelledby': 'h-overview' } }, [
+      h('header', { class: 'view-head' }, [
+        h('p', { class: 'eyebrow', text: 'Overview | 2026-11-16 공개 자료 기준' }),
+        h('h2', { id: 'h-overview', text: D.meta.title }),
+        h('p', { class: 'lede', text: ov.opening })
+      ]),
+      h('section', { class: 'block', id: 'sec-overview-facts' }, [
+        h('h3', { text: '행사 개요' }),
+        h('dl', { class: 'facts' }, ov.facts.map(function (f) { return [h('dt', { text: f[0] }), h('dd', { text: f[1] })]; }))
+      ]),
+      h('section', { class: 'block', id: 'sec-overview-scope' }, [
+        h('h3', { text: '문서의 범위' }),
+        h('p', { class: 'note', text: ov.scope })
+      ]),
+      h('section', { class: 'block', id: 'sec-overview-flow' }, [
+        h('h3', { text: '이틀의 흐름과 데이터 경로' }),
+        h('figure', { class: 'flow-fig' }, [
+          flowNode,
+          h('figcaption', { text: '위: 두 날의 교육 흐름. 아래: 실습에서 도구 실행과 추론이 나뉘는 데이터 경로. 그림은 개념도이며 실제 네트워크 구성도가 아니다.' })
+        ])
+      ]),
+      h('section', { class: 'block', id: 'sec-overview-narrative' }, [
+        h('h3', { text: '이틀의 서사' }),
+        h('ol', { class: 'narr' }, ov.narrative.map(function (t) { return h('li', { text: t }); }))
+      ]),
+      h('section', { class: 'block', id: 'sec-overview-axes' }, [
+        h('h3', { text: '다섯 가지 학습 축' }),
+        h('ul', { class: 'axes' }, ov.axes.map(function (a) {
+          return h('li', null, [
+            h('div', null, [h('span', { class: 'ax-title', text: a.title }), h('span', { class: 'ax-route', text: '연결: ' + a.routes })]),
+            h('p', { text: a.body })
+          ]);
+        }))
+      ]),
+      h('section', { class: 'block', id: 'sec-overview-routes' }, [
+        h('h3', { text: '여덟 개 세션 경로' }),
+        h('p', { class: 'note', text: '순서는 CH1, CH2, CH3, R1, CH4, CH5, R2, CH6이다. Day 필터로 나눠 볼 수 있다.' }),
+        routeList
+      ]),
+      h('section', { class: 'block', id: 'sec-overview-implications' }, [
+        h('h3', { text: '금융 서비스 조직에 주는 시사점' }),
+        h('p', { class: 'note', text: '다음은 특정 조직의 도입을 확정한 권고가 아니라, 워크샵 구성에서 도출한 적용 관점이다.' }),
+        h('ol', null, ov.implications.map(function (t) { return h('li', { text: t }); }))
+      ]),
+      h('section', { class: 'block', id: 'sec-overview-full' }, [
+        h('h3', { text: '통합 보고서 전문 (구조화)' }),
+        h('p', { class: 'note', text: '종합 보고서의 1장부터 11장, 부록을 구조화해 옮겼다. 항목을 펼쳐 읽는다. 전체 펼쳐 보기 또는 인쇄 시에는 모두 펼쳐진다.' }),
+        fullDetails
+      ]),
+      about
+    ]);
+
+    viewsById.overview = sec;
+    main.appendChild(sec);
+    return { routeItems: routeItems };
+  }
+
+  function referenceLinks() {
+    var L = D.links;
+    var list = [L.portal, L.edm, L.toc, L.capOverview, L.preflight, L.github];
+    var seen = {};
+    D.sessions.forEach(function (s) {
+      (s.links || []).forEach(function (l) {
+        if (!seen[l.url]) { seen[l.url] = true; list.push(l); }
+      });
+    });
+    return list;
+  }
+
+  /* ---------- 세션 ---------- */
+  function modeButtons(view) {
+    return h('div', { class: 'mode', role: 'group', attrs: { 'aria-label': '보기 방식' } }, [
+      h('button', { type: 'button', data: { set: 'summary' }, attrs: { 'aria-pressed': 'true' }, text: '요약' }),
+      h('button', { type: 'button', data: { set: 'detail' }, attrs: { 'aria-pressed': 'false' }, text: '상세' })
+    ]);
+  }
+
+  function buildSession(s) {
+    var base = 'sec-' + s.id + '-';
+    var kindLabel = s.kind === 'capstone' ? '캡스톤' : '챕터';
+
+    var detailSections = s.sections.map(function (sec) {
+      return h('section', { class: 'dsec', id: base + sec.id }, [h('h3', { text: sec.h })].concat(ps(sec.ps)));
+    });
+
+    var labSec = h('section', { class: 'dsec lab', id: base + 'lab' }, [
+      h('h3', { text: '실습 흐름: ' + s.lab.title }),
+      h('ol', { class: 'tasks' }, s.lab.tasks.map(function (t) { return h('li', { text: t }); })),
+      h('p', { class: 'note', text: s.lab.note })
+    ]);
+
+    var toolSec = null;
+    if (s.component === 'stepper') toolSec = buildStepperTool(s);
+    else if (s.component === 'layers') toolSec = buildLayersTool(s);
+    else if (s.component === 'budget') toolSec = buildBudgetTool(s);
+    else if (s.component === 'checklist') toolSec = buildChecklistTool(s);
+
+    var checkSec = h('section', { class: 'dsec', id: base + 'checks' }, [
+      h('h3', { text: '기대 산출물과 증거' }),
+      h('ul', null, s.expected.map(function (t) { return h('li', { text: t }); })),
+      h('h3', { text: '주의와 경계' }),
+      h('ul', null, s.cautions.map(function (t) { return h('li', { text: t }); }))
+    ]);
+
+    var cross = h('section', { class: 'dsec' }, [
+      h('h3', { text: '연결되는 세션' }),
+      h('ul', { class: 'crosslinks' }, s.crosslinks.map(function (c) {
+        return h('li', null, [h('a', { href: '#' + c.route, text: c.label })]);
+      }))
+    ]);
+
+    var sources = h('p', { class: 'sources' }, [
+      h('span', { text: '원문: ' }),
+      s.links.map(function (l) { return linkOut(l); })
+    ]);
+
+    var view = h('article', { class: 'view session', id: 'view-' + s.id, data: { route: s.id, mode: 'summary' }, hidden: true, attrs: { 'aria-labelledby': 'h-' + s.id } }, [
+      h('header', { class: 'view-head' }, [
+        h('p', { class: 'eyebrow', text: s.route + ' | Day ' + s.day + ' | ' + kindLabel + ' | ' + s.short }),
+        h('h2', { id: 'h-' + s.id, text: s.title }),
+        h('p', { class: 'lede', text: s.message }),
+        modeButtons()
+      ]),
+      h('div', { class: 'summary' }, [
+        h('section', { id: base + 'summary' }, [
+          h('h3', { text: '핵심 내용' }),
+          h('ul', { class: 'points' }, s.points.map(function (t) { return h('li', { text: t }); })),
+          h('h3', { text: '전체 과정에서의 의미' }),
+          h('p', { text: s.meaning }),
+          h('h3', { text: '확인할 증거' }),
+          h('p', { text: s.evidence })
+        ]),
+        h('p', { class: 'expand' }, [h('button', { type: 'button', class: 'btn', data: { set: 'detail' }, text: '상세 내용 펼치기' })])
+      ]),
+      h('div', { class: 'detail' }, detailSections.concat([labSec, toolSec, checkSec, cross, sources]).filter(Boolean))
+    ]);
+
+    /* 모드 버튼 초기 상태는 setMode에서 맞춘다 */
+    viewsById[s.id] = view;
+    main.appendChild(view);
+    setMode(view, 'summary');
+    return view;
+  }
+
+  function setMode(view, mode) {
+    view.setAttribute('data-mode', mode);
+    $$('.mode [data-set]', view).forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-set') === mode));
+    });
+  }
+
+  function toolWrap(s, title, tag, note, body) {
+    return h('section', { class: 'dsec', id: 'sec-' + s.id + '-tool' }, [
+      h('div', { class: 'tool' }, [
+        h('div', { class: 'tool-head' }, [h('h3', { text: title }), h('span', { class: 'tag', text: tag })]),
+        h('p', { class: 'note', text: note }),
+        body
+      ])
+    ]);
+  }
+
+  /* 1) 실행 경로 단계 탐색기 (CH1) */
+  function buildStepperTool(s) {
+    var steps = D.components.stepper;
+    var idx = 0;
+    var tabsWrap = h('div', { class: 'steps-tabs', role: 'group', attrs: { 'aria-label': '실행 단계 선택' } });
+    var panel = h('div', { class: 'step-panel', attrs: { 'aria-live': 'polite' } });
+    var count = h('span', { class: 'count' });
+    var prev = h('button', { type: 'button', class: 'btn ghost', text: '이전 단계' });
+    var next = h('button', { type: 'button', class: 'btn', text: '다음 단계' });
+    var tabs = steps.map(function (st, i) {
+      return h('button', { type: 'button', attrs: { 'aria-pressed': 'false' }, text: (i + 1) + '. ' + st.title, on: { click: function () { go(i); } } });
+    });
+    tabs.forEach(function (t) { tabsWrap.appendChild(t); });
+
+    function render() {
+      var st = steps[idx];
+      tabs.forEach(function (t, i) { t.setAttribute('aria-pressed', String(i === idx)); });
+      while (panel.firstChild) panel.removeChild(panel.firstChild);
+      panel.appendChild(h('h4', { text: (idx + 1) + '단계. ' + st.title }));
+      panel.appendChild(h('p', null, ['어디서: ', st.where]));
+      panel.appendChild(h('p', null, ['컨텍스트와 데이터: ', st.data]));
+      panel.appendChild(h('p', null, ['이 단계에서 확인할 것: ', st.check]));
+      count.textContent = (idx + 1) + ' / ' + steps.length;
+      prev.disabled = idx === 0;
+      next.disabled = idx === steps.length - 1;
+    }
+    function go(i) { idx = Math.max(0, Math.min(steps.length - 1, i)); render(); }
+    prev.addEventListener('click', function () { go(idx - 1); });
+    next.addEventListener('click', function () { go(idx + 1); });
+    render();
+
+    var screen = h('div', { class: 'screen-only' }, [
+      tabsWrap, panel,
+      h('div', { class: 'step-nav' }, [prev, count, next])
+    ]);
+    var printList = h('ol', { class: 'print-only' }, steps.map(function (st) {
+      return h('li', null, [h('strong', { text: st.title + ': ' }), st.where + ' ' + st.data + ' 확인: ' + st.check]);
+    }));
+
+    return toolWrap(s, '실행 경로 단계 탐색', '교육용 시각화', '각 단계에서 데이터가 머무는 곳과 확인할 점을 순서대로 본다. 실제 Claude Code의 내부 구현을 그대로 재현한 것이 아니다.', [screen, printList]);
+  }
+
+  /* 2) 다층 요청 결과 시뮬레이터 (CH2) */
+  /* 결과와 판정 위치를 함께 돌려준다. 모든 요청 중 검사 훅을 거치는 것(s1, s2, s4)은
+     훅이 실패했고 fail-closed이면 차단되고, managed 권한 규칙(s3)은 훅 상태와 무관하게 차단된다. */
+  function layerJudge(id, hookOk, failOpen) {
+    if (id === 's3') return { out: 'block', layer: 'managed 권한 규칙 (읽기 거부)' };
+    if (hookOk) {
+      if (id === 's2') return { out: 'block', layer: '훅 (프롬프트 검사, 패턴 차단)' };
+      return { out: 'pass', layer: '모든 검사 통과' };
+    }
+    // 훅 실패: 검사가 실행되지 않은 상태
+    if (failOpen) return { out: 'pass', layer: '훅 오류 처리 fail-open: 검사 누락 상태로 통과' };
+    return { out: 'block', layer: '훅 오류 처리 fail-closed: 검사 실패로 차단' };
+  }
+  function layerOutcome(id, hookOk, failOpen) { return layerJudge(id, hookOk, failOpen).out; }
+
+  function buildLayersTool(s) {
+    var L = D.components.layers;
+    var state = { scen: L.scenarios[0].id, hook: 'ok', mode: 'open' };
+
+    function radioGroup(legend, name, options, key) {
+      var fs = h('fieldset', null, [h('legend', { text: legend })]);
+      options.forEach(function (o) {
+        var id = name + '-' + o.v;
+        var input = h('input', { type: 'radio', name: name, id: id, value: o.v, attrs: {} });
+        input.checked = state[key] === o.v;
+        input.addEventListener('change', function () { state[key] = o.v; render(); });
+        fs.appendChild(h('label', { class: 'opt', attrs: { for: id } }, [input, o.label]));
+      });
+      return fs;
+    }
+
+    var scenFs = radioGroup('요청 유형', 'scen', L.scenarios.map(function (sc) { return { v: sc.id, label: sc.label }; }), 'scen');
+    var hookFs = radioGroup('검사 훅 상태', 'hook', [{ v: 'ok', label: '정상 실행 (검사가 돌아감)' }, { v: 'fail', label: '실행 실패 (검사 스크립트가 돌지 않음)' }], 'hook');
+    var modeFs = radioGroup('훅 오류 처리 방식', 'mode', [{ v: 'open', label: 'fail-open (오류 시 통과)' }, { v: 'closed', label: 'fail-closed (오류 시 차단)' }], 'mode');
+
+    var result = h('div', { class: 'result', attrs: { 'aria-live': 'polite' } });
+
+    function render() {
+      var sc = L.scenarios.filter(function (x) { return x.id === state.scen; })[0];
+      var hookOk = state.hook === 'ok';
+      var failOpen = state.mode === 'open';
+      var j = layerJudge(sc.id, hookOk, failOpen);
+      var isBlock = j.out === 'block';
+      while (result.firstChild) result.removeChild(result.firstChild);
+      result.className = 'result' + (isBlock ? ' block-res' : '');
+      result.appendChild(h('strong', { text: '가상 결과: ' + (isBlock ? '차단' : '통과') }));
+      result.appendChild(h('p', { text: '판정 위치: ' + j.layer }));
+      result.appendChild(h('p', { text: explain(sc.id, hookOk, failOpen) }));
+      result.appendChild(h('p', { text: '입력 예: ' + sc.input }));
+    }
+
+    function explain(id, hookOk, failOpen) {
+      if (id === 's3') return '관리 정책의 읽기 거부 규칙이 도구 호출을 막는다. 훅의 상태와 무관하게 차단되도록 설계하는 것이 목표다.';
+      if (hookOk) {
+        if (id === 's2') return '훅이 정상 실행되어 형식이 맞는 주민등록번호 패턴을 찾고 차단한다.';
+        return '훅이 정상 실행되었고 민감 패턴이 없으므로 모든 검사를 통과한다.';
+      }
+      if (failOpen) return '검사 스크립트가 실행되지 않았지만 fail-open이라 요청이 통과한다. 검사가 빠진 상태가 조용히 생기는 위험이 있다.';
+      return '검사 스크립트가 실행되지 않아 fail-closed가 진행을 막는다. 민감 패턴이 없는 정상 요청도 함께 멈추므로 보안과 가용성의 트레이드오프가 생긴다.';
+    }
+
+    var screen = h('div', { class: 'screen-only' }, [
+      scenFs, hookFs, modeFs, result,
+      h('p', { class: 'note', text: L.note })
+    ]);
+
+    var rows = L.scenarios.map(function (sc) {
+      var a = layerOutcome(sc.id, true, true) === 'block' ? '차단' : '통과';
+      var b = layerOutcome(sc.id, false, true) === 'block' ? '차단' : '통과';
+      var c = layerOutcome(sc.id, false, false) === 'block' ? '차단' : '통과';
+      return h('li', null, [h('strong', { text: sc.label + ': ' }), '훅 정상 ' + a + ' / 훅 실패 fail-open ' + b + ' / 훅 실패 fail-closed ' + c + '. ' + explain(sc.id, false, false)]);
+    });
+    var printList = h('ul', { class: 'print-only' }, rows);
+    render();
+
+    return toolWrap(s, '다층 요청 결과 시뮬레이터', '가상 예시, 실제 DLP 아님', '정책과 훅 상태를 바꾸면 요청의 결과가 어떻게 달라지는지 본다. 실제 탐지 결과나 실행 로그가 아니다.', [screen, printList]);
+  }
+
+  /* 3) 컨텍스트 예산 예시 (CH5) */
+  function buildBudgetTool(s) {
+    var B = D.components.budget;
+    var vals = {};
+    var compact = false;
+    var bars = {
+      b1: h('div', { class: 'bar-fill b1' }),
+      b2: h('div', { class: 'bar-fill b2' }),
+      b3: h('div', { class: 'bar-fill b3' })
+    };
+    var v1 = h('span', { class: 'bar-val' }), v2 = h('span', { class: 'bar-val' }), v3 = h('span', { class: 'bar-val' });
+    var sum = h('p', { class: 'budget-sum', attrs: { 'aria-live': 'polite' } });
+
+    var sliders = B.sliders.map(function (sl) {
+      vals[sl.id] = sl.value;
+      var out = h('output', { attrs: { for: 'sl-' + sl.id }, text: String(sl.value) });
+      var input = h('input', { type: 'range', min: 0, max: 100, step: 5, id: 'sl-' + sl.id, value: sl.value, attrs: { 'aria-valuetext': sl.value + ' 단위' } });
+      input.addEventListener('input', function () {
+        vals[sl.id] = Number(input.value);
+        out.textContent = String(vals[sl.id]);
+        render();
+      });
+      return h('div', { class: 'slider-row' }, [h('label', { attrs: { for: 'sl-' + sl.id } }, [sl.label, out]), input]);
+    });
+
+    var compactBox = h('input', { type: 'checkbox', id: 'compact' });
+    compactBox.addEventListener('change', function () { compact = compactBox.checked; render(); });
+
+    function render() {
+      var a = vals.guide, b = vals.tools, c = vals.chat * (compact ? 0.5 : 1);
+      var total = a + b + c;
+      var rowFor = function (fill, val, n) {
+        var pct = total > 0 ? (n / total) * 100 : 0;
+        fill.style.width = pct.toFixed(1) + '%';
+        val.textContent = Math.round(n) + ' (' + Math.round(pct) + '%)';
+      };
+      rowFor(bars.b1, v1, a);
+      rowFor(bars.b2, v2, b);
+      rowFor(bars.b3, v3, c);
+      sum.textContent = '임의 단위 합계 ' + Math.round(total) + '. 이 숫자는 토큰 수나 비용이 아니다.';
+    }
+
+    function bar(label, fill, val) {
+      return h('div', { class: 'bar-row' }, [
+        h('span', { text: label }),
+        h('div', { class: 'bar-track' }, [fill]),
+        val
+      ]);
+    }
+
+    var chart = h('div', { class: 'bars', attrs: { 'aria-label': '컨텍스트 구성 예시 막대' } }, [
+      bar('지침', bars.b1, v1),
+      bar('도구 출력', bars.b2, v2),
+      bar('대화 기록', bars.b3, v3)
+    ]);
+
+    var screen = h('div', { class: 'screen-only' }, [
+      sliders,
+      h('label', { class: 'opt' }, [compactBox, B.compactLabel]),
+      chart,
+      sum,
+      h('p', { class: 'note', text: B.note })
+    ]);
+
+    render();
+    var printNote = h('p', { class: 'print-only', text: '예시 도구: 지침, 도구 출력, 대화 기록의 상대 비율을 조절하는 화면이다. 이 출력물에는 측정값이나 절감률이 없다.' });
+    return toolWrap(s, '컨텍스트 예산 예시', '예시 값, 측정 아님', '항목의 상대 크기를 바꾸며 무엇이 컨텍스트를 많이 차지하는지 감을 잡는다. 측정값이나 절감률을 보여 주지 않는다.', [screen, printNote]);
+  }
+
+  /* 4) R2 로컬 체크리스트 (R2) */
+  function readChecks() {
+    try {
+      var raw = window.localStorage.getItem(CHECK_KEY);
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch (e) { return []; }
+  }
+  function writeChecks(arr) {
+    try { window.localStorage.setItem(CHECK_KEY, JSON.stringify(arr)); } catch (e) { /* 저장 불가 환경에서도 화면은 동작한다 */ }
+  }
+
+  function buildChecklistTool(s) {
+    var C = D.components.checklist;
+    var stored = readChecks();
+    var state = C.items.map(function (_, i) { return stored.indexOf(i) !== -1; });
+    var prog = h('p', { class: 'check-prog', attrs: { 'aria-live': 'polite' } });
+
+    function update() {
+      var n = state.filter(Boolean).length;
+      prog.textContent = '체크됨 ' + n + ' / ' + C.items.length + '. 체크 수가 완주를 뜻하지 않는다.';
+      writeChecks(state.reduce(function (acc, v, i) { if (v) acc.push(i); return acc; }, []));
+    }
+
+    var inputs = C.items.map(function (text, i) {
+      var id = 'ck-' + i;
+      var input = h('input', { type: 'checkbox', id: id });
+      input.checked = state[i];
+      input.addEventListener('change', function () { state[i] = input.checked; update(); });
+      return h('li', null, [h('label', { class: 'opt', attrs: { for: id } }, [input, text])]);
+    });
+
+    var reset = h('button', { type: 'button', class: 'btn ghost check-reset', text: '체크 지우기' });
+    reset.addEventListener('click', function () {
+      state = state.map(function () { return false; });
+      inputs.forEach(function (li) { var cb = li.querySelector('input'); if (cb) cb.checked = false; });
+      update();
+    });
+    update();
+
+    var screen = h('div', { class: 'screen-only' }, [
+      h('p', { class: 'note', text: C.note }),
+      h('ul', { class: 'checks-list' }, inputs),
+      prog,
+      reset
+    ]);
+    var printList = h('ul', { class: 'print-only' }, C.items.map(function (t) { return h('li', { text: '[ ] ' + t }); }));
+    return toolWrap(s, C.title, '로컬 저장', '이 브라우저에만 저장된다. 서버로 보내지 않으며 결과를 판정하지 않는다.', [screen, printList]);
+  }
+
+  /* ---------- 검색 색인 ---------- */
+  var index = [];
+
+  function addIndex(route, sub, label, texts) {
+    index.push({ route: route, sub: sub, label: label, text: texts.filter(Boolean).join(' ') });
+  }
+
+  function buildIndex() {
+    var ov = D.overview;
+    addIndex('overview', 'facts', '개요 | 행사 개요', [ov.facts.map(function (f) { return f[0] + ' ' + f[1]; }).join(' ')]);
+    addIndex('overview', 'scope', '개요 | 문서의 범위', [ov.scope]);
+    addIndex('overview', 'narrative', '개요 | 이틀의 서사', [ov.narrative.join(' ')]);
+    addIndex('overview', 'axes', '개요 | 다섯 가지 학습 축', [ov.axes.map(function (a) { return a.title + ' ' + a.body; }).join(' ')]);
+    addIndex('overview', 'implications', '개요 | 금융 서비스 조직 시사점', [ov.implications.join(' ')]);
+    ov.fullReport.forEach(function (item, i) {
+      addIndex('overview', 'full-' + (i + 1), '통합 보고서 | ' + item.h, [item.h].concat(item.ps));
+    });
+    addIndex('overview', 'about', '개요 | 자료 경계와 버전 기준', ['자료 경계 버전 기준 2026-11-16 공개 자료 실습 완료 발언록 측정 절감률 가짜 데이터 외부 요청 원문']);
+
+    D.sessions.forEach(function (s) {
+      addIndex(s.id, 'summary', s.route + ' | ' + s.title + ' 요약', [s.message].concat(s.points, [s.meaning, s.evidence]));
+      s.sections.forEach(function (sec) {
+        addIndex(s.id, sec.id, s.route + ' | ' + sec.h, [sec.h].concat(sec.ps));
+      });
+      addIndex(s.id, 'lab', s.route + ' | 실습 흐름: ' + s.lab.title, [s.lab.title].concat(s.lab.tasks, [s.lab.note]));
+      addIndex(s.id, 'checks', s.route + ' | 기대 산출물과 주의', s.expected.concat(s.cautions));
+    });
+    /* 교육용 도구 본문도 검색 대상이다 */
+    var C = D.components;
+    addIndex('ch1', 'tool', 'CH1 | 실행 경로 단계 탐색', [C.stepper.map(function (x) { return x.title + ' ' + x.where + ' ' + x.data + ' ' + x.check; }).join(' ')]);
+    addIndex('ch2', 'tool', 'CH2 | 다층 요청 결과 시뮬레이터', [C.layers.note].concat(C.layers.scenarios.map(function (x) { return x.label + ' ' + x.why; })));
+    addIndex('ch5', 'tool', 'CH5 | 컨텍스트 예산 예시', [C.budget.note, C.budget.compactLabel]);
+    addIndex('r2', 'tool', 'R2 | 완주 체크리스트', [C.checklist.title, C.checklist.note].concat(C.checklist.items));
+  }
+
+  function norm(s) { return String(s).toLowerCase(); }
+
+  function highlightNodes(text, terms) {
+    var frag = document.createDocumentFragment();
+    if (!terms.length) { frag.appendChild(document.createTextNode(text)); return frag; }
+    var pattern = new RegExp('(' + terms.map(function (t) { return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }).join('|') + ')', 'gi');
+    var parts = text.split(pattern);
+    parts.forEach(function (p, i) {
+      if (!p) return;
+      if (i % 2 === 1) frag.appendChild(h('mark', { text: p }));
+      else frag.appendChild(document.createTextNode(p));
+    });
+    return frag;
+  }
+
+  function runSearch(raw) {
+    var list = $('#search-results');
+    var status = $('#search-status');
+    var panel = $('#search-panel');
+    while (list.firstChild) list.removeChild(list.firstChild);
+    var q = raw.trim();
+    if (!q) { panel.hidden = true; status.textContent = ''; return; }
+    panel.hidden = false;
+    var terms = q.split(/\s+/).map(norm).filter(Boolean);
+    var hits = index.filter(function (it) {
+      var t = norm(it.text + ' ' + it.label);
+      return terms.every(function (term) { return t.indexOf(term) !== -1; });
+    });
+    if (!hits.length) {
+      status.textContent = '“' + q + '”와 일치하는 항목이 없습니다. 다른 단어(예: 정책, 비용, 플러그인, 차단)로 다시 찾아보세요. 목차에서도 바로 이동할 수 있습니다.';
+      return;
+    }
+    status.textContent = '일치하는 항목 ' + hits.length + '건. 항목을 누르면 해당 위치로 이동합니다.';
+    hits.slice(0, 60).forEach(function (it) {
+      var lower = norm(it.text);
+      var at = -1;
+      for (var i = 0; i < terms.length; i++) { var k = lower.indexOf(terms[i]); if (k !== -1 && (at === -1 || k < at)) at = k; }
+      var start = Math.max(0, at - 36);
+      var snip = (start > 0 ? '… ' : '') + it.text.substr(start, 110) + (it.text.length > start + 110 ? ' …' : '');
+      var href = '#' + it.route + (it.sub ? '/' + it.sub : '');
+      var a = h('a', { href: href, on: { click: function () { panel.hidden = true; } } }, [
+        h('span', { class: 'res-label', text: it.label }),
+        h('span', { class: 'res-snip' }, [highlightNodes(snip, terms)])
+      ]);
+      list.appendChild(h('li', null, [a]));
+    });
+    if (hits.length > 60) status.textContent += ' 상위 60건만 표시합니다.';
+  }
+
+  /* ---------- 라우팅 ---------- */
+  function openDetailsAncestors(node) {
+    var p = node;
+    while (p) { if (p.tagName === 'DETAILS') p.open = true; p = p.parentNode; }
+  }
+
+  var currentRoute = null;
+  function show(routeId, sub) {
+    if (!viewsById[routeId]) { routeId = 'overview'; sub = ''; }
+    Object.keys(viewsById).forEach(function (id) { viewsById[id].hidden = id !== routeId; });
+    Object.keys(navLinksById).forEach(function (id) {
+      var a = navLinksById[id];
+      if (id === routeId) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    });
+    var view = viewsById[routeId];
+    var target = sub ? document.getElementById('sec-' + routeId + '-' + sub) : null;
+    if (target) {
+      openDetailsAncestors(target);
+      /* 상세 내용의 deep link는 상세 보기로 연다. 요약 영역의 링크는 모드를 바꾸지 않는다. */
+      if (routeId !== 'overview' && target.closest && target.closest('.detail')) setMode(view, 'detail');
+    }
+    currentRoute = routeId;
+    var heading = view.querySelector('h2');
+    document.title = (heading ? heading.textContent + ' | ' : '') + D.meta.shortTitle;
+    closeNav();
+    var scrollTarget = target || view;
+    var behavior = reduceMotion ? 'auto' : 'smooth';
+    if (target) scrollTarget.scrollIntoView({ block: 'start', behavior: behavior });
+    else window.scrollTo({ top: 0, behavior: 'auto' });
+    var focusEl = target ? (target.querySelector('h3') || target) : view.querySelector('h2');
+    if (focusEl) {
+      if (!focusEl.hasAttribute('tabindex')) focusEl.setAttribute('tabindex', '-1');
+      try { focusEl.focus({ preventScroll: true }); } catch (e) { focusEl.focus(); }
+    }
+  }
+
+  function parseHash() {
+    var raw = (window.location.hash || '').replace(/^#\/?/, '');
+    var parts = raw.split('/');
+    var route = decodeURIComponent(parts[0] || '') || 'overview';
+    var sub = decodeURIComponent(parts.slice(1).join('/') || '');
+    return { route: route, sub: sub };
+  }
+
+  function onHash() {
+    var p = parseHash();
+    show(p.route, p.sub);
+  }
+
+  /* ---------- 내비게이션, Day 필터, 모바일 ---------- */
+  function buildNav() {
+    var root = $('#nav-root');
+    var ovLi = h('li', null, [h('a', { href: '#overview', data: { route: 'overview' } }, [
+      h('span', { class: 'nav-code', text: 'Overview' }), h('span', { text: '개요, 서사, 시사점, 자료 경계' })
+    ])]);
+    root.appendChild(ovLi);
+    navLinksById.overview = ovLi.querySelector('a');
+    [1, 2].forEach(function (day) {
+      var group = h('div', { class: 'nav-group', data: { day: day } });
+      group.appendChild(h('p', { class: 'nav-day', text: 'Day ' + day + (day === 1 ? ' | 11월 16일' : ' | 11월 17일') }));
+      var ul = h('ul');
+      D.sessions.filter(function (s) { return s.day === day; }).forEach(function (s) {
+        var a = h('a', { href: '#' + s.id, data: { route: s.id } }, [
+          h('span', { class: 'nav-code', text: s.route }),
+          h('span', { text: s.title })
+        ]);
+        navLinksById[s.id] = a;
+        ul.appendChild(h('li', null, [a]));
+      });
+      group.appendChild(ul);
+      var wrap = h('li', { class: 'nav-wrap', style: 'list-style:none' }, [group]);
+      root.appendChild(wrap);
+    });
+  }
+
+  function applyDay(day) {
+    $$('.chip[data-day]').forEach(function (c) { c.setAttribute('aria-pressed', String(c.getAttribute('data-day') === day)); });
+    $$('.nav-group').forEach(function (g) {
+      g.hidden = !(day === 'all' || g.getAttribute('data-day') === day);
+    });
+    $$('#sec-overview-routes .route-index li').forEach(function (li) {
+      li.hidden = !(day === 'all' || li.getAttribute('data-day') === day);
+    });
+  }
+
+  function openNav() {
+    var sb = $('#site-nav');
+    sb.classList.add('open');
+    $('#nav-toggle').setAttribute('aria-expanded', 'true');
+    $('#nav-toggle').textContent = '목차 닫기';
+    $('#scrim').hidden = false;
+    var first = sb.querySelector('.chip[aria-pressed="true"]') || sb.querySelector('a');
+    if (first) first.focus();
+  }
+  function closeNav() {
+    var sb = $('#site-nav');
+    if (!sb.classList.contains('open')) return;
+    sb.classList.remove('open');
+    $('#nav-toggle').setAttribute('aria-expanded', 'false');
+    $('#nav-toggle').textContent = '목차 열기';
+    $('#scrim').hidden = true;
+  }
+
+  /* ---------- 전체 펼쳐 보기와 인쇄 ---------- */
+  var openedForFull = [];
+  function setFull(on) {
+    document.body.classList.toggle('full', on);
+    var b = $('#full-toggle');
+    b.setAttribute('aria-pressed', String(on));
+    b.textContent = on ? '요약 보기로 돌아가기' : '전체 펼쳐 보기';
+    if (on) {
+      openedForFull = [];
+      $$('details', main).forEach(function (d) { if (!d.open) { d.open = true; openedForFull.push(d); } });
+    } else {
+      openedForFull.forEach(function (d) { d.open = false; });
+      openedForFull = [];
+    }
+  }
+
+  var printPrev = null;
+  function preparePrint() {
+    printPrev = { full: document.body.classList.contains('full'), openedFull: openedForFull.slice(), detailOpen: [] };
+    document.body.classList.add('printing');
+    $$('details', main).forEach(function (d) { if (!d.open) { d.open = true; printPrev.detailOpen.push(d); } });
+  }
+  function restoreAfterPrint() {
+    if (!printPrev) return;
+    printPrev.detailOpen.forEach(function (d) { d.open = false; });
+    document.body.classList.remove('printing');
+    printPrev = null;
+  }
+
+  /* ---------- 초기화 ---------- */
+  function init() {
+    buildOverview();
+    D.sessions.forEach(buildSession);
+    buildNav();
+    buildIndex();
+    applyDay('all');
+
+    $$('.chip[data-day]').forEach(function (c) {
+      c.addEventListener('click', function () { applyDay(c.getAttribute('data-day')); });
+    });
+
+    $('#nav-toggle').addEventListener('click', function () {
+      if ($('#site-nav').classList.contains('open')) closeNav(); else openNav();
+    });
+    $('#scrim').addEventListener('click', closeNav);
+
+    $('#full-toggle').addEventListener('click', function () { setFull(!document.body.classList.contains('full')); });
+    $('#print-btn').addEventListener('click', function () { window.print(); });
+
+    main.addEventListener('click', function (e) {
+      var t = e.target.closest ? e.target.closest('[data-set]') : null;
+      if (!t) return;
+      var view = t.closest('.session');
+      if (view) setMode(view, t.getAttribute('data-set'));
+    });
+
+    var q = $('#q');
+    q.addEventListener('input', function () { runSearch(q.value); });
+    q.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { q.value = ''; runSearch(''); }
+      if (e.key === 'ArrowDown') {
+        var first = $('#search-results a');
+        if (first) { e.preventDefault(); first.focus(); }
+      }
+    });
+    $('#search-form').addEventListener('submit', function (e) { e.preventDefault(); var first = $('#search-results a'); if (first) first.click(); });
+    $('#search-panel').addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { $('#search-panel').hidden = true; q.focus(); }
+      var links = $$('#search-results a');
+      var i = links.indexOf(document.activeElement);
+      if (i === -1) return;
+      if (e.key === 'ArrowDown') { e.preventDefault(); if (links[i + 1]) links[i + 1].focus(); }
+      if (e.key === 'ArrowUp') { e.preventDefault(); if (links[i - 1]) links[i - 1].focus(); else q.focus(); }
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && $('#site-nav').classList.contains('open')) { closeNav(); $('#nav-toggle').focus(); }
+    });
+
+    window.addEventListener('hashchange', onHash);
+    window.addEventListener('beforeprint', preparePrint);
+    window.addEventListener('afterprint', restoreAfterPrint);
+
+    if (!window.location.hash) {
+      history.replaceState(null, '', '#overview');
+    }
+    onHash();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+
+  /* 테스트와 재실행 확인을 위한 최소 공개 면. 상태를 바꾸는 외부 API는 없다. */
+  window.WorkshopReport = {
+    version: D.meta.version,
+    routes: ['overview'].concat(D.sessions.map(function (s) { return s.id; })),
+    search: runSearch,
+    show: show,
+    setFull: setFull,
+    setMode: function (route, mode) { if (viewsById[route]) setMode(viewsById[route], mode); },
+    currentRoute: function () { return currentRoute; },
+    indexSize: function () { return index.length; }
+  };
+})();
+
+</script>
+</body>
+</html>
