@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="2026년 11월 18일 공개 벤치마크를 바탕으로 GPT-6.2와 Claude의 업무별 점수, 평가 조건, 해석 범위를 살펴봅니다.">
+<title>업무별 AI 모델 벤치마크 | GPT-6.2와 Claude</title>
+<style>
+  :root {
+    color-scheme: light;
+    --paper: #f7f7f2;
+    --white: #fff;
+    --ink: #182921;
+    --muted: #4b5a53;
+    --accent: #215742;
+    --dark: #172e28;
+    --line: #d5ddd4;
+    --tint: #e9f2e9;
+    --gpt: #286358;
+    --claude: #995034;
+    --caution: #75431f;
+    --caution-bg: #fcf1e4;
+    --focus: #0855a3;
+    --sans: "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans CJK KR", system-ui, sans-serif;
+    --serif: "Noto Serif CJK KR", "Nanum Myeongjo", Georgia, serif;
+    font-family: var(--sans);
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); line-height: 1.62; }
+  h1, h2, h3, p, figure, dl, dd { margin: 0; }
+  a { color: var(--accent); text-underline-offset: .24em; }
+  a:hover { text-decoration-thickness: .13em; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
+  [tabindex="-1"]:focus-visible { outline-offset: 6px; }
+  [id] { scroll-margin-top: 1.5rem; }
+  .wrap { width: min(100% - 3rem, 72rem); margin-inline: auto; }
+  .sr-only, .choice input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .skip { position: absolute; z-index: 1; left: 1rem; top: 1rem; padding: .65rem 1rem; background: var(--white); transform: translateY(-180%); }
+  .skip:focus { transform: none; }
+  .masthead { background: var(--dark); color: var(--white); }
+  .masthead .wrap { display: flex; justify-content: space-between; align-items: center; gap: .75rem 1.5rem; min-height: 3.7rem; flex-wrap: wrap; padding-block: .55rem; }
+  .masthead strong { font-size: .88rem; letter-spacing: .03em; }
+  .masthead nav { display: flex; flex-wrap: wrap; gap: .4rem 1.35rem; }
+  .masthead a { color: #eef8f2; font-size: .85rem; text-decoration: none; }
+  .masthead a:hover { text-decoration: underline; }
+  .masthead a:focus-visible { outline-color: #fff; }
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.85fr) minmax(0, 1fr);
+    gap: 1.4rem 3.5rem;
+    align-items: end;
+    padding-block: clamp(2.2rem, 5.2vw, 4.6rem) clamp(1.8rem, 3.5vw, 3.25rem);
+    border-bottom: 1px solid var(--line);
+  }
+  .dateline { display: flex; align-items: center; gap: .6rem; color: var(--accent); font-size: .84rem; font-weight: 750; }
+  .dateline::before { content: ""; width: 1.4rem; height: 2px; background: currentColor; }
+  h1 { font-size: clamp(2.15rem, 5vw, 4.1rem); line-height: 1.13; letter-spacing: -.06em; margin-top: .7rem; word-break: keep-all; overflow-wrap: anywhere; }
+  h1 span { display: block; }
+  h1 .subtitle { color: var(--accent); font-family: var(--serif); font-size: .61em; letter-spacing: -.025em; margin-top: .5rem; }
+  .hero-intro { color: var(--muted); max-width: 32ch; padding-left: 1rem; border-left: 3px solid var(--accent); }
+  .section { padding-block: 2.1rem 2.65rem; }
+  .section + .section { border-top: 1px solid var(--line); }
+  .section-title { font-size: clamp(1.45rem, 2.6vw, 2rem); line-height: 1.3; letter-spacing: -.045em; }
+  .compare-grid {
+    display: grid;
+    grid-template-columns: minmax(11rem, .82fr) minmax(0, 3fr);
+    gap: 1rem 1.45rem;
+    align-items: start;
+    margin-top: 1.05rem;
+  }
+  fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+  legend { padding: 0; margin-bottom: .55rem; font-weight: 750; color: var(--muted); font-size: .86rem; }
+  .choices { display: grid; gap: .38rem; }
+  .choice { display: block; position: relative; min-width: 0; cursor: pointer; }
+  .choice span {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    min-height: 2.65rem;
+    padding: .46rem .75rem;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: .45rem;
+    font-size: .92rem;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+  .choice span::before {
+    content: "";
+    flex: none;
+    width: .83rem;
+    height: .83rem;
+    border: 1.5px solid #64796b;
+    border-radius: 50%;
+  }
+  .choice:hover span { border-color: var(--accent); }
+  .choice input:checked + span { border-color: var(--accent); background: var(--tint); color: #174634; font-weight: 750; }
+  .choice input:checked + span::before { border: .24rem solid var(--accent); }
+  .choice input:focus-visible + span { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .pair-choices { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .45rem; }
+  .pair-choices .choice span { height: 100%; }
+  .result {
+    margin-top: .78rem;
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--accent);
+    border-radius: .65rem;
+    background: var(--white);
+    padding: clamp(.95rem, 2.4vw, 1.8rem);
+    min-width: 0;
+    box-shadow: 0 10px 25px #172e2808;
+  }
+  .result-top { display: flex; align-items: center; flex-wrap: wrap; gap: .45rem .7rem; margin-bottom: .43rem; }
+  .work-label { font-size: .88rem; font-weight: 750; color: var(--accent); }
+  .badge {
+    display: inline-block;
+    padding: .125rem .55rem;
+    border-radius: 1rem;
+    font-size: .76rem;
+    font-weight: 750;
+    background: var(--tint);
+    color: #214f3d;
+  }
+  .badge[data-level="limited"], .badge[data-level="proxy"] { background: var(--caution-bg); color: var(--caution); }
+  .badge[data-level="missing"] { background: #edf0f2; color: #394a57; }
+  .verdict { font-size: clamp(1.55rem, 3.15vw, 2.5rem); line-height: 1.22; letter-spacing: -.055em; word-break: keep-all; overflow-wrap: anywhere; }
+  .scope { color: var(--muted); margin-top: .5rem; }
+  .metric {
+    padding: .95rem 1rem;
+    margin-top: .9rem;
+    border: 1px solid var(--line);
+    border-radius: .5rem;
+    background: #f9faf7;
+    min-width: 0;
+  }
+  .metric h3 { font-size: 1rem; line-height: 1.38; overflow-wrap: anywhere; }
+  .metric-unit { display: block; margin-top: .12rem; color: var(--muted); font-size: .8rem; }
+  .values { margin-top: .65rem; display: grid; gap: .58rem; }
+  .value-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: .18rem .6rem;
+    padding-block: .16rem;
+  }
+  .value-row dt { min-width: 0; font-size: .91rem; font-weight: 750; overflow-wrap: anywhere; }
+  .value-row dd { font-size: 1.12rem; line-height: 1.38; font-weight: 780; font-variant-numeric: tabular-nums; }
+  .value-row .gpt { color: var(--gpt); }
+  .value-row .claude { color: var(--claude); }
+  .value-row .unavailable { color: var(--muted); font-size: .88rem; padding-top: .16rem; }
+  .setup { display: block; font-size: .78rem; font-weight: 550; color: var(--muted); }
+  .fallback {
+    display: inline-block;
+    color: var(--caution);
+    background: var(--caution-bg);
+    border: 1px solid #dec9b5;
+    border-radius: .25rem;
+    padding-inline: .28rem;
+    margin: .1rem .2rem .1rem 0;
+    font-size: .72rem;
+    font-weight: 750;
+  }
+  .track { display: block; height: .55rem; margin-top: .33rem; border-radius: 1rem; background: #e4eae3; }
+  .track i { display: block; height: 100%; width: var(--width); border-radius: inherit; background: currentColor; }
+  .track-cell { grid-column: 1 / -1; }
+  .scale { display: flex; justify-content: space-between; gap: .4rem; color: var(--muted); font-size: .72rem; font-variant-numeric: tabular-nums; margin-top: .27rem; }
+  .metric-note, .metric-links { font-size: .83rem; margin-top: .56rem; color: var(--muted); }
+  .metric-links { display: flex; gap: .3rem 1rem; flex-wrap: wrap; }
+  .caveat { margin-top: .9rem; padding: .6rem .78rem; border-left: 3px solid #a06a3e; background: var(--caution-bg); color: #5f3d25; font-size: .89rem; }
+  .caveat strong { display: block; }
+  details { margin-top: .8rem; }
+  summary { cursor: pointer; color: var(--accent); font-weight: 750; }
+  .method-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem 2.25rem; margin-top: 1.05rem; }
+  .method-grid h3 { font-size: 1.06rem; }
+  .method-grid ul { padding-left: 1.15rem; margin-bottom: 0; }
+  .method-grid li + li { margin-top: .45rem; }
+  .summary-intro { color: var(--muted); margin: .32rem 0 .9rem; }
+  .overview { width: 100%; border-collapse: collapse; background: var(--white); font-size: .91rem; table-layout: fixed; }
+  .overview thead { background: var(--tint); color: #214f3d; }
+  .overview th:first-child { width: 24%; }
+  .overview th, .overview td { text-align: left; padding: .64rem .78rem; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; vertical-align: top; }
+  .overview th a { display: inline-block; }
+  .overview tbody tr:hover { background: #f5f8f2; }
+  .overview tbody td a { color: var(--ink); display: inline-block; }
+  .overview [aria-current="true"] { color: var(--accent); font-weight: 780; }
+  footer { border-top: 1px solid var(--line); color: var(--muted); padding-block: 1rem 1.4rem; font-size: .85rem; }
+  @media (max-width: 760px) {
+    .hero, .compare-grid { grid-template-columns: minmax(0, 1fr); }
+    .hero-intro { max-width: 46ch; }
+    .category-choices { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .compare-grid { gap: .95rem; }
+  }
+  @media (max-width: 530px) {
+    .wrap { width: calc(100% - 1.5rem); }
+    .masthead nav { gap: .4rem .72rem; }
+    .masthead a { font-size: .78rem; }
+    .category-choices { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .pair-choices .choice span { align-items: flex-start; font-size: .82rem; }
+    .pair-choices .choice span::before { margin-top: .25rem; }
+    .section { padding-block: 1.65rem 1.9rem; }
+    .metric { padding: .77rem; }
+    .overview th, .overview td { padding: .54rem .38rem; font-size: .8rem; }
+    .overview th:first-child { width: 24%; }
+    .method-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media print {
+    :root { --paper: #fff; }
+    body { font-size: 10pt; }
+    .wrap { width: 100%; }
+    .masthead, .skip, .compare-grid fieldset { display: none; }
+    .hero, .section { padding-block: .7rem; }
+    .compare-grid { display: block; }
+    .result { box-shadow: none; padding: .8rem; }
+    .overview, .metric, .caveat { break-inside: avoid; }
+    details:not([open]) > :not(summary) { display: block; }
+    .track { print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#explorer">비교 도구로 건너뛰기</a>
+<header class="masthead">
+  <div class="wrap">
+    <strong>공개 벤치마크</strong>
+    <nav aria-label="페이지 이동">
+      <a href="#explorer">업무별 비교</a>
+      <a href="#summary">한눈에 보기</a>
+      <a href="#methods">출처와 방법</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero" aria-labelledby="title">
+    <div>
+      <p class="dateline"><time datetime="2026-11-18">2026년 11월 18일 기준</time></p>
+      <h1 id="title">업무별 AI 모델 벤치마크 <span class="subtitle">GPT-6.2와 Claude</span></h1>
+    </div>
+    <p class="hero-intro">소설 쓰기부터 위키 관리까지, 8개 업무를 골라 공개 평가의 점수와 실제 업무에 적용할 수 있는 범위를 살펴보세요.</p>
+  </section>
+
+  <section class="section" id="explorer" aria-labelledby="explorer-title">
+    <h2 class="section-title" id="explorer-title">업무별 비교</h2>
+    <div class="compare-grid">
+      <fieldset>
+        <legend>업무 선택</legend>
+        <div class="choices category-choices" id="work-choices"></div>
+      </fieldset>
+      <div>
+        <fieldset>
+          <legend>모델 조합</legend>
+          <div class="choices pair-choices" id="pair-choices"></div>
+        </fieldset>
+        <article class="result" id="result" aria-labelledby="verdict"></article>
+        <p class="sr-only" role="status" id="announcement"></p>
+      </div>
+    </div>
+    <noscript><p>업무와 모델 조합을 바꾸려면 브라우저에서 자바스크립트를 켜 주세요. 아래에서 출처를 열 수 있습니다.</p></noscript>
+  </section>
+
+  <section class="section" id="summary" aria-labelledby="summary-title">
+    <h2 class="section-title" id="summary-title">8개 업무 한눈에 보기</h2>
+    <p class="summary-intro">표의 결과를 선택하면 해당 업무와 모델 조합의 점수와 평가 조건을 볼 수 있습니다.</p>
+    <table class="overview" aria-labelledby="summary-title">
+      <thead>
+        <tr>
+          <th scope="col">업무</th>
+          <th scope="col">Astra / Fable</th>
+          <th scope="col">Sol / Opus</th>
+        </tr>
+      </thead>
+      <tbody id="summary-rows"></tbody>
+    </table>
+  </section>
+
+  <section class="section" id="methods" aria-labelledby="methods-title">
+    <h2 class="section-title" id="methods-title">출처와 비교 방법</h2>
+    <div class="method-grid">
+      <div>
+        <h3>점수와 근거 읽기</h3>
+        <ul>
+          <li>막대는 같은 평가의 같은 단위에서 두 값이 모두 있을 때만 그립니다. 퍼센트, 지수, Elo, 단편 비교 점수는 각각의 척도로 읽습니다. 전체 합산 순위는 제공하지 않습니다.</li>
+          <li>근거 표시는 업무와 평가의 관련성을 나타냅니다. <strong>범위 한정</strong>은 특정 과제를 직접 평가한 결과, <strong>소표본</strong>은 소수 실무 과제, <strong>간접</strong>은 관련 능력을 대신 평가한 결과입니다. <strong>자료 부족</strong>은 선택한 두 모델을 해당 평가에서 비교할 수 없다는 뜻입니다.</li>
+          <li>추론 설정(high, xhigh, max)과 도구를 연결하는 실행 환경(하네스)이 달라지면 결과도 달라질 수 있습니다. <strong>DEFAULT FALLBACK</strong>은 다른 모델의 응답이 들어갔을 수 있는 설정입니다. 점수 차이만으로 통계적 유의성을 판단하지 않습니다.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>원본 자료</h3>
+        <ul>
+          <li><a href="https://github.com/lechmazur/writing">Lech Mazur 단편 창작 평가</a></li>
+          <li><a href="https://epoch.ai/publications/how-good-are-fable-5-2-and-gpt-6-2-astra-at-real-work">Epoch AI 실무 평가 보고서</a> / <a href="https://epoch.ai/benchmarks/epoch-automation-reports">평가 환경과 과제별 표</a></li>
+          <li><a href="https://artificialanalysis.ai/articles/openai-has-the-2-model-in-the-intelligence-index-with-the-release-of-gpt-6-2-astra-and-gpt-6-2-sol">Artificial Analysis GPT-6.2 분석</a> / <a href="https://cdn.sanity.io/images/6vfeftx9/articles/2f6c1dae35709b3b7adaaaf090bf32bf541ce18c-2960x3468.png">개별 점수 원본 차트</a></li>
+          <li><a href="https://cdn.sanity.io/images/6vfeftx9/articles/8b404cceef3e7b9aeba2284b35ce200e5d3a9720-3468x2058.png">코딩 에이전트 원본 차트</a> / <a href="https://artificialanalysis.ai/agents/coding-agents">코딩 평가 방법</a></li>
+          <li><a href="https://cdn.sanity.io/images/6vfeftx9/articles/61b71425ee39d6416e4b4e84e8135f7a94fef646-3404x840.png">AA-3D 전체 원본 차트</a> / <a href="https://artificialanalysis.ai/methodology/aa-3d">AA-3D 평가 방법</a></li>
+          <li><a href="https://artificialanalysis.ai/">Artificial Analysis 현재 리더보드</a> / <a href="https://artificialanalysis.ai/indexes/healthcare-and-medical">Healthcare &amp; Medical 지수</a>. 이 페이지에 실은 수치는 2026년 11월 18일에 확인한 값입니다.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+<footer><div class="wrap">자료 기준일 <time datetime="2026-11-18">2026.11.18</time></div></footer>
+
+<script>
+"use strict";
+
+const models = {
+  astra: "GPT-6.2 Astra",
+  fable: "Claude Fable 5.2",
+  sol: "GPT-6.2 Sol",
+  opus: "Claude Opus 5.5"
+};
+const pairs = {
+  "astra-fable": ["astra", "fable"],
+  "sol-opus": ["sol", "opus"]
+};
+const sources = {
+  writing: ["단편 평가 원문", "https://github.com/lechmazur/writing"],
+  epoch: ["Epoch 실무 평가 원문", "https://epoch.ai/publications/how-good-are-fable-5-2-and-gpt-6-2-astra-at-real-work"],
+  epochMethods: ["Epoch 평가 환경", "https://epoch.ai/benchmarks/epoch-automation-reports"],
+  aa: ["Artificial Analysis 분석", "https://artificialanalysis.ai/articles/openai-has-the-2-model-in-the-intelligence-index-with-the-release-of-gpt-6-2-astra-and-gpt-6-2-sol"],
+  scores: ["개별 점수 원본 차트", "https://cdn.sanity.io/images/6vfeftx9/articles/2f6c1dae35709b3b7adaaaf090bf32bf541ce18c-2960x3468.png"],
+  briefcase: ["AA-Briefcase 평가 방법", "https://artificialanalysis.ai/evaluations/aa-briefcase"],
+  coding: ["코딩 원본 차트", "https://cdn.sanity.io/images/6vfeftx9/articles/8b404cceef3e7b9aeba2284b35ce200e5d3a9720-3468x2058.png"],
+  codingMethods: ["코딩 평가 방법", "https://artificialanalysis.ai/agents/coding-agents"],
+  scene: ["AA-3D 전체 원본 차트", "https://cdn.sanity.io/images/6vfeftx9/articles/61b71425ee39d6416e4b4e84e8135f7a94fef646-3404x840.png"],
+  sceneMethods: ["AA-3D 평가 방법", "https://artificialanalysis.ai/methodology/aa-3d"],
+  sceneBoard: ["AA-3D 모델 설정", "https://artificialanalysis.ai/evaluations/aa-3d"],
+  automation: ["AutomationBench-AA 평가 방법", "https://artificialanalysis.ai/evaluations/automationbench-aa/"],
+  health: ["AA 현재 리더보드", "https://artificialanalysis.ai/"],
+  healthMethods: ["Healthcare & Medical 지수", "https://artificialanalysis.ai/indexes/healthcare-and-medical"]
+};
+
+// Chart ceilings are display bounds. Only percentage metrics have a defined 100% endpoint.
+const metrics = {
+  story: {
+    title: "Lech Mazur 단편 창작 평가", unit: "단편 비교 점수", ceiling: 4.5,
+    scores: { astra: 4.302, fable: 3.564, opus: 3.355 },
+    setup: { astra: "high", fable: "high", opus: "high" },
+    intervals: { astra: "4.223–4.379", fable: "3.498–3.636", opus: "3.286–3.425" },
+    note: "전체 평가 모델을 0 중심으로 맞춘 상대 점수입니다. 구간은 작품과 채점 모델을 다시 뽑아 계산한 95% 부트스트랩 구간입니다.",
+    links: ["writing"]
+  },
+  epochMean: {
+    title: "Epoch 실무 과제 평균", unit: "사람 채점 기준 충족도", ceiling: 100, suffix: "%",
+    scores: { astra: 65, fable: 82 }, approximate: ["fable"],
+    setup: { astra: "Codex", fable: "Claude Code" },
+    note: "두 모델의 평균 차이는 약 17%p입니다. 공개 평가 표는 실행 환경을 명시하며 추론 설정은 확인되지 않습니다.",
+    links: ["epoch", "epochMethods"]
+  },
+  epochResearch: {
+    title: "Epoch 데이터센터 조사", unit: "사람 채점 기준 충족도", ceiling: 100, suffix: "%",
+    scores: { astra: 65, fable: 97.5, opus: 87.5 },
+    setup: { astra: "Codex", fable: "Claude Code", opus: "Claude Code" },
+    note: "EcoDataCenter 1 조사 한 건의 결과입니다. Fable과 Opus는 외주 연구자 수준에 도달했습니다. 공개 평가 표에서 추론 설정은 확인되지 않습니다.",
+    links: ["epoch", "epochMethods"]
+  },
+  briefcase: {
+    title: "AA-Briefcase v1.1", unit: "지식 업무 Elo", ceiling: 2000,
+    scores: { astra: 1644, fable: 1785, sol: 1612, opus: 1801 },
+    setup: { astra: "max / Stirrup", fable: "max / Stirrup", sol: "max / Stirrup", opus: "max / Stirrup" },
+    fallback: ["fable", "opus"],
+    note: "복합 지식 업무 산출물 평가입니다. 점수는 GPT-6.2 분석에 실린 차트를 따르며, 현재 리더보드 수치는 달라질 수 있습니다.",
+    links: ["scores", "briefcase"]
+  },
+  coding: {
+    title: "AA Coding Agent Index v2.1", unit: "코딩 에이전트 지수", ceiling: 60,
+    scores: { astra: 53, fable: 58, sol: 49, opus: 58 },
+    setup: { astra: "max / Codex", fable: "xhigh / Claude Code", sol: "max / Codex", opus: "max / Claude Code" },
+    note: "FrontierCode-AA 2.0, Terminal-Bench 4.1, SWE-Atlas-QnA-AA를 같은 비중으로 합친 지수입니다. 평가 단위는 모델과 실행 환경의 조합입니다.",
+    links: ["coding", "codingMethods"]
+  },
+  scene: {
+    title: "AA-3D", unit: "사람의 선호 투표 Elo", ceiling: 1500,
+    scores: { astra: 1318, fable: 1271, sol: 1259, opus: 1202 },
+    setup: { astra: "max / Stirrup", fable: "max / Stirrup", sol: "max / Stirrup", opus: "max / Stirrup" },
+    fallback: ["fable", "opus"],
+    note: "앞선 대화에서 빠졌던 Opus 5.5의 1,202 Elo는 AA-3D 전체 원본 차트에서 추가로 확인했습니다.",
+    links: ["scene", "aa", "sceneMethods", "sceneBoard"]
+  },
+  automation: {
+    title: "AutomationBench-AA", unit: "조건을 지키며 완료한 목표 비율", ceiling: 100, suffix: "%",
+    scores: { astra: 77, fable: 76, sol: 71, opus: 70 },
+    setup: { astra: "max", fable: "max", sol: "max", opus: "max" },
+    note: "AA 원본 차트의 반올림 수치입니다. AA 실행 환경에서 모의 SaaS의 REST API를 사용해 과제당 한 번, 최대 50턴으로 평가했습니다.",
+    links: ["scores", "automation"]
+  },
+  health: {
+    title: "AA Healthcare & Medical", unit: "의료 역량 지수", ceiling: 70,
+    scores: { astra: 57, fable: 65, sol: 53, opus: 58 },
+    setup: { astra: "max", fable: "max", sol: "max", opus: "max" },
+    fallback: ["fable", "opus"],
+    note: "2026년 11월 18일 스냅샷입니다. 의료 지식, 기록을 읽고 추론하는 능력, 도구 사용 등을 여러 평가에서 측정해 합친 지수입니다.",
+    links: ["health", "healthMethods"]
+  }
+};
+
+const levels = {
+  scoped: "범위 한정",
+  limited: "소표본",
+  proxy: "간접",
+  missing: "자료 부족"
+};
+const work = {
+  writing: {
+    label: "소설 쓰기",
+    scope: "같은 조건을 준 600–800단어 단편을 작성하고, 다른 LLM들이 작품 두 편씩을 비교해 채점했습니다.",
+    caveat: "한국어 장편 집필은 평가 범위 밖입니다. Fable은 400개 중 58개 프롬프트를 처음에 거절했습니다. 세 차례 재시도로 58개를 모두 확보했으며, 이 작품들은 다시 생성한 결과입니다.",
+    views: [
+      ["scoped", "단편 평가에서 Astra가 1위", "단편 평가 Astra 1위", "story"],
+      ["missing", "Sol 점수가 없어 판정 보류", "Sol 결과 없음", "story"]
+    ]
+  },
+  report: {
+    label: "보고서 쓰기",
+    scope: "Epoch AI가 자사 업무에서 고른 소수 과제의 산출물을 사람이 직접 채점했습니다. AA-Briefcase는 별도의 지식 업무 평가입니다.",
+    caveat: "Epoch 평가에서 어느 모델도 어느 과제에서든 직원 기준에 도달하지 못했습니다. 이 표본의 결과를 다른 분야의 보고서에 그대로 적용하기는 어렵습니다.",
+    views: [
+      ["limited", "Epoch 실무 과제에서 Fable이 앞섬", "Epoch 실무 평균 Fable 앞섬", "epochMean", "epochResearch", "briefcase"],
+      ["missing", "Epoch에서 Sol 점수가 없어 판정 보류", "Epoch Sol 결과 없음", "epochResearch", "briefcase"]
+    ]
+  },
+  brownfield: {
+    label: "기존 코드 작업",
+    scope: "이미 있는 코드의 수정, 터미널 조작, 저장소를 읽고 답하는 기술 질의를 평가했습니다.",
+    caveat: "이 결과에는 Claude Code와 Codex의 차이도 반영됩니다. 품질 지수와 과제당 비용은 별도 지표입니다.",
+    views: [
+      ["scoped", "이 실행 조건에서 Fable이 앞섬", "코딩 지수 Fable 앞섬", "coding"],
+      ["scoped", "이 실행 조건에서 Opus가 앞섬", "코딩 지수 Opus 앞섬", "coding"]
+    ]
+  },
+  prototype: {
+    label: "프로토타입 만들기",
+    scope: "AA-3D는 브라우저에서 직접 조작할 수 있는 3D 장면을 평가합니다. 심사자는 모델 이름을 모른 채 두 장면을 비교해 선호도를 표시했습니다.",
+    caveat: "일반 웹앱의 데이터 처리, 백엔드 구현, UI 디자인에는 이 순위를 적용할 근거가 없습니다.",
+    views: [
+      ["scoped", "인터랙티브 3D에서 Astra가 앞섬", "3D 선호도 Astra 앞섬", "scene"],
+      ["scoped", "인터랙티브 3D에서 Sol이 앞섬", "3D 선호도 Sol 앞섬", "scene"]
+    ]
+  },
+  oss: {
+    label: "오픈소스 자동 기여",
+    scope: "기존 코드 작업에 표시한 코딩 지수를 패치, 저장소 이해, 터미널 작업 능력의 간접 근거로 참고합니다.",
+    caveat: "이슈 선정, 중복 PR 방지, PR 제출, CI 대응, 리뷰 반영을 무인으로 이어가는 전 과정의 우위는 검증되지 않았습니다.",
+    views: [
+      ["proxy", "자동 기여 전 과정은 판정 보류", "전 과정 판정 보류", "coding"],
+      ["proxy", "자동 기여 전 과정은 판정 보류", "전 과정 판정 보류", "coding"]
+    ]
+  },
+  automation: {
+    label: "업무 자동화",
+    scope: "메일, 문서, 협업 도구 등을 흉내 낸 SaaS 환경에서 에이전트가 정해진 조건을 지키며 목표를 수행했는지 확인했습니다.",
+    caveat: "두 조합 모두 약 1%p 차이입니다. 이 차이가 통계적으로 유의한지는 확인되지 않았습니다. 스케줄러 가동률, 장기 재시도, 장애 복구는 측정 범위 밖입니다.",
+    views: [
+      ["scoped", "SaaS 자동화 점수가 비슷함", "약 1%p 차이 / 판정 보류", "automation"],
+      ["scoped", "SaaS 자동화 점수가 비슷함", "약 1%p 차이 / 판정 보류", "automation"]
+    ]
+  },
+  health: {
+    label: "건강 관리",
+    scope: "AA 의료 역량 지수를 간접 근거로 봅니다. 두 Claude 점수에는 DEFAULT FALLBACK 조건이 붙어 있어 다른 모델의 응답이 들어갔을 수 있습니다.",
+    caveat: "임상시험에 근거한 결과가 아닙니다. 실제 진단의 안전성, 치료나 복약을 따르는 정도, 환자의 건강 개선은 이 점수로 판단할 수 없습니다.",
+    views: [
+      ["proxy", "의료 역량 지수는 Fable 쪽이 높음", "의료 지수 Fable 높음 / 대체 응답 가능", "health"],
+      ["proxy", "의료 역량 지수는 Opus 쪽이 높음", "의료 지수 Opus 높음 / 대체 응답 가능", "health"]
+    ]
+  },
+  wiki: {
+    label: "LLM 위키 관리",
+    scope: "위키 관리를 직접 평가한 공개 결과는 확인되지 않았습니다. AA-Briefcase는 자료를 읽고 지식 업무 산출물을 만드는 능력의 간접 근거입니다.",
+    caveat: "원본 보존, 버전 이력, 링크 유지, 변경사항 병합, 장기 색인의 정확성을 검증한 결과가 없어 전 과정의 우위를 판정할 수 없습니다.",
+    views: [
+      ["proxy", "위키 관리 전 과정은 판정 보류", "직접 평가 없음", "briefcase"],
+      ["proxy", "위키 관리 전 과정은 판정 보류", "직접 평가 없음", "briefcase"]
+    ]
+  }
+};
+
+const workKeys = Object.keys(work);
+const pairKeys = Object.keys(pairs);
+const workChoices = document.querySelector("#work-choices");
+const pairChoices = document.querySelector("#pair-choices");
+const summaryRows = document.querySelector("#summary-rows");
+const result = document.querySelector("#result");
+const announcement = document.querySelector("#announcement");
+const format = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 3 });
+
+function node(tag, className, text) {
+  const element = document.createElement(tag);
+  if (className) element.className = className;
+  if (text !== undefined) element.textContent = text;
+  return element;
+}
+
+function choice(group, value, label) {
+  const element = node("label", "choice");
+  const input = node("input");
+  input.type = "radio";
+  input.name = group;
+  input.value = value;
+  element.append(input, node("span", "", label));
+  return element;
+}
+
+function fragment(workKey, pairKey) {
+  return `#work=${workKey}&pair=${pairKey}`;
+}
+
+function sourceLink(sourceKey) {
+  const [label, url] = sources[sourceKey];
+  const link = node("a", "", label);
+  link.href = url;
+  return link;
+}
+
+function chart(metricKey, selectedModels) {
+  const metric = metrics[metricKey];
+  const comparable = selectedModels.every(model => Number.isFinite(metric.scores[model]));
+  const card = node("figure", "metric");
+  card.dataset.metric = metricKey;
+  const caption = node("figcaption");
+  caption.append(node("h3", "", metric.title), node("span", "metric-unit", metric.unit));
+  const values = node("dl", "values");
+  selectedModels.forEach((model, index) => {
+    const score = metric.scores[model];
+    const hasValue = Number.isFinite(score);
+    const row = node("div", "value-row");
+    const label = node("dt", "", models[model]);
+    if (hasValue) {
+      const settings = node("span", "setup", metric.setup[model]);
+      if (metric.fallback?.includes(model)) settings.append(" ", node("span", "fallback", "DEFAULT FALLBACK"));
+      if (metric.intervals?.[model]) settings.append(` / 95% 구간 ${metric.intervals[model]}`);
+      label.append(settings);
+    }
+    const prefix = metric.approximate?.includes(model) ? "약 " : "";
+    const color = index === 0 ? "gpt" : "claude";
+    const scoreText = hasValue ? `${prefix}${format.format(score)}${metric.suffix ?? ""}` : "결과 없음";
+    row.append(label, node("dd", hasValue ? color : "unavailable", scoreText));
+    if (comparable) {
+      const trackCell = node("dd", `track-cell ${color}`);
+      trackCell.setAttribute("aria-hidden", "true");
+      const track = node("span", "track");
+      const fill = node("i");
+      fill.style.setProperty("--width", `${score / metric.ceiling * 100}%`);
+      track.append(fill);
+      trackCell.append(track);
+      row.append(trackCell);
+    }
+    values.append(row);
+  });
+  card.append(caption, values);
+  if (comparable) {
+    const scale = node("div", "scale");
+    scale.append(node("span", "", "0"), node("span", "", `${format.format(metric.ceiling)}${metric.suffix ?? ""}`));
+    scale.setAttribute("aria-hidden", "true");
+    card.append(scale);
+  }
+  if (metric.note) card.append(node("p", "metric-note", metric.note));
+  const links = node("p", "metric-links");
+  links.append(...metric.links.map(sourceLink));
+  card.append(links);
+  return card;
+}
+
+for (const key of workKeys) workChoices.append(choice("work", key, work[key].label));
+for (const key of pairKeys) pairChoices.append(choice("pair", key, pairs[key].map(model => models[model]).join(" / ")));
+
+for (const key of workKeys) {
+  const row = node("tr");
+  const name = node("th", "", work[key].label);
+  name.scope = "row";
+  row.append(name);
+  work[key].views.forEach((view, index) => {
+    const cell = node("td");
+    const link = node("a", "", view[2]);
+    const pairKey = pairKeys[index];
+    link.href = fragment(key, pairKey);
+    link.setAttribute("aria-label", `${work[key].label}, ${pairs[pairKey].map(model => models[model]).join(" 대 ")}, ${view[2]}`);
+    cell.append(link);
+    row.append(cell);
+  });
+  summaryRows.append(row);
+}
+
+function render() {
+  const workKey = workChoices.querySelector(":checked").value;
+  const pairKey = pairChoices.querySelector(":checked").value;
+  const category = work[workKey];
+  const [level, verdict, , primary, ...supplementary] = category.views[pairKeys.indexOf(pairKey)];
+  const selectedModels = pairs[pairKey];
+  const heading = node("h3", "verdict", verdict);
+  heading.id = "verdict";
+  heading.tabIndex = -1;
+  const top = node("div", "result-top");
+  const badge = node("span", "badge", `근거 ${levels[level]}`);
+  badge.dataset.level = level;
+  top.append(node("p", "work-label", category.label), badge);
+
+  const caveat = node("p", "caveat");
+  caveat.append(node("strong", "", "해석 범위"), category.caveat);
+  result.replaceChildren(top, heading, node("p", "scope", category.scope), chart(primary, selectedModels), caveat);
+  if (supplementary.length) {
+    const details = node("details");
+    details.append(node("summary", "", "보충 평가 보기"), ...supplementary.map(key => chart(key, selectedModels)));
+    result.append(details);
+  }
+  for (const link of summaryRows.querySelectorAll("a")) {
+    if (link.hash === fragment(workKey, pairKey)) link.setAttribute("aria-current", "true");
+    else link.removeAttribute("aria-current");
+  }
+  return { heading, verdict, workKey, pairKey };
+}
+
+function applySelection(workKey, pairKey) {
+  document.querySelector(`input[name="work"][value="${workKey}"]`).checked = true;
+  document.querySelector(`input[name="pair"][value="${pairKey}"]`).checked = true;
+  return render();
+}
+
+function readHash() {
+  const params = new URLSearchParams(location.hash.slice(1));
+  const workKey = params.get("work");
+  const pairKey = params.get("pair");
+  return [workKeys.includes(workKey) ? workKey : workKeys[0], pairKeys.includes(pairKey) ? pairKey : pairKeys[0]];
+}
+
+function updateSelection() {
+  const { verdict, workKey, pairKey } = render();
+  history.replaceState(null, "", fragment(workKey, pairKey));
+  announcement.textContent = `${work[workKey].label}. ${pairs[pairKey].map(model => models[model]).join(" 대 ")}. ${verdict}.`;
+}
+
+workChoices.addEventListener("change", updateSelection);
+pairChoices.addEventListener("change", updateSelection);
+summaryRows.addEventListener("click", event => {
+  const link = event.target.closest("a");
+  if (!link || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  event.preventDefault();
+  const params = new URLSearchParams(link.hash.slice(1));
+  history.pushState(null, "", link.hash);
+  const { heading } = applySelection(params.get("work"), params.get("pair"));
+  document.querySelector("#explorer").scrollIntoView({ block: "start" });
+  heading.focus({ preventScroll: true });
+});
+window.addEventListener("hashchange", () => {
+  if (/^#(?:work|pair)=/.test(location.hash) || !location.hash) applySelection(...readHash());
+});
+applySelection(...readHash());
+</script>
+</body>
+</html>
