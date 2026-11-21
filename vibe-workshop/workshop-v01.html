@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI에게 일을 맡기는 개발 워크숍</title>
+<meta name="description" content="개발자 바이브코딩 워크숍 오프닝 60분. 1부 Ralphthon과 Ralph 루프, 2부 실제 사례 4개.">
+<style>
+:root{
+  --ink:#0b0d12;--ink2:#12151d;--ink3:#1a1f2b;--ink4:#232a3a;--line:#2e364b;
+  --paper:#f4ede0;--paper2:#d9d1c2;--mute:#a59f92;--dim:#7a7468;
+  --tang:#ff7a1a;--tang2:#ffb070;--lime:#c8f53c;--sky:#7cc7ff;--rose:#ff6b98;--violet:#b9a4ff;--gold:#f2c94c;
+  --serif:"AppleMyungjo","Nanum Myeongjo","Noto Serif KR","Noto Serif CJK KR","Batang",serif;
+  --sans:"Pretendard","Apple SD Gothic Neo","Noto Sans KR","Noto Sans CJK KR","Malgun Gothic","Segoe UI",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono","Menlo","D2Coding","Consolas",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#05060a;color:var(--paper);font-family:var(--sans);word-break:keep-all;overflow-wrap:anywhere}
+body{overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--lime);outline-offset:3px;border-radius:6px}
+a{color:var(--tang2)}
+.viewport{position:fixed;inset:0 0 56px 0;overflow:hidden}
+.stage{position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0;background:var(--ink);overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.slide{position:absolute;inset:0;padding:70px 90px 90px;display:none;flex-direction:column;background:
+  radial-gradient(900px 500px at 92% -10%,rgba(255,122,26,.14),transparent 60%),
+  radial-gradient(700px 500px at -8% 110%,rgba(200,245,60,.07),transparent 60%),var(--ink)}
+.slide.active{display:flex;animation:fadein .35s ease both}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}}
+.slide .meta{position:absolute;top:30px;right:40px;display:flex;gap:10px;font-family:var(--mono);font-size:18px;color:var(--mute)}
+.slide .meta .part{color:var(--lime)}
+.slide .num{position:absolute;bottom:30px;right:40px;font-family:var(--mono);font-size:20px;color:var(--dim)}
+.cites{position:absolute;left:90px;bottom:26px;display:flex;flex-wrap:wrap;gap:8px;max-width:1250px}
+.cite{border:1px solid var(--line);background:var(--ink2);border-radius:999px;padding:4px 14px;font-size:16px;color:var(--paper2);font-family:var(--mono)}
+.cite:hover{border-color:var(--tang)}
+.cite .u{display:none}
+.kick{font-family:var(--mono);font-size:22px;color:var(--tang);margin-bottom:14px;letter-spacing:.02em}
+h1{font-family:var(--serif);font-size:96px;line-height:1.08;margin:0 0 24px;letter-spacing:-.02em}
+h2{font-family:var(--serif);font-size:58px;line-height:1.15;margin:0 0 30px;letter-spacing:-.015em}
+h2 em,h1 em{font-style:normal;color:var(--tang)}
+h3{font-size:30px;margin:0 0 12px;line-height:1.3}
+p,li{font-size:28px;line-height:1.5;margin:0}
+.sub{font-size:30px;color:var(--paper2);line-height:1.5}
+.small{font-size:22px;color:var(--mute);line-height:1.5}
+.grid{display:grid;gap:24px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{border:1px solid var(--line);border-radius:22px;background:var(--ink2);padding:28px 30px;min-width:0}
+.card h3{color:var(--paper)}
+.card p,.card li{font-size:25px;color:var(--paper2)}
+.card ul{margin:0;padding-left:28px}
+.card li{margin-bottom:6px}
+.tag{display:inline-block;font-family:var(--mono);font-size:18px;color:var(--ink);background:var(--c,var(--lime));border-radius:8px;padding:3px 12px;margin-bottom:14px}
+.big{font-family:var(--serif);font-size:64px;line-height:1.05;color:var(--paper)}
+.stat{display:flex;flex-direction:column;gap:6px}
+.stat .v{font-family:var(--serif);font-size:56px;line-height:1.1}
+.stat .l{font-size:22px;color:var(--mute)}
+.note{margin-top:auto;border-left:5px solid var(--tang);padding:10px 0 10px 22px;font-size:25px;color:var(--paper2);line-height:1.45}
+.note b{color:var(--paper)}
+.mono{font-family:var(--mono)}
+.bar-row{display:grid;grid-template-columns:260px 1fr;gap:16px;align-items:center;margin:10px 0;font-size:22px;color:var(--paper2)}
+.bar{height:26px;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;font-family:var(--mono);font-size:18px;color:var(--ink)}
+table.t{border-collapse:collapse;width:100%}
+table.t th,table.t td{border-bottom:1px solid var(--line);padding:12px 14px;text-align:left;vertical-align:top;font-size:23px;line-height:1.4}
+table.t th{font-family:var(--mono);font-size:18px;color:var(--lime);font-weight:500}
+table.t td:first-child{font-family:var(--serif);font-size:26px;color:var(--paper)}
+.csv{font-family:var(--mono);font-size:24px;border-collapse:collapse;width:100%}
+.csv td,.csv th{border:1px solid var(--line);padding:10px 14px;text-align:left}
+.csv th{color:var(--mute);font-size:18px;font-weight:500}
+.csv .hdr td{color:var(--sky)}
+.csv .bad td{color:var(--rose)}
+.ex{color:var(--dim);font-size:24px}
+svg text{font-family:var(--sans)}
+/* demo */
+.demo{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:28px;flex:1;min-height:0}
+.flow svg{width:100%;height:auto;display:block}
+.flow .nd rect{fill:var(--ink3);stroke:var(--line);stroke-width:2;transition:fill .4s,stroke .4s}
+.flow .nd text{fill:var(--mute);font-size:22px;transition:fill .4s}
+.flow .nd.done rect{stroke:var(--lime)} .flow .nd.done text{fill:var(--paper)}
+.flow .nd.cur rect{fill:rgba(200,245,60,.16);stroke:var(--lime);stroke-width:3} .flow .nd.cur text{fill:var(--lime)}
+.flow .nd.fail rect{fill:rgba(255,107,152,.14);stroke:var(--rose)} .flow .nd.fail text{fill:var(--rose)}
+.flow .tok{transition:transform .5s cubic-bezier(.3,.8,.3,1)}
+.term{background:#06070b;border:1px solid var(--line);border-radius:16px;padding:18px 22px;font-family:var(--mono);font-size:21px;line-height:1.5;white-space:pre-wrap;min-height:250px;color:var(--paper2)}
+.term .ok{color:var(--lime)} .term .ng{color:var(--rose)} .term .dim{color:var(--dim)}
+.dctl{display:flex;gap:12px;align-items:center;margin-top:16px}
+.btn{border:1px solid var(--line);background:var(--ink3);border-radius:999px;padding:10px 24px;font-size:22px}
+.btn:hover{border-color:var(--tang)}
+.btn.primary{background:var(--tang);border-color:var(--tang);color:#1a0d02;font-weight:700}
+.btn[disabled]{opacity:.4;cursor:default}
+.sim{font-family:var(--mono);font-size:17px;color:var(--ink);background:var(--gold);border-radius:6px;padding:3px 10px}
+.stepcap{font-size:24px;color:var(--paper);min-height:72px;line-height:1.45;margin-top:14px}
+.print-only{display:none}
+/* inputs */
+.field{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
+.field label{font-size:22px;color:var(--mute)}
+.field input{background:var(--ink3);border:1px solid var(--line);border-radius:12px;color:var(--paper);font:inherit;font-size:26px;padding:12px 16px}
+.preview{border:2px dashed var(--lime);border-radius:22px;padding:28px 32px;background:rgba(200,245,60,.04)}
+.preview p{font-size:28px;margin-bottom:12px}
+.preview b{color:var(--lime);font-family:var(--mono);font-size:20px;display:block;margin-bottom:2px;font-weight:500}
+/* controls */
+.ctrls{position:fixed;left:0;right:0;bottom:0;height:56px;display:flex;align-items:center;gap:8px;padding:0 12px;background:#05060a;border-top:1px solid #1a1f2b;z-index:5}
+.cb{border:1px solid #2e364b;background:#12151d;border-radius:10px;height:38px;min-width:42px;padding:0 12px;font-size:15px;color:#d9d1c2}
+.cb:hover{border-color:var(--tang)}
+.cnt{font-family:var(--mono);font-size:15px;color:#a59f92;min-width:70px;text-align:center}
+.cttl{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px;color:#7a7468}
+/* overlays */
+.ov{position:fixed;inset:0;background:rgba(5,6,10,.94);z-index:20;display:none;overflow:auto;padding:28px}
+.ov.on{display:block}
+.ov h2{font-size:28px;margin:0 0 16px}
+.ovgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.ovgrid button{text-align:left;border:1px solid #2e364b;background:#12151d;border-radius:12px;padding:12px 14px;font-size:15px;line-height:1.4}
+.ovgrid button[aria-current="true"]{border-color:var(--lime)}
+.ovgrid .n{font-family:var(--mono);color:var(--lime);margin-right:6px}
+.ovgrid .m{display:block;color:#7a7468;font-family:var(--mono);font-size:12px;margin-top:4px}
+.ovhead{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.ovhead .x{margin-left:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);background:#12151d;border-left:1px solid #2e364b;z-index:21;transform:translateX(102%);transition:transform .3s;display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.drawer .hd{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid #2e364b}
+.drawer .hd h2{font-size:22px;margin:0;flex:1}
+.drawer .bd{overflow:auto;padding:14px 18px 40px}
+.src{border:1px solid #2e364b;border-radius:12px;padding:12px 14px;margin-bottom:10px;background:#0b0d12;font-size:15px;line-height:1.5}
+.src .d{font-family:var(--mono);font-size:12px;color:#a59f92}
+.src .uu{font-family:var(--mono);font-size:12px;color:#7a7468;word-break:break-all}
+.rm *,.rm *::before,.rm *::after{animation:none!important;transition:none!important}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+.cb{white-space:nowrap}
+@media (max-width:640px){.cttl,#bRm{display:none}.cb{padding:0 8px;font-size:13px;min-width:36px}.ctrls{gap:5px;padding:0 6px}.cnt{min-width:52px}}
+/* print */
+@page{size:1600px 900px;margin:0}
+@media print{
+  html,body{height:auto;overflow:visible;background:var(--ink)}
+  .ctrls,.ov,.drawer{display:none!important}
+  .viewport{position:static;inset:auto;overflow:visible}
+  .stage{position:static;transform:none!important;width:auto;height:auto;box-shadow:none;background:none;overflow:visible}
+  .stage .slide{display:flex!important;position:relative;inset:auto;width:1600px;height:900px;break-after:page;page-break-after:always;animation:none!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .stage .slide:last-child{break-after:auto;page-break-after:auto}
+  .cite{border:none;background:none;padding:0 6px 0 0;font-size:14px}
+  .cite .u{display:inline;color:var(--dim)}
+  .live-only{display:none!important}
+  .print-only{display:block!important}
+  .flow .nd rect{stroke:var(--lime)!important;fill:var(--ink3)!important}
+  .flow .nd text{fill:var(--paper)!important}
+  #tok,#stepcap{display:none!important}
+}
+</style>
+</head>
+<body>
+<div class="viewport" id="vp">
+<div class="stage" id="stage" role="region" aria-roledescription="슬라이드 쇼" aria-label="워크숍 오프닝 슬라이드">
+
+<section class="slide" data-min="2" data-part="1부" data-title="AI에게 일을 맡기는 개발" data-src="">
+  <div class="kick">개발자 바이브코딩 워크숍 / 오프닝 60분</div>
+  <h1>AI에게<br><em>일을 맡기는</em> 개발</h1>
+  <div class="grid g3" style="margin-top:30px">
+    <div class="card" style="--c:var(--lime)"><span class="tag">1부 30분</span><h3>Ralphthon과 Ralph 루프</h3><p>에이전트에게 맡기고 손을 떼려면 사람이 무엇을 준비하나</p></div>
+    <div class="card" style="--c:var(--tang)"><span class="tag">2부 30분</span><h3>실제로 만든 사례 4개</h3><p>vinext, OpenClaw, Claude C 컴파일러, fly.pieter.com</p></div>
+    <div class="card" style="--c:var(--sky)"><span class="tag">이후 반나절</span><h3>개인 실습</h3><p>각자 작은 도구 하나를 끝까지 만듦</p></div>
+  </div>
+  <svg style="position:absolute;right:70px;top:120px;opacity:.5" width="260" height="260" viewBox="0 0 260 260" aria-hidden="true"><circle cx="130" cy="130" r="100" fill="none" stroke="#c8f53c" stroke-width="3" stroke-dasharray="10 12"/><path d="M220 120 l12 22 l-24 0z" fill="#c8f53c"/><text x="130" y="138" text-anchor="middle" fill="#f4ede0" font-size="26" font-family="monospace">loop</text></svg>
+</section>
+
+<section class="slide" data-min="2" data-part="1부" data-title="오늘 끝에 손에 쥘 것" data-src="">
+  <div class="kick">워크숍 목표</div>
+  <h2>오늘 끝에 손에 쥘 것:<br><em>동작하는 작은 도구 1개</em></h2>
+  <div class="grid g3">
+    <div class="card"><span class="tag" style="--c:var(--sky)">누가 쓰나</span><p>한 사람으로 좁힘</p><p class="ex" style="margin-top:12px">예: 매달 카드 내역 CSV를 정리하는 나</p></div>
+    <div class="card"><span class="tag" style="--c:var(--lime)">핵심 기능 하나</span><p>오늘 반드시 돌아갈 기능</p><p class="ex" style="margin-top:12px">예: 카테고리별 합계</p></div>
+    <div class="card"><span class="tag" style="--c:var(--tang)">완료 조건</span><p>눈으로 확인할 수 있는 결과</p><p class="ex" style="margin-top:12px">예: 예시 파일을 넣으면 식비 20,000이 보임</p></div>
+  </div>
+  <p class="note">기능 개수보다 <b>끝났는지 확인할 수 있는가</b>가 중요함. 이 세 가지가 정해지면 AI에게 넘길 수 있음.</p>
+</section>
+
+<section class="slide" data-min="3" data-part="1부" data-title="Ralphthon은 이렇게 진행됐다" data-src="rth,rth1,pf">
+  <div class="kick">Ralphthon</div>
+  <h2>에이전트에게 맡기고 <em>손을 떼는</em> 해커톤</h2>
+  <div class="grid g2" style="grid-template-columns:1.25fr .75fr">
+    <div class="card">
+      <span class="tag">서울 첫 행사 RPH-001 / 2026-02-28 ~ 03-01, 1박</span>
+      <svg viewBox="0 0 800 210" width="100%" role="img" aria-label="토요일 16시 체크인, 세팅과 실습, 노트북 넘기기, 밤새 자율 실행, 아침 데모와 시상, 일요일 11시 체크아웃">
+        <line x1="40" y1="70" x2="760" y2="70" stroke="#2e364b" stroke-width="4"/>
+        <g font-size="21" fill="#d9d1c2">
+          <circle cx="60" cy="70" r="14" fill="#c8f53c"/><text x="60" y="120" text-anchor="middle">토 16:00</text><text x="60" y="150" text-anchor="middle">체크인</text>
+          <circle cx="220" cy="70" r="14" fill="#c8f53c"/><text x="220" y="120" text-anchor="middle">세팅과</text><text x="220" y="150" text-anchor="middle">실습</text>
+          <circle cx="380" cy="70" r="14" fill="#ff7a1a"/><text x="380" y="120" text-anchor="middle">노트북</text><text x="380" y="150" text-anchor="middle">넘기기</text>
+          <rect x="430" y="58" width="150" height="24" rx="12" fill="#7cc7ff" opacity=".35"/><text x="505" y="40" text-anchor="middle" fill="#7cc7ff">밤새 자율 실행</text>
+          <circle cx="620" cy="70" r="14" fill="#c8f53c"/><text x="620" y="120" text-anchor="middle">아침 데모</text><text x="620" y="150" text-anchor="middle">와 시상</text>
+          <circle cx="740" cy="70" r="14" fill="#c8f53c"/><text x="740" y="120" text-anchor="middle">일 11:00</text><text x="740" y="150" text-anchor="middle">체크아웃</text>
+        </g>
+      </svg>
+      <p style="font-size:23px;color:var(--paper2)">개인 또는 2인 팀, 9팀 13명 참가. 원칙 중 하나는 "맡겼으면 손 뗀다"</p>
+    </div>
+    <div class="card">
+      <span class="tag" style="--c:var(--sky)">부산 One-Punch 랄프톤 시즌 2</span>
+      <p style="font-size:25px">2026-09-18 10:00~17:00, 하루 낮 행사</p>
+      <ul style="margin-top:12px"><li>어떤 에이전트든 사용 가능</li><li>직접 코드를 고쳐도 되지만 '원펀치 스티커'를 붙여야 함</li></ul>
+    </div>
+  </div>
+  <p class="note">밤샘이 필수는 아님. <b>행사마다 규칙이 다름.</b> 공통점은 사람이 손을 떼는 시간을 정해 둔다는 것.</p>
+</section>
+
+<section class="slide" data-min="3" data-part="1부" data-title="자기 전에 사람이 준비한 것" data-src="gh">
+  <div class="kick">손을 떼기 전에</div>
+  <h2>잠들기 전에 <em>사람이</em> 준비하는 4가지</h2>
+  <div class="grid g4">
+    <div class="card"><span class="tag">1</span><h3>범위와 명세</h3><p>한 번에 한 가지. 명세는 파일로 남김</p></div>
+    <div class="card"><span class="tag">2</span><h3>확인 가능한 결과</h3><p>테스트, 타입 검사, 정적 분석이 루프의 브레이크 역할</p></div>
+    <div class="card"><span class="tag">3</span><h3>격리된 실행</h3><p>별도 브랜치, 컨테이너. 망가져도 되는 곳에서</p></div>
+    <div class="card"><span class="tag">4</span><h3>예산과 멈춤</h3><p>반복 상한, 비용 상한, 막혔을 때의 기준</p></div>
+  </div>
+  <p class="note">프롬프트 한 줄 쓰고 자면 끝나는 방식이 아님. Ralph 기법을 처음 소개한 Geoffrey Huntley도 기존 코드베이스보다 새 프로젝트에 쓰라고 했고, 사람의 조율이 계속 필요하다고 적었음.</p>
+</section>
+
+<section class="slide" data-min="3" data-part="1부" data-title="한 번 요청과 계속 도는 루프" data-src="gh,rl">
+  <div class="kick">용어 정리</div>
+  <h2>한 번 요청 vs <em>계속 도는 루프</em></h2>
+  <svg viewBox="0 0 1420 470" width="100%" role="img" aria-label="왼쪽 한 번 요청: 사람 요청, 모델의 도구 호출, 답변 후 종료, 사람이 다음 요청. 오른쪽 루프: 같은 프롬프트, 모델의 도구 호출, 종료 시도, 바깥 장치가 다시 시작, 상태 파일에서 이어 받기, 멈춤 조건에서 끝">
+    <defs><marker id="a5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#a59f92"/></marker></defs>
+    <text x="20" y="34" fill="#7cc7ff" font-size="28" font-weight="700">한 번 요청</text>
+    <g font-size="23" fill="#f4ede0">
+      <rect x="20" y="60" width="300" height="70" rx="14" fill="#1a1f2b" stroke="#2e364b" stroke-width="2"/><text x="170" y="103" text-anchor="middle">사람이 요청</text>
+      <rect x="20" y="170" width="300" height="70" rx="14" fill="#1a1f2b" stroke="#7cc7ff" stroke-width="2"/><text x="170" y="203" text-anchor="middle">모델이 도구 호출</text><text x="170" y="228" text-anchor="middle" font-size="18" fill="#a59f92">파일 읽기, 수정, 테스트</text>
+      <rect x="20" y="280" width="300" height="70" rx="14" fill="#1a1f2b" stroke="#2e364b" stroke-width="2"/><text x="170" y="323" text-anchor="middle">답변하고 종료</text>
+      <rect x="20" y="390" width="300" height="70" rx="14" fill="#1a1f2b" stroke="#ff7a1a" stroke-width="2"/><text x="170" y="433" text-anchor="middle">사람이 보고 다음 요청</text>
+    </g>
+    <g stroke="#a59f92" stroke-width="2.5" marker-end="url(#a5)"><line x1="170" y1="130" x2="170" y2="166"/><line x1="170" y1="240" x2="170" y2="276"/><line x1="170" y1="350" x2="170" y2="386"/></g>
+    <line x1="430" y1="20" x2="430" y2="460" stroke="#2e364b" stroke-dasharray="6 8" stroke-width="2"/>
+    <text x="520" y="34" fill="#c8f53c" font-size="28" font-weight="700">Ralph 루프</text>
+    <rect x="500" y="56" width="900" height="404" rx="26" fill="none" stroke="#c8f53c" stroke-width="2.5" stroke-dasharray="12 10"/>
+    <text x="1380" y="90" text-anchor="end" fill="#c8f53c" font-size="21">바깥 장치: 셸 while 루프 또는 Stop hook (모델 밖)</text>
+    <g font-size="23" fill="#f4ede0">
+      <rect x="540" y="120" width="250" height="70" rx="14" fill="#1a1f2b" stroke="#2e364b" stroke-width="2"/><text x="665" y="163" text-anchor="middle">같은 프롬프트</text>
+      <rect x="860" y="120" width="250" height="70" rx="14" fill="#1a1f2b" stroke="#7cc7ff" stroke-width="2"/><text x="985" y="163" text-anchor="middle">모델이 도구 호출</text>
+      <rect x="1140" y="230" width="230" height="70" rx="14" fill="#1a1f2b" stroke="#2e364b" stroke-width="2"/><text x="1255" y="273" text-anchor="middle">종료 시도</text>
+      <rect x="860" y="340" width="250" height="70" rx="14" fill="#1a1f2b" stroke="#c8f53c" stroke-width="2"/><text x="985" y="383" text-anchor="middle">바깥 장치가 재시작</text>
+      <rect x="540" y="340" width="250" height="70" rx="14" fill="#1a1f2b" stroke="#f2c94c" stroke-width="2"/><text x="665" y="373" text-anchor="middle">상태 파일에서 이어 받기</text><text x="665" y="398" text-anchor="middle" font-size="18" fill="#a59f92">plan, progress, git</text>
+    </g>
+    <g stroke="#a59f92" stroke-width="2.5" fill="none" marker-end="url(#a5)"><line x1="790" y1="155" x2="856" y2="155"/><path d="M1110 160 Q1200 170 1240 226"/><path d="M1160 300 Q1140 362 1114 375"/><line x1="860" y1="375" x2="794" y2="375"/><line x1="665" y1="340" x2="665" y2="194"/></g>
+    <text x="1300" y="334" text-anchor="middle" fill="#ff6b98" font-size="19">멈춤 조건이면 끝</text>
+  </svg>
+  <p class="note" style="margin-top:14px"><b>도구 호출</b>은 모델이 한 턴 안에서 하는 일. <b>루프</b>는 그 바깥에서 턴을 다시 시작하는 장치이고, 기억은 파일과 git에 남김.</p>
+</section>
+
+<section class="slide" data-min="3" data-part="1부" data-title="Ralph를 구현하는 두 방식" data-src="gh,sn,rl">
+  <div class="kick">구현 방식</div>
+  <h2>Ralph를 구현하는 <em>두 가지</em> 방식</h2>
+  <div class="grid g2">
+    <div class="card"><span class="tag" style="--c:var(--sky)">snarktank/ralph: 매번 새 프로세스</span>
+      <ul><li><span class="mono">ralph.sh</span>가 반복마다 Claude Code나 Amp를 새로 실행</li><li>기억은 git, <span class="mono">prd.json</span>, <span class="mono">progress.txt</span></li><li>기본 반복 상한 10회. 모든 항목이 <span class="mono">passes: true</span>면 끝</li><li><span class="mono">/ralph</span> 스킬은 PRD를 <span class="mono">prd.json</span>으로 바꿀 뿐, 반복 실행은 셸 스크립트가 함</li></ul></div>
+    <div class="card"><span class="tag">Anthropic 공식 ralph-loop 플러그인: 같은 세션</span>
+      <ul><li>현재 세션 안에서 Stop hook이 종료를 막고 같은 프롬프트를 다시 넣음</li><li><span class="mono">--max-iterations</span>: 기본값 무제한, 꼭 설정하라고 권장</li><li><span class="mono">--completion-promise</span>: 정확히 같은 문자열일 때만 멈춤</li></ul></div>
+  </div>
+  <p class="note">원형은 Geoffrey Huntley의 2025-07-14 글. <span class="mono">while :; do cat PROMPT.md | claude-code ; done</span> 한 줄짜리 셸 루프였음. 특정 회사의 발명이나 하나의 플러그인을 가리키는 말이 아님.</p>
+</section>
+
+<section class="slide" data-min="4" data-part="1부" data-title="'대시보드 만들어 줘'를 테스트로 바꾸기" data-src="">
+  <div class="kick">명세 예시</div>
+  <h2>"대시보드 만들어 줘"를 <em>테스트로</em> 바꾸기</h2>
+  <div class="grid g2" style="grid-template-columns:1fr 1fr">
+    <div>
+      <p class="small" style="margin-bottom:10px">예시 입력 <span class="mono">sample.csv</span> (가짜 데이터)</p>
+      <table class="csv"><thead><tr><th>파일 줄</th><th>데이터 행</th><th>category</th><th>amount</th></tr></thead><tbody>
+        <tr class="hdr"><td>1</td><td>헤더</td><td>category</td><td>amount</td></tr>
+        <tr><td>2</td><td>1</td><td>식비</td><td>12000</td></tr>
+        <tr><td>3</td><td>2</td><td>교통</td><td>3000</td></tr>
+        <tr><td>4</td><td>3</td><td>식비</td><td>8000</td></tr>
+        <tr class="bad"><td>5</td><td>4</td><td>(빈 값)</td><td>5000</td></tr>
+      </tbody></table>
+      <p class="small" style="margin-top:10px">데이터 행 번호는 헤더를 빼고 1부터 셈</p>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--lime)">기대 결과</h3>
+      <ul><li>식비 <span class="mono">20000</span>, 교통 <span class="mono">3000</span></li><li>데이터 4행은 카테고리가 없으므로 무효로 표시</li><li>무효 행은 합계에서 제외</li></ul>
+      <h3 style="color:var(--rose);margin-top:16px">실패와 종료</h3>
+      <ul><li>합계가 다르거나 4행이 합계에 들어가면 실패</li><li>테스트 3개 통과와 화면 확인 후 완료 보고</li></ul>
+    </div>
+  </div>
+  <p class="note">실제 카드 내역이나 개인정보는 쓰지 않음. AI에게는 이 표와 기대 결과를 그대로 넘김.</p>
+</section>
+
+<section class="slide" data-min="5" data-part="1부" data-title="루프 한 바퀴 보기 (시뮬레이션)" data-src="">
+  <div class="kick">데모 <span class="sim">SIMULATION / 미리 정한 결과를 재생, AI나 셸을 실행하지 않음</span></div>
+  <h2 style="margin-bottom:18px">루프 한 바퀴 보기</h2>
+  <div class="demo">
+    <div class="flow">
+      <svg viewBox="0 0 760 420" id="flowsvg" role="img" aria-label="루프 단계 흐름도"></svg>
+      <div class="stepcap" id="stepcap" aria-live="polite"></div>
+      <div class="dctl live-only"><button class="btn" id="dPrev">이전</button><button class="btn primary" id="dNext">다음</button><button class="btn" id="dReset">처음</button><span class="mono small" id="dPos"></span></div>
+    </div>
+    <div>
+      <div class="term live-only" id="term" aria-live="polite"></div>
+      <div class="print-only card"><h3>단계별 결과 (인쇄용 요약)</h3><ul style="font-size:21px">
+        <li>1 요청과 명세: 7번 슬라이드의 표와 기대 결과</li><li>2 구현 v1: 카테고리별 합계</li><li>3 테스트 실패: 빈 카테고리 5000이 합계에 포함, 4행 무효 표시 없음</li><li>4 수정: 빈 카테고리 행을 건너뛰고 무효 목록에 추가</li><li>5 테스트 통과 3/3</li><li>6 완료 기준 확인: 합계, 무효 표시, 가짜 데이터, 화면 표시</li><li>7 멈춤: 완료 보고</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section class="slide" data-min="3" data-part="1부" data-title="잘 멈추기" data-src="rl,sn">
+  <div class="kick">멈춤 조건</div>
+  <h2>루프는 <em>잘 멈추는 것</em>까지가 설계</h2>
+  <div class="grid g3">
+    <div class="card"><span class="tag">완료</span><h3>기준을 모두 확인함</h3><p>테스트 통과 + 명세의 나머지 조건 확인 후 보고</p></div>
+    <div class="card"><span class="tag" style="--c:var(--rose)">막힘</span><h3>같은 오류가 반복됨</h3><p>예: 같은 오류 3번이면 멈추고 사람에게 넘김. 무한 재시도 금지</p></div>
+    <div class="card"><span class="tag" style="--c:var(--gold)">예산 상한</span><h3>정한 한도에 도달</h3><p>반복 횟수나 비용 한도에 닿으면 멈춤</p></div>
+  </div>
+  <div class="grid g2" style="margin-top:24px">
+    <p class="note" style="margin-top:0"><span class="mono">--max-iterations</span>는 반복 횟수 상한일 뿐. 비용 한도나 계정 설정을 대신하지 않음.</p>
+    <p class="note" style="margin-top:0">completion promise는 모델이 출력한 문자열. 독립 검증이 아니므로 결과는 사람이 다시 확인.</p>
+  </div>
+</section>
+
+<section class="slide" data-min="2" data-part="1부" data-title="실습 전에 세 문장만 정하기" data-src="">
+  <div class="kick">실습 준비</div>
+  <h2>실습 전에 <em>세 문장</em>만 정하기</h2>
+  <div class="preview" style="max-width:1150px">
+    <p><b>누구를 위해</b>매달 카드 내역을 정리하는 나</p>
+    <p><b>핵심 기능 하나</b>CSV를 넣으면 카테고리별 합계를 보여 줌</p>
+    <p style="margin-bottom:0"><b>완료 조건</b>sample.csv를 넣으면 식비 20,000, 교통 3,000, 무효 1행이 보임</p>
+  </div>
+  <p class="note">계정 가입, 유료 API, 배포 설정 없이 시작할 수 있는 범위로 정함. 마지막 슬라이드에서 각자 직접 씀.</p>
+</section>
+
+<section class="slide" data-min="1" data-part="2부" data-title="2부: 실제로 만든 것들" data-src="">
+  <div class="kick">2부 / 30분</div>
+  <h2>실제로 <em>만든 것들</em></h2>
+  <div class="grid g4">
+    <div class="card"><span class="tag" style="--c:var(--sky)">회사 엔지니어링, 오픈소스</span><h3>vinext</h3><p>Next.js를 Vite 위에 다시 구현</p></div>
+    <div class="card"><span class="tag" style="--c:var(--lime)">개인 프로젝트, 오픈소스</span><h3>OpenClaw</h3><p>채팅 앱에서 부르는 개인 AI 비서</p></div>
+    <div class="card"><span class="tag" style="--c:var(--violet)">엔지니어링 실험</span><h3>Claude C 컴파일러</h3><p>에이전트 16개가 만든 Rust 컴파일러</p></div>
+    <div class="card"><span class="tag" style="--c:var(--tang)">상업, 2025</span><h3>fly.pieter.com</h3><p>광고로 돈을 번 브라우저 비행 게임</p></div>
+  </div>
+  <p class="note">숫자의 종류가 다름: 벤치마크, GitHub 스타, 매출. 같은 줄에 세우지 않음.</p>
+</section>
+
+<section class="slide" data-min="4" data-part="2부" data-title="vinext: 무엇이 문제였나" data-src="cf1,cfgh">
+  <div class="kick">사례 1 / vinext (2026)</div>
+  <h2>Next.js를 <em>Vercel 밖에서</em> 돌리려면</h2>
+  <div class="grid g2">
+    <div class="card"><h3>문제와 선택</h3><p>Next.js 앱을 다른 곳에 배포하려면 빌드 결과물을 그 런타임에 맞게 바꾸는 작업이 따로 필요함. Cloudflare 엔지니어 한 명은 결과물을 고치지 않고 <b>Next.js API 자체를 Vite 위에 새로 구현</b>하기로 함.</p><p class="mono" style="margin-top:14px;color:var(--lime);font-size:24px">vinext deploy</p></div>
+    <div class="card"><h3>명세는 기존 테스트</h3><ul><li>Next.js 테스트를 옮겨 와 Vitest 1,700개 이상, Playwright E2E 380개</li><li>첫 발표 기준 Next.js 16 API의 94% 구현</li><li>Vite Environment API, plugin-rsc, TypeScript</li></ul></div>
+  </div>
+  <svg viewBox="0 0 1420 120" width="100%" style="margin-top:22px" role="img" aria-label="Next.js 앱 코드에서 vinext, Vite, Rollup 또는 Rolldown을 거쳐 Workers에 배포">
+    <defs><marker id="a12" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#c8f53c"/></marker></defs>
+    <g font-size="23" fill="#f4ede0" text-anchor="middle">
+      <rect x="0" y="20" width="250" height="80" rx="16" fill="#1a1f2b" stroke="#c8f53c" stroke-width="2"/><text x="125" y="68">Next.js 앱 코드</text>
+      <rect x="290" y="20" width="250" height="80" rx="16" fill="#1a1f2b" stroke="#2e364b" stroke-width="2"/><text x="415" y="68">vinext 플러그인</text>
+      <rect x="580" y="20" width="250" height="80" rx="16" fill="#1a1f2b" stroke="#2e364b" stroke-width="2"/><text x="705" y="68">Vite + plugin-rsc</text>
+      <rect x="870" y="20" width="250" height="80" rx="16" fill="#1a1f2b" stroke="#2e364b" stroke-width="2"/><text x="995" y="68">Rollup / Rolldown</text>
+      <rect x="1160" y="20" width="250" height="80" rx="16" fill="#1a1f2b" stroke="#ff7a1a" stroke-width="2"/><text x="1285" y="68">Cloudflare Workers</text>
+    </g>
+    <g stroke="#c8f53c" stroke-width="3" marker-end="url(#a12)"><line x1="252" y1="60" x2="286" y2="60"/><line x1="542" y1="60" x2="576" y2="60"/><line x1="832" y1="60" x2="866" y2="60"/><line x1="1122" y1="60" x2="1156" y2="60"/></g>
+  </svg>
+</section>
+
+<section class="slide" data-min="4" data-part="2부" data-title="vinext: 만든 방법과 결과" data-src="cf1,cf2">
+  <div class="kick">사례 1 / vinext</div>
+  <h2>1주, 약 $1,100, 그리고 <em>사람이 한 일</em></h2>
+  <div class="grid" style="grid-template-columns:.8fr 1.3fr .9fr">
+    <div class="card"><div class="stat"><span class="v">1주 미만</span><span class="l">첫 버전, 2026-02-13 첫 커밋</span></div><div class="stat" style="margin-top:18px"><span class="v">약 $1,100</span><span class="l">Claude API 토큰, OpenCode 세션 800개 이상</span></div></div>
+    <div class="card"><h3>빌드 시간 (초)</h3>
+      <div class="bar-row"><span>Next.js (Turbopack)</span><div class="bar" style="width:100%;background:#7a7468">7.38</div></div>
+      <div class="bar-row"><span>vinext + Rolldown</span><div class="bar" style="width:22.6%;background:var(--lime)">1.67</div></div>
+      <h3 style="margin-top:14px">클라이언트 번들 gzip (KB)</h3>
+      <div class="bar-row"><span>Next.js</span><div class="bar" style="width:100%;background:#7a7468">168.9</div></div>
+      <div class="bar-row"><span>vinext + Rolldown</span><div class="bar" style="width:43.2%;background:var(--lime)">72.9</div></div>
+      <p class="small" style="margin-top:8px">33개 라우트 앱 하나, Cloudflare의 GitHub CI, Next.js 쪽 타입 검사와 ESLint 끔. 빌드 속도만 잰 값</p></div>
+    <div class="card"><h3>사람이 한 일</h3><ul><li>처음 몇 시간 아키텍처 결정</li><li>우선순위 정하기</li><li>틀린 PR 바로잡기</li></ul></div>
+  </div>
+  <p class="note"><b>2026-09-28 Vinext 1.0</b>: Netlify, AWS Lambda, Node 배포 추가, 대형 고객의 운영 사용을 언급(이름 미공개). $1,100은 첫 버전 비용이며 1.0까지의 비용은 공개되지 않음.</p>
+</section>
+
+<section class="slide" data-min="4" data-part="2부" data-title="OpenClaw: 개인 비서에서 시작" data-src="st2,st1">
+  <div class="kick">사례 2 / OpenClaw (2026)</div>
+  <h2>내 컴퓨터를 다루는 <em>개인 비서</em>에서 시작</h2>
+  <div class="grid g2">
+    <div class="card"><h3>Peter Steinberger가 원한 것</h3><p>컴퓨터, 메시지, 이메일, 홈 오토메이션에 모두 접근하는 AI 비서. 2025-12 글에서는 'Clawdis'라고 부르며 Claude Opus로 돌린다고 적음.</p></div>
+    <div class="card"><h3>그가 일하는 방식 (본인 글)</h3><ul><li>2025-10: 에이전트가 코드의 거의 100%를 씀</li><li>2025-12: "요즘은 코드를 많이 읽지 않음"</li><li>에이전트 3~8개를 동시에, 인터페이스는 CLI 우선</li></ul></div>
+  </div>
+  <p class="note">작업 방식 전반에 대한 본인 서술이며, OpenClaw 저장소의 AI 작성 비율을 잰 값은 아님.</p>
+</section>
+
+<section class="slide" data-min="3" data-part="2부" data-title="OpenClaw: 구조와 확산" data-src="ghoc,st0">
+  <div class="kick">사례 2 / OpenClaw</div>
+  <h2>구조와 확산</h2>
+  <div class="grid" style="grid-template-columns:1.3fr .7fr">
+    <svg viewBox="0 0 860 380" width="100%" role="img" aria-label="채팅 앱 여섯 개가 내 컴퓨터의 Gateway를 거쳐 AI 모델과 연결되는 구조">
+      <g font-size="21" fill="#d9d1c2" text-anchor="middle">
+        <g><rect x="0" y="10" width="200" height="48" rx="24" fill="#1a1f2b" stroke="#2e364b"/><text x="100" y="41">WhatsApp</text></g>
+        <g><rect x="0" y="72" width="200" height="48" rx="24" fill="#1a1f2b" stroke="#2e364b"/><text x="100" y="103">Telegram</text></g>
+        <g><rect x="0" y="134" width="200" height="48" rx="24" fill="#1a1f2b" stroke="#2e364b"/><text x="100" y="165">Slack</text></g>
+        <g><rect x="0" y="196" width="200" height="48" rx="24" fill="#1a1f2b" stroke="#2e364b"/><text x="100" y="227">Discord</text></g>
+        <g><rect x="0" y="258" width="200" height="48" rx="24" fill="#1a1f2b" stroke="#2e364b"/><text x="100" y="289">iMessage</text></g>
+        <g><rect x="0" y="320" width="200" height="48" rx="24" fill="#1a1f2b" stroke="#2e364b"/><text x="100" y="351">Teams</text></g>
+      </g>
+      <g stroke="#7cc7ff" stroke-width="2" fill="none" stroke-dasharray="6 6"><path d="M200 34 C280 34 280 190 340 190"/><path d="M200 96 C280 96 280 190 340 190"/><path d="M200 158 C280 158 280 190 340 190"/><path d="M200 220 C280 220 280 190 340 190"/><path d="M200 282 C280 282 280 190 340 190"/><path d="M200 344 C280 344 280 190 340 190"/></g>
+      <rect x="340" y="130" width="220" height="120" rx="20" fill="#1a1f2b" stroke="#c8f53c" stroke-width="3"/><text x="450" y="185" text-anchor="middle" fill="#c8f53c" font-size="28">Gateway</text><text x="450" y="218" text-anchor="middle" fill="#a59f92" font-size="20">내 컴퓨터에서 실행</text>
+      <line x1="560" y1="190" x2="630" y2="190" stroke="#ff7a1a" stroke-width="3"/>
+      <rect x="630" y="140" width="220" height="100" rx="20" fill="#1a1f2b" stroke="#ff7a1a" stroke-width="2"/><text x="740" y="198" text-anchor="middle" fill="#f4ede0" font-size="26">AI 모델</text>
+    </svg>
+    <div class="card"><div class="stat"><span class="v">394,946</span><span class="l">GitHub 스타 (2026-11-21 API). 사용자 수나 매출이 아님</span></div><div class="stat" style="margin-top:16px"><span class="v" style="font-size:40px">TypeScript, MIT</span><span class="l">포크 82,932</span></div></div>
+  </div>
+  <p class="note">2026-02-14 창작자가 OpenAI 합류를 밝히며 프로젝트는 재단으로 이전. README: "OpenAI는 후원자이지 소유자가 아님". 구조도는 README 설명을 단순화한 것.</p>
+</section>
+
+<section class="slide" data-min="4" data-part="2부" data-title="Claude 16개가 만든 C 컴파일러" data-src="cc,ccgh">
+  <div class="kick">사례 3 / Claude C 컴파일러 (2026-02-05)</div>
+  <h2>Claude 16개가 2주 동안 만든 <em>C 컴파일러</em></h2>
+  <div class="grid" style="grid-template-columns:.8fr 1.2fr">
+    <div class="card"><div class="stat"><span class="v">Rust 약 10만 줄</span><span class="l">의존성은 Rust 표준 라이브러리뿐</span></div><div class="stat" style="margin-top:14px"><span class="v">16개, 약 2주</span><span class="l">Claude Opus 4.6, 세션 약 2,000개</span></div><div class="stat" style="margin-top:14px"><span class="v">$20K 조금 미만</span><span class="l">Linux 6.9 부팅 (x86, ARM, RISC-V)</span></div></div>
+    <div class="card"><h3>연구자 Nicholas Carlini가 만든 것</h3><ul><li>테스트 하네스와 검증기, 오픈소스 빌드 스크립트</li><li>모델이 읽기 좋은 짧은 테스트 출력, 무작위 표본 <span class="mono">--fast</span> 모드</li><li>새 기능이 기존 기능을 깨자 더 엄격한 CI</li><li>커널에서 모두 같은 버그에 막히자 GCC를 기준으로 섞어 문제를 쪼갬</li></ul>
+      <p class="small" style="margin-top:10px">에이전트마다 Docker 컨테이너, bare git 저장소 공유, <span class="mono">current_tasks/</span> 잠금 파일로 작업 분배</p></div>
+  </div>
+  <p class="note"><b>제품도 사업도 아닌 연구 실험.</b> 하나의 Ralph 루프가 아니라 에이전트 여럿이 병렬로 일한 구조. 한계: 16비트 x86 단계와 어셈블러, 링커는 GCC에 의존, 출력 코드는 느림.</p>
+</section>
+
+<section class="slide" data-min="4" data-part="2부" data-title="fly.pieter.com" data-src="lv,fly">
+  <div class="kick">사례 4 / fly.pieter.com (2025)</div>
+  <h2>2025년의 고전: <em>브라우저 비행 게임</em></h2>
+  <div class="grid g2">
+    <div class="card"><h3>만든 방법</h3><ul><li>2025-02-22 제작 시작, 과정 대부분을 X에 실시간 공개</li><li>게임 화면 표기: <span class="mono">@levelsio + Cursor + ThreeJS</span></li><li>로딩 화면 없는 무료 멀티플레이 게임</li></ul>
+      <div class="stat" style="margin-top:22px"><span class="v" style="color:var(--tang)">17일에 ARR $1M</span><span class="l">Pieter Levels 본인 발표. 2025년 당시 반복 매출을 1년치로 환산한 값이며 현재 매출이 아님</span></div></div>
+    <div class="card"><h3>돈이 들어온 구조</h3><ul><li>게임은 무료</li><li>스타트업이 게임 속 광고를 삼 (Stripe 결제 링크)</li><li>유료 비행기 F-16 $29.99</li><li>이미 팔로워가 많은 개발자가 과정을 공개해 사람을 모음</li></ul></div>
+  </div>
+  <p class="note">네 사례 중 매출 수치를 소개한 사례. 다른 사례는 제품 매출 자료가 없을 뿐, 매출이 없다는 뜻은 아님. 서버 구성과 매출 구성 비율은 공개되지 않음.</p>
+</section>
+
+<section class="slide" data-min="2" data-part="2부" data-title="네 사례 한 장 비교" data-src="cf1,st1,cc,lv">
+  <div class="kick">정리</div>
+  <h2>AI가 쓴 것, 사람이 맡은 것, <em>숫자가 보여 주는 것</em></h2>
+  <table class="t"><thead><tr><th></th><th>AI가 쓴 것</th><th>사람이 맡은 것</th><th>그 숫자가 보여 주는 것</th></tr></thead><tbody>
+    <tr><td>vinext</td><td>Vite 플러그인 코드, 테스트, PR 리뷰</td><td>아키텍처, 우선순위, 틀린 PR 판단</td><td>앱 하나 기준 빌드 속도</td></tr>
+    <tr><td>OpenClaw</td><td>코드 대부분 (본인 서술)</td><td>무엇을 만들지, 핵심 확인, 이후 재단 운영</td><td>관심의 크기 (스타)</td></tr>
+    <tr><td>C 컴파일러</td><td>Rust 컴파일러 전체</td><td>하네스, 검증기, GCC 비교</td><td>테스트 통과율, 빌드 결과</td></tr>
+    <tr><td>fly.pieter.com</td><td>게임 코드</td><td>기능 선택, 수익 구조, 배포</td><td>매출 (2025 본인 발표, 연환산)</td></tr>
+  </tbody></table>
+  <p class="note">어느 숫자가 더 큰지는 비교하지 않음. 공통점은 <b>무엇이 맞는지 판단하는 장치를 사람이 만들었다</b>는 것.</p>
+</section>
+
+<section class="slide" data-min="2" data-part="2부" data-title="반나절에 맞게 줄이기" data-src="">
+  <div class="kick">실습 범위</div>
+  <h2>반나절에 맞게 <em>줄이기</em></h2>
+  <div class="grid g2">
+    <div class="card"><p class="ex" style="text-decoration:line-through">가계부 SaaS: 로그인, 결제, 여러 사용자</p><p style="margin-top:12px">→ CSV 하나를 넣으면 카테고리 합계와 무효 행을 보여 주는 로컬 페이지</p></div>
+    <div class="card"><p class="ex" style="text-decoration:line-through">팀 생산성 대시보드</p><p style="margin-top:12px">→ 내 저장소의 <span class="mono">git log</span>를 읽어 이번 주 커밋을 날짜별로 보여 주는 뷰어</p></div>
+  </div>
+  <div class="grid g2" style="margin-top:22px">
+    <p class="note" style="margin-top:0">외부 API는 선택. 키 발급이나 OAuth 설정에 반나절을 쓰지 않도록 <b>가짜 데이터로 먼저</b>.</p>
+    <p class="note" style="margin-top:0">도구와 플러그인은 각자 이미 쓰는 환경 그대로. 오늘 새로 설치하는 것을 전제로 하지 않음.</p>
+  </div>
+</section>
+
+<section class="slide" data-min="2" data-part="2부" data-title="내 세 문장 쓰고 실습 시작" data-src="">
+  <div class="kick">마무리</div>
+  <h2>내 세 문장 쓰고 <em>실습 시작</em></h2>
+  <div class="grid g2" style="grid-template-columns:1fr 1fr">
+    <div class="live-only">
+      <div class="field"><label for="w1">누구를 위해</label><input id="w1" autocomplete="off" placeholder="예: 매달 카드 내역을 정리하는 나"></div>
+      <div class="field"><label for="w2">핵심 기능 하나</label><input id="w2" autocomplete="off" placeholder="예: CSV 카테고리별 합계"></div>
+      <div class="field"><label for="w3">완료 조건</label><input id="w3" autocomplete="off" placeholder="예: sample.csv에서 식비 20,000이 보임"></div>
+      <p class="small">입력한 내용은 이 화면에만 잠깐 보이고 저장되거나 전송되지 않음. 실제 개인정보는 쓰지 말 것.</p>
+    </div>
+    <div class="preview"><p><b>누구를 위해</b><span id="o1">____________</span></p><p><b>핵심 기능 하나</b><span id="o2">____________</span></p><p style="margin-bottom:0"><b>완료 조건</b><span id="o3">____________</span></p></div>
+  </div>
+  <p class="note"><b>1부</b> 명세, 테스트, 멈춤 조건을 사람이 정하면 루프가 돔. <b>2부</b> 네 사례 모두 검증 장치는 사람이 만듦. 이제 개인 실습.</p>
+</section>
+
+</div>
+</div>
+
+<nav class="ctrls" aria-label="슬라이드 조작">
+  <button class="cb" id="bPrev" aria-label="이전 슬라이드">◀</button>
+  <span class="cnt" id="cnt" aria-live="polite">1 / 20</span>
+  <button class="cb" id="bNext" aria-label="다음 슬라이드">▶</button>
+  <span class="cttl" id="cttl"></span>
+  <button class="cb" id="bOv" aria-haspopup="dialog">목차</button>
+  <button class="cb" id="bSrc" aria-haspopup="dialog">출처</button>
+  <button class="cb" id="bRm" aria-pressed="false">움직임 줄이기</button>
+  <button class="cb" id="bFs">전체 화면</button>
+</nav>
+
+<div class="ov" id="ov" role="dialog" aria-modal="true" aria-labelledby="ovT">
+  <div class="ovhead"><h2 id="ovT">목차</h2><span class="mono" id="ovSum" style="color:#a59f92;font-size:14px"></span><button class="cb x" id="ovX" aria-label="목차 닫기">닫기</button></div>
+  <div class="ovgrid" id="ovGrid"></div>
+</div>
+<aside class="drawer" id="drw" role="dialog" aria-modal="true" aria-labelledby="drT" aria-hidden="true">
+  <div class="hd"><h2 id="drT">출처</h2><button class="cb" id="drX" aria-label="출처 닫기">닫기</button></div>
+  <div class="bd" id="drB"></div>
+</aside>
+
+<script>
+(function(){
+"use strict";
+var SRC={
+ rth:{t:"Ralphthon 공식 사이트",u:"https://ralphthon.org/",d:"열람 2026-11-21"},
+ rth1:{t:"Ralphthon RPH-001 Seoul 행사 기록",u:"https://ralphthon.org/events/rph-001-seoul/",d:"행사 2026-02-28 ~ 03-01"},
+ pf:{t:"Pathfinder: One-Punch 랄프톤 시즌 2 (부산)",u:"https://www.pathfinder.camp/event-details/one-punch-lalpeuton-1-1",d:"행사 2026-09-18"},
+ gh:{t:"Geoffrey Huntley: Ralph Wiggum as a software engineer",u:"https://ghuntley.com/ralph/",d:"2025-07-14"},
+ rl:{t:"anthropics/claude-plugins-official: ralph-loop README",u:"https://github.com/anthropics/claude-plugins-official/tree/main/plugins/ralph-loop",d:"열람 2026-11-21"},
+ sn:{t:"snarktank/ralph README",u:"https://github.com/snarktank/ralph",d:"열람 2026-11-21"},
+ cf1:{t:"Cloudflare 블로그: vinext 첫 발표",u:"https://blog.cloudflare.com/vinext/",d:"2026-02-24"},
+ cf2:{t:"Cloudflare 블로그: Vinext 1.0",u:"https://blog.cloudflare.com/vinext-nextjs-on-vite/",d:"2026-09-28"},
+ cfgh:{t:"GitHub: cloudflare/vinext",u:"https://github.com/cloudflare/vinext",d:"열람 2026-11-21"},
+ st0:{t:"Peter Steinberger: OpenClaw, OpenAI and the future",u:"https://steipete.me/posts/2026/openclaw",d:"2026-02-14"},
+ st1:{t:"Peter Steinberger: Just Talk To It",u:"https://steipete.me/posts/just-talk-to-it",d:"2025-10-14"},
+ st2:{t:"Peter Steinberger: Shipping at Inference-Speed",u:"https://steipete.me/posts/2025/shipping-at-inference-speed",d:"2025-12-28"},
+ ghoc:{t:"GitHub: openclaw/openclaw (README, 공개 API 지표)",u:"https://github.com/openclaw/openclaw",d:"API 조회 2026-11-21"},
+ cc:{t:"Anthropic 엔지니어링 블로그: Building a C compiler",u:"https://www.anthropic.com/engineering/building-c-compiler",d:"2026-02-05"},
+ ccgh:{t:"GitHub: anthropics/claudes-c-compiler",u:"https://github.com/anthropics/claudes-c-compiler",d:"열람 2026-11-21"},
+ lv:{t:"levels.io: fly.pieter.com 회고 글",u:"https://levels.io/fly-pieter-com-vibecoded-flight-simulator",d:"2025-02-22"},
+ fly:{t:"fly.pieter.com 게임 화면",u:"https://fly.pieter.com",d:"열람 2026-11-21"}
+};
+function $(s,r){return (r||document).querySelector(s)}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]})}
+var store={get:function(k){try{return localStorage.getItem(k)}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+var mq=window.matchMedia?matchMedia("(prefers-reduced-motion: reduce)"):{matches:false};
+var slides=$$(".slide"),N=slides.length,cur=0,stage=$("#stage"),vp=$("#vp");
+
+/* per-slide chrome */
+slides.forEach(function(s,i){
+  s.id="s"+(i+1);s.setAttribute("role","group");s.setAttribute("aria-roledescription","슬라이드");s.setAttribute("aria-label",(i+1)+" / "+N+": "+s.dataset.title);
+  s.insertAdjacentHTML("beforeend",'<div class="meta"><span class="part">'+s.dataset.part+'</span><span>'+s.dataset.min+'분</span></div><div class="num">'+(i+1)+' / '+N+'</div>');
+  var ids=(s.dataset.src||"").split(",").filter(Boolean);
+  if(ids.length){s.insertAdjacentHTML("beforeend",'<div class="cites">'+ids.map(function(id,k){var x=SRC[id];return '<button class="cite" data-slide="'+i+'" aria-label="출처 '+(k+1)+': '+esc(x.t)+'">['+(k+1)+'] '+esc(x.t.split(":")[0])+' <span class="u">'+esc(x.u)+'</span></button>'}).join("")+'</div>');}
+});
+
+/* fit */
+function fit(){var w=vp.clientWidth,h=vp.clientHeight,s=Math.min(w/1600,h/900);stage.style.transform="scale("+s+")";stage.style.left=((w-1600*s)/2)+"px";stage.style.top=((h-900*s)/2)+"px"}
+addEventListener("resize",fit);fit();
+
+/* navigation */
+function go(i,fromHash){i=Math.max(0,Math.min(N-1,i));slides[cur].classList.remove("active");slides[cur].setAttribute("aria-hidden","true");cur=i;slides[cur].classList.add("active");slides[cur].removeAttribute("aria-hidden");
+  $("#cnt").textContent=(cur+1)+" / "+N;$("#cttl").textContent=slides[cur].dataset.title;$("#bPrev").disabled=cur===0;$("#bNext").disabled=cur===N-1;
+  if(!fromHash&&location.hash!=="#s"+(cur+1)){try{history.replaceState(null,"","#s"+(cur+1))}catch(e){location.hash="s"+(cur+1)}}
+  document.title=(cur+1)+". "+slides[cur].dataset.title+" | AI에게 일을 맡기는 개발 워크숍";}
+slides.forEach(function(s){s.setAttribute("aria-hidden","true")});
+function fromHash(){var m=/^#s(\d+)$/.exec(location.hash);return m?(+m[1]-1):0}
+go(fromHash(),true);document.title=(cur+1)+". "+slides[cur].dataset.title+" | AI에게 일을 맡기는 개발 워크숍";
+addEventListener("hashchange",function(){go(fromHash(),true)});
+$("#bPrev").addEventListener("click",function(){go(cur-1)});$("#bNext").addEventListener("click",function(){go(cur+1)});
+function editing(t){return t&&(t.tagName==="INPUT"||t.tagName==="TEXTAREA"||t.tagName==="SELECT"||t.isContentEditable)}
+var ov=$("#ov"),drw=$("#drw"),lastF=null;
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape"){if(drw.classList.contains("on")){closeDr();e.preventDefault()}else if(ov.classList.contains("on")){closeOv();e.preventDefault()}return}
+  if(editing(e.target)||ov.classList.contains("on")||drw.classList.contains("on"))return;
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+  var k=e.key;
+  if(k==="ArrowRight"||k==="PageDown"||(k===" "&&e.target.tagName!=="BUTTON")){e.preventDefault();go(cur+1)}
+  else if(k==="ArrowLeft"||k==="PageUp"){e.preventDefault();go(cur-1)}
+  else if(k==="Home"){e.preventDefault();go(0)}else if(k==="End"){e.preventDefault();go(N-1)}
+  else if(k==="o"||k==="O"){openOv()}else if(k==="f"||k==="F"){toggleFs()}
+});
+/* touch */
+var tx=null,ty=null;vp.addEventListener("touchstart",function(e){if(editing(e.target))return;tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:true});
+vp.addEventListener("touchend",function(e){if(tx===null)return;var dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)){go(cur+(dx<0?1:-1))}tx=null},{passive:true});
+
+/* overview */
+function openOv(){lastF=document.activeElement;var g=$("#ovGrid"),p1=0,p2=0;g.innerHTML="";slides.forEach(function(s,i){var m=+s.dataset.min;if(i<10)p1+=m;else p2+=m;var b=document.createElement("button");b.innerHTML='<span class="n">'+(i+1)+'</span>'+esc(s.dataset.title)+'<span class="m">'+s.dataset.part+' / '+m+'분</span>';if(i===cur)b.setAttribute("aria-current","true");b.addEventListener("click",function(){closeOv();go(i)});g.appendChild(b)});
+  $("#ovSum").textContent="1부 "+p1+"분 + 2부 "+p2+"분 = "+(p1+p2)+"분 (발표와 상호작용 배분)";ov.classList.add("on");setTimeout(function(){var c=$('[aria-current="true"]',g);(c||$("#ovX")).focus()},20)}
+function closeOv(){ov.classList.remove("on");if(lastF&&lastF.focus)lastF.focus()}
+$("#bOv").addEventListener("click",openOv);$("#ovX").addEventListener("click",closeOv);
+
+/* sources */
+function openDr(si){lastF=document.activeElement;var ids=si==null?Object.keys(SRC):(slides[si].dataset.src||"").split(",").filter(Boolean);if(!ids.length)ids=Object.keys(SRC);
+  $("#drT").textContent=si==null?"전체 출처":(si+1)+"번 슬라이드 출처";
+  $("#drB").innerHTML=ids.map(function(id,k){var x=SRC[id];return '<div class="src"><div><b>['+(k+1)+']</b> <a href="'+x.u+'" target="_blank" rel="noopener">'+esc(x.t)+'</a></div><div class="d">'+esc(x.d)+'</div><div class="uu">'+esc(x.u)+'</div></div>'}).join("")+'<p style="font-size:13px;color:#7a7468">사례 수치는 각 출처의 발표 내용이며, GitHub 수치는 2026-11-21 공개 API 값.</p>';
+  drw.classList.add("on");drw.setAttribute("aria-hidden","false");setTimeout(function(){$("#drX").focus()},20)}
+function closeDr(){drw.classList.remove("on");drw.setAttribute("aria-hidden","true");if(lastF&&lastF.focus)lastF.focus()}
+$("#bSrc").addEventListener("click",function(){openDr((slides[cur].dataset.src||"")?cur:null)});$("#drX").addEventListener("click",closeDr);
+document.addEventListener("click",function(e){var c=e.target.closest(".cite");if(c)openDr(+c.dataset.slide)});
+
+/* reduced motion */
+var bRm=$("#bRm");function setRm(on){document.documentElement.classList.toggle("rm",on);bRm.setAttribute("aria-pressed",on?"true":"false");bRm.textContent=on?"움직임 켜기":"움직임 줄이기";store.set("ws-rm",on?"1":"0")}
+setRm(store.get("ws-rm")==="1"||mq.matches);bRm.addEventListener("click",function(){setRm(!document.documentElement.classList.contains("rm"))});
+
+/* fullscreen */
+function toggleFs(){try{if(!document.fullscreenElement){var p=document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();if(p&&p.catch)p.catch(function(){})}else{document.exitFullscreen()}}catch(e){}}
+$("#bFs").addEventListener("click",toggleFs);
+document.addEventListener("fullscreenchange",function(){$("#bFs").textContent=document.fullscreenElement?"전체 화면 끝":"전체 화면";setTimeout(fit,50)});
+
+/* demo (slide 8): stable keyed nodes */
+var NODES=[["spec","요청과 명세",30,40],["impl","구현",280,40],["test","테스트",530,40],["fix","수정",530,190],["pass","재테스트",280,190],["check","완료 기준 확인",30,190],["stop","멈춤",280,330]];
+var STEPS=[
+ {n:"spec",st:{},cap:"7번 슬라이드의 표와 기대 결과를 그대로 넘김. 아직 코드 없음.",term:'<span class="dim">$ cat spec.md</span>\n식비 20000, 교통 3000\n데이터 4행: 무효 표시, 합계 제외'},
+ {n:"impl",st:{spec:"done"},cap:"구현 v1: 행마다 category로 묶어 amount를 더함.",term:'<span class="dim">totals.js (v1)</span>\nfor (row of rows)\n  totals[row.category] += row.amount'},
+ {n:"test",st:{spec:"done",impl:"done",test:"fail"},cap:"테스트 실패. 빈 카테고리 5000이 합계에 들어갔고, 4행이 무효로 표시되지 않음.",term:'<span class="dim">$ npm test</span>\n<span class="ng">FAIL</span> totals excludes invalid rows\n  기대 { 식비: 20000, 교통: 3000 }\n  실제 { 식비: 20000, 교통: 3000, "": 5000 }\n<span class="ng">FAIL</span> flags data row 4\n  기대 invalid: [4]   실제 invalid: []\n<span class="ok">PASS</span> sums food rows'},
+ {n:"fix",st:{spec:"done",impl:"done",test:"fail"},cap:"수정: category가 비면 합계에서 빼고 무효 목록에 데이터 행 번호를 넣음.",term:'<span class="dim">totals.js (v2)</span>\nif (!row.category) {\n  invalid.push(row.index)  // 헤더 제외 1부터\n  continue\n}'},
+ {n:"pass",st:{spec:"done",impl:"done",test:"done",fix:"done"},cap:"재테스트 통과 3/3. 하지만 테스트 통과가 곧 모든 목표 달성은 아님.",term:'<span class="dim">$ npm test</span>\n<span class="ok">PASS</span> totals excludes invalid rows\n<span class="ok">PASS</span> flags data row 4\n<span class="ok">PASS</span> sums food rows\n<span class="ok">3 passed</span>'},
+ {n:"check",st:{spec:"done",impl:"done",test:"done",fix:"done",pass:"done"},cap:"명세의 나머지 조건을 하나씩 확인: 화면 표시, 가짜 데이터 사용.",term:'<span class="ok">✓</span> 식비 20000, 교통 3000\n<span class="ok">✓</span> 데이터 4행 무효 표시, 합계 제외\n<span class="ok">✓</span> sample.csv는 가짜 데이터\n<span class="ok">✓</span> 브라우저 화면에 결과가 보임'},
+ {n:"stop",st:{spec:"done",impl:"done",test:"done",fix:"done",pass:"done",check:"done"},cap:"완료 보고 후 멈춤. 다음 반복을 시작하지 않음.",term:'<span class="ok">&lt;promise&gt;COMPLETE&lt;/promise&gt;</span>\n<span class="dim">루프 종료 (반복 2회, 상한 10회)</span>'}
+];
+var fs=$("#flowsvg"),NS="http://www.w3.org/2000/svg",nodeEls={},tok,step=0;
+(function build(){var h='<defs><marker id="a8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#7a7468"/></marker></defs>';
+  h+='<g stroke="#7a7468" stroke-width="2.5" fill="none" marker-end="url(#a8)"><line x1="230" y1="80" x2="276" y2="80"/><line x1="480" y1="80" x2="526" y2="80"/><line x1="630" y1="120" x2="630" y2="186"/><line x1="530" y1="230" x2="484" y2="230"/><line x1="280" y1="230" x2="234" y2="230"/><path d="M130 270 Q130 370 276 370"/></g>';
+  h+='<path d="M580 186 Q470 150 380 124" stroke="#ff6b98" stroke-width="2" fill="none" stroke-dasharray="6 6"/><text x="470" y="150" fill="#ff6b98" font-size="18" text-anchor="middle">실패하면 다시</text>';
+  NODES.forEach(function(n){h+='<g class="nd" data-key="'+n[0]+'"><rect x="'+n[2]+'" y="'+n[3]+'" width="200" height="80" rx="16"/><text x="'+(n[2]+100)+'" y="'+(n[3]+48)+'" text-anchor="middle">'+n[1]+'</text></g>'});
+  h+='<circle class="tok" id="tok" cx="0" cy="0" r="12" fill="#c8f53c"/>';fs.innerHTML=h;
+  $$(".nd",fs).forEach(function(g){nodeEls[g.dataset.key]=g});tok=$("#tok");})();
+function pos(k){var n=NODES.filter(function(x){return x[0]===k})[0];return [n[2]+186,n[3]+14]}
+function renderStep(){var s=STEPS[step];Object.keys(nodeEls).forEach(function(k){var g=nodeEls[k];g.classList.remove("done","cur","fail");if(s.st[k])g.classList.add(s.st[k]);if(k===s.n)g.classList.add("cur")});
+  var p=pos(s.n);tok.setAttribute("transform","translate("+p[0]+" "+p[1]+")");tok.style.transform="translate("+p[0]+"px,"+p[1]+"px)";
+  $("#stepcap").textContent=(step+1)+". "+s.cap;$("#term").innerHTML=s.term;$("#dPos").textContent=(step+1)+" / "+STEPS.length;
+  $("#dPrev").disabled=step===0;$("#dNext").disabled=step===STEPS.length-1;fs.dataset.step=step}
+$("#dNext").addEventListener("click",function(){if(step<STEPS.length-1){step++;renderStep()}});
+$("#dPrev").addEventListener("click",function(){if(step>0){step--;renderStep()}});
+$("#dReset").addEventListener("click",function(){step=0;renderStep()});
+renderStep();
+
+/* closing inputs (no storage, no network) */
+[1,2,3].forEach(function(i){var inp=$("#w"+i),o=$("#o"+i);inp.addEventListener("input",function(){o.textContent=inp.value.trim()||"____________"})});
+})();
+</script>
+</body>
+</html>
