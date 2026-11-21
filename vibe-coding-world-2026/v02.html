@@ -1,0 +1,817 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI로 만든 앱 사례 2026</title>
+<meta name="description" content="2026-11-21 기준, AI로 만든 앱 7개의 제작 과정, 사용 기술, 매출과 비용 변화를 출처와 함께 정리한 인터랙티브 문서">
+<style>
+:root{
+  --ink:#0b0d12; --ink2:#11141c; --ink3:#181c27; --ink4:#222838; --line:#2b3245;
+  --paper:#f4ede0; --paper2:#d9d1c2; --mute:#a59f92; --dim:#7a7468;
+  --tang:#ff7a1a; --tang2:#ffb070; --lime:#c8f53c; --sky:#7cc7ff; --rose:#ff6b98; --violet:#b9a4ff; --gold:#f2c94c;
+  --serif:"AppleMyungjo","Nanum Myeongjo","Noto Serif KR","Noto Serif CJK KR","Batang",serif;
+  --sans:"Pretendard","Apple SD Gothic Neo","Noto Sans KR","Noto Sans CJK KR","Malgun Gothic","Segoe UI",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono","Menlo","D2Coding","Consolas",monospace;
+  --r:14px; --gut:clamp(16px,4vw,48px); --max:1180px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--sans);font-size:17px;line-height:1.72;word-break:keep-all;overflow-wrap:anywhere;overflow-x:hidden}
+a{color:var(--tang2);text-underline-offset:3px}
+a:hover{color:var(--lime)}
+:focus-visible{outline:2px solid var(--lime);outline-offset:3px;border-radius:6px}
+button{font:inherit;color:inherit;cursor:pointer}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 var(--gut)}
+.mono{font-family:var(--mono);letter-spacing:.02em}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.grain{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;background:
+  radial-gradient(1200px 600px at 85% -10%,rgba(255,122,26,.13),transparent 60%),
+  radial-gradient(900px 500px at -10% 30%,rgba(200,245,60,.06),transparent 60%),
+  radial-gradient(700px 700px at 50% 120%,rgba(124,199,255,.07),transparent 60%)}
+main,header,footer{position:relative;z-index:1}
+
+/* top bar */
+.bar{position:sticky;top:0;z-index:30;background:rgba(11,13,18,.82);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;align-items:center;gap:14px;height:56px}
+.brand{font-family:var(--mono);font-size:13px;color:var(--lime);white-space:nowrap;text-decoration:none}
+.brand b{color:var(--paper);font-weight:600}
+.toc{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+.toc::-webkit-scrollbar{display:none}
+.toc a{white-space:nowrap;text-decoration:none;color:var(--mute);font-size:14px;padding:6px 10px;border-radius:999px}
+.toc a.on,.toc a:hover{color:var(--ink);background:var(--paper)}
+.bar-btn{border:1px solid var(--line);background:var(--ink3);border-radius:999px;padding:6px 12px;font-size:13px;white-space:nowrap}
+.bar-btn:hover{border-color:var(--tang)}
+.progress{position:absolute;left:0;bottom:-1px;height:2px;background:linear-gradient(90deg,var(--tang),var(--lime));width:0}
+
+/* hero */
+.hero{padding:clamp(48px,9vw,110px) 0 40px;position:relative}
+.hero-grid>*,.case>*,.spectrum>*,.ideas>*,.ctx-grid>*,.ulane>*,.impact>*{min-width:0}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(20px,4vw,60px);align-items:center}
+.stamp{display:inline-flex;gap:10px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px;color:var(--mute);border:1px dashed var(--line);border-radius:999px;padding:5px 14px;margin-bottom:22px}
+.stamp i{font-style:normal;color:var(--lime)}
+h1{font-family:var(--serif);font-weight:700;font-size:clamp(40px,7.2vw,92px);line-height:1.04;letter-spacing:-.02em;margin:0 0 22px}
+h1 em{font-style:normal;color:var(--tang);position:relative}
+h1 .l2{display:block;color:var(--paper2);font-size:.55em;letter-spacing:-.01em;margin-top:12px;font-weight:400}
+.lede{font-size:clamp(17px,1.8vw,20px);color:var(--paper2);max-width:40em}
+.ticker{max-width:100%;margin-top:28px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;white-space:nowrap;padding:10px 0;mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.ticker-track{display:inline-flex;gap:38px;animation:tick 42s linear infinite;font-family:var(--serif);font-size:20px}
+.ticker-track span::before{content:"✶";color:var(--tang);margin-right:12px;font-size:14px}
+@keyframes tick{to{transform:translateX(-50%)}}
+.orbit{width:100%;max-width:470px;aspect-ratio:1;margin:0 auto;display:block}
+.orbit .ring{fill:none;stroke:var(--line);stroke-dasharray:3 7}
+.orbit .spin{transform-origin:240px 240px;animation:spin 90s linear infinite}
+.orbit .node{cursor:pointer}
+.orbit .node circle{transition:r .25s}
+.orbit .node:hover circle.dot,.orbit .node:focus circle.dot{r:13}
+.orbit .node text{fill:var(--paper);font-size:14px;font-family:var(--sans)}
+.orbit .counter{animation:spinr 90s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes spinr{to{transform:rotate(-360deg)}}
+.hero-key{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--mute);justify-content:center}
+.hero-key span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px;background:var(--c)}
+
+/* sections */
+section.chapter{padding:clamp(56px,8vw,100px) 0;border-top:1px solid var(--line)}
+.ch-head{display:grid;grid-template-columns:auto 1fr;gap:6px 22px;align-items:end;margin-bottom:34px}
+.ch-no{font-family:var(--mono);color:var(--tang);font-size:13px;grid-row:span 2;align-self:start;border:1px solid var(--tang);border-radius:8px;padding:4px 8px;margin-top:10px}
+h2{font-family:var(--serif);font-size:clamp(30px,4.6vw,54px);line-height:1.12;margin:0;letter-spacing:-.015em}
+.ch-sub{color:var(--mute);margin:0;max-width:46em}
+h3{font-family:var(--serif);font-size:clamp(24px,3vw,36px);line-height:1.2;margin:0 0 12px}
+h4{font-size:13px;font-family:var(--mono);color:var(--lime);letter-spacing:.06em;margin:0 0 8px;font-weight:600}
+p{margin:0 0 1em}
+
+/* spectrum */
+.spectrum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.lane{border:1px solid var(--line);border-radius:var(--r);padding:22px;background:var(--ink2);position:relative;overflow:hidden}
+.lane .tag{font-family:var(--mono);font-size:12px;color:var(--ink);background:var(--c);border-radius:6px;padding:2px 8px;display:inline-block;margin-bottom:10px}
+.lane h3{font-size:24px}
+.lane p{color:var(--paper2);font-size:15.5px}
+.lane.main{border-color:var(--lime);box-shadow:0 0 0 1px rgba(200,245,60,.25),0 20px 60px -30px rgba(200,245,60,.4)}
+.lane .where{font-size:13px;color:var(--mute);border-top:1px dashed var(--line);padding-top:10px;margin-top:6px}
+.spec-axis{margin:26px 0 0;width:100%;height:auto}
+
+/* filters */
+.filters{position:relative;z-index:2;background:rgba(11,13,18,.92);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin-bottom:34px;display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center}
+.fgroup{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.fgroup>span{font-family:var(--mono);font-size:11.5px;color:var(--dim);margin-right:2px}
+.chip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:4px 11px;font-size:13.5px;color:var(--paper2);transition:background .2s,color .2s,border-color .2s}
+.chip[aria-pressed="true"]{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+.chip:hover{border-color:var(--tang)}
+.fcount{margin-left:auto;font-family:var(--mono);font-size:12.5px;color:var(--lime)}
+.freset{border:none;background:none;color:var(--mute);text-decoration:underline;font-size:13px}
+
+/* cases */
+.case{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:clamp(20px,4vw,56px);padding:46px 0;border-bottom:1px solid var(--line);transition:opacity .35s,transform .35s}
+.case:nth-of-type(even){grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}
+.case:nth-of-type(even) .case-vis{order:2}
+.case.hide{display:none}
+.case-vis{position:sticky;top:80px;align-self:start}
+.case,section.chapter,.idea{scroll-margin-top:70px}
+.vis-frame{border-radius:20px;border:1px solid var(--line);background:linear-gradient(160deg,var(--ink3),var(--ink2));padding:18px;position:relative;overflow:hidden}
+.vis-frame svg{width:100%;height:auto;display:block}
+.vis-cap{font-size:12.5px;color:var(--dim);margin-top:8px}
+.kicker{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.pill{font-family:var(--mono);font-size:11.5px;border-radius:6px;padding:2px 8px;border:1px solid var(--line);color:var(--paper2);white-space:nowrap}
+.pill.y26{border-color:var(--lime);color:var(--lime)}
+.pill.y25{border-color:var(--gold);color:var(--gold)}
+.pill.warn{border-color:var(--rose);color:var(--rose)}
+.case h3 .who{display:block;font-family:var(--sans);font-size:15px;color:var(--mute);font-weight:400;margin-top:6px}
+.story{font-size:17px;color:var(--paper)}
+.story strong{color:var(--tang2);font-weight:600}
+.timeline{display:flex;gap:0;margin:18px 0 22px;position:relative}
+.timeline::before{content:"";position:absolute;left:0;right:0;top:9px;height:2px;background:linear-gradient(90deg,var(--tang),var(--lime))}
+.tl{flex:1;position:relative;padding-top:26px;font-size:13px;color:var(--paper2);padding-right:8px}
+.tl::before{content:"";position:absolute;top:3px;left:0;width:14px;height:14px;border-radius:50%;background:var(--ink);border:2px solid var(--lime)}
+.tl b{display:block;font-family:var(--mono);font-size:11.5px;color:var(--lime);font-weight:500}
+.why{border-left:3px solid var(--tang);padding:4px 0 4px 16px;margin:20px 0}
+.why ul{margin:0;padding-left:18px}
+.why li{margin-bottom:4px}
+.impact{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin:18px 0}
+.impact>div{background:var(--ink2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:15px}
+.impact ul{margin:0;padding-left:18px;color:var(--paper2)}
+.metrics{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.metric{display:flex;flex-direction:column;gap:2px;text-align:left;border:1px solid color-mix(in srgb,var(--u) 55%,transparent);background:color-mix(in srgb,var(--u) 9%,var(--ink2));border-radius:12px;padding:9px 12px;max-width:100%}
+.metric .v{font-family:var(--serif);font-size:20px;line-height:1.2;color:var(--paper)}
+.metric .u{font-family:var(--mono);font-size:11px;color:var(--u)}
+.metric .r{font-size:11.5px;color:var(--mute)}
+.metric:hover{border-color:var(--u)}
+.tabs{margin-top:20px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--ink2)}
+.tablist{display:flex;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{flex:1;border:none;background:none;padding:11px 12px;font-size:14px;color:var(--mute);border-bottom:2px solid transparent;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--paper);border-bottom-color:var(--lime);background:var(--ink3)}
+.panel{padding:16px}
+.panel[hidden]{display:none}
+.stackrow{display:grid;grid-template-columns:96px 1fr;gap:8px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:14.5px}
+.stackrow:last-child{border-bottom:none}
+.stackrow .k{font-family:var(--mono);font-size:11.5px;padding-top:3px}
+.k.ok{color:var(--lime)} .k.pf{color:var(--sky)} .k.no{color:var(--rose)}
+.hypo{font-size:12.5px;color:var(--gold);font-family:var(--mono);margin-bottom:8px}
+.arch{width:100%;height:auto;display:block;margin:6px 0 10px}
+.arch text{font-family:var(--sans);font-size:12px;fill:var(--paper)}
+.case-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.btn{border:1px solid var(--line);background:var(--ink3);border-radius:999px;padding:8px 15px;font-size:14px}
+.btn:hover{border-color:var(--tang)}
+.btn.primary{background:var(--tang);border-color:var(--tang);color:#1a0d02;font-weight:600}
+.btn[aria-pressed="true"]{background:var(--lime);color:var(--ink);border-color:var(--lime)}
+.caveat{font-size:13.5px;color:var(--mute);background:rgba(255,107,152,.06);border:1px solid rgba(255,107,152,.25);border-radius:10px;padding:10px 12px;margin-top:14px}
+.caveat b{color:var(--rose)}
+.empty{display:none;padding:40px;text-align:center;color:var(--mute);border:1px dashed var(--line);border-radius:var(--r)}
+
+/* units */
+.units{display:grid;gap:10px}
+.ulane{display:grid;grid-template-columns:200px minmax(0,1fr);gap:14px;align-items:start;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--ink2)}
+.ulane .uh{font-family:var(--mono);font-size:12.5px;color:var(--u)}
+.ulane .uh small{display:block;color:var(--mute);font-family:var(--sans);font-size:12.5px;margin-top:3px}
+.ulane .ms{display:flex;flex-wrap:wrap;gap:8px}
+.mini{font-size:13.5px;border:1px solid color-mix(in srgb,var(--u) 50%,transparent);border-radius:8px;padding:5px 9px;background:transparent;text-align:left}
+.mini b{font-family:var(--serif);font-weight:700}
+.mini span{color:var(--mute);font-size:12px;margin-left:4px}
+.ladder{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:28px 0 0}
+.rung{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--ink2)}
+.rung .n{font-family:var(--serif);font-size:32px;color:var(--c);line-height:1}
+.rung p{font-size:14px;color:var(--paper2);margin:6px 0 0}
+
+/* side / context */
+.ctx-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.ctx{border:1px solid var(--line);border-radius:var(--r);padding:20px;background:var(--ink2)}
+.ctx.wide{grid-column:span 2}
+.ctx h3{font-size:22px}
+.ctx p,.ctx li{font-size:15px;color:var(--paper2)}
+.ctx ul{padding-left:18px;margin:0}
+.ctx .tag{font-family:var(--mono);font-size:11.5px;color:var(--ink);background:var(--c);border-radius:6px;padding:2px 8px;display:inline-block;margin-bottom:10px}
+
+/* ideas */
+.ideas-banner{border:2px dashed var(--gold);border-radius:var(--r);padding:14px 18px;color:var(--gold);font-family:var(--mono);font-size:13.5px;margin-bottom:26px;background:rgba(242,201,76,.05)}
+.ideas{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.idea{border:1px solid var(--line);border-radius:18px;padding:22px;background:
+  repeating-linear-gradient(135deg,rgba(242,201,76,.035) 0 12px,transparent 12px 24px),var(--ink2);position:relative}
+.idea .stampi{position:absolute;top:16px;right:16px;font-family:var(--mono);font-size:11px;color:var(--ink);background:var(--gold);padding:2px 8px;border-radius:5px;transform:rotate(3deg)}
+.idea h3{font-size:24px;padding-right:70px}
+.idea .from{font-size:13px;color:var(--mute);margin-bottom:10px}
+.demo{border:1px solid var(--line);border-radius:12px;background:var(--ink);padding:14px;margin:12px 0}
+.prompt{font-family:var(--mono);font-size:12.5px;color:var(--paper2);background:var(--ink3);border-radius:10px;padding:12px;white-space:pre-wrap;margin:10px 0 6px}
+.idea .stackh{font-size:13px;color:var(--gold);font-family:var(--mono)}
+/* raid */
+.raid-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.hp{height:12px;border-radius:99px;background:var(--ink4);overflow:hidden;flex:1}
+.hp i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--rose),var(--tang));transition:width .4s}
+.boss{font-size:40px;line-height:1;transition:transform .2s}
+.boss.hit{transform:scale(.85) rotate(-8deg)}
+.word{font-family:var(--serif);font-size:28px;text-align:center;min-height:44px;letter-spacing:.06em}
+.word.blur{filter:blur(9px);opacity:.6}
+.raid-in{display:flex;gap:8px}
+.raid-in input,.tone input[type=text]{flex:1;min-width:0;background:var(--ink3);border:1px solid var(--line);border-radius:10px;color:var(--paper);padding:9px 12px;font:inherit;font-size:16px}
+.raid-msg{font-size:13.5px;color:var(--mute);min-height:22px;margin-top:6px}
+/* slots */
+.reels{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.reel{height:74px;border:1px solid var(--line);border-radius:10px;background:var(--ink3);display:flex;align-items:center;justify-content:center;text-align:center;padding:6px;font-size:14.5px;overflow:hidden}
+.reel.spin span{animation:blur .12s linear infinite}
+@keyframes blur{50%{opacity:.25;transform:translateY(-6px)}}
+/* tone */
+.tone .bubble{border-radius:14px 14px 14px 4px;background:var(--ink3);padding:10px 13px;margin:8px 0;font-size:15px;max-width:92%}
+.tone .bubble.out{margin-left:auto;border-radius:14px 14px 4px 14px;background:color-mix(in srgb,var(--lime) 16%,var(--ink3))}
+.tone label{font-size:13px;color:var(--mute)}
+.tone input[type=range]{width:100%;accent-color:var(--lime)}
+.tone select{background:var(--ink3);color:var(--paper);border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit;font-size:14px;max-width:100%}
+/* sky */
+.sky canvas{width:100%;height:190px;display:block;border-radius:10px;background:linear-gradient(#0f1830,#25223c 70%,#3a2a2a)}
+.sky .row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;font-size:13px;color:var(--mute);flex-wrap:wrap}
+
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(5,6,9,.6);z-index:40;opacity:0;pointer-events:none;transition:opacity .25s}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);background:var(--ink2);border-left:1px solid var(--line);z-index:41;transform:translateX(102%);transition:transform .32s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.dr-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:flex-start}
+.dr-head h2{font-size:26px;flex:1}
+.dr-head p{font-size:13px;color:var(--mute);margin:4px 0 0}
+.x{border:1px solid var(--line);background:var(--ink3);border-radius:10px;width:38px;height:38px;flex:none;font-size:18px}
+.dr-filter{padding:10px 20px;border-bottom:1px solid var(--line);display:flex;gap:6px;flex-wrap:wrap}
+.dr-body{overflow-y:auto;padding:16px 20px 40px;flex:1}
+.src{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;background:var(--ink)}
+.src.flash{border-color:var(--lime);box-shadow:0 0 0 2px rgba(200,245,60,.25)}
+.src .t{font-size:15px;font-weight:600;margin-bottom:4px}
+.src .meta{font-family:var(--mono);font-size:11.5px;color:var(--mute);display:flex;flex-wrap:wrap;gap:4px 12px;margin-bottom:6px}
+.src .uses{font-size:13.5px;color:var(--paper2);margin:6px 0 0;padding-left:16px}
+.grade{font-family:var(--mono);font-size:11px;border-radius:5px;padding:1px 7px;color:var(--ink);background:var(--c)}
+
+/* compare */
+.tray{position:fixed;left:50%;bottom:16px;transform:translate(-50%,140%);z-index:35;background:var(--paper);color:var(--ink);border-radius:999px;padding:8px 8px 8px 18px;display:flex;gap:10px;align-items:center;box-shadow:0 20px 50px -10px rgba(0,0,0,.6);transition:transform .3s;max-width:calc(100% - 32px)}
+.tray.on{transform:translate(-50%,0)}
+.tray .names{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.tray button{border:none;border-radius:999px;padding:8px 14px;font-size:14px;font-weight:600;white-space:nowrap}
+.tray .go{background:var(--ink);color:var(--paper)}
+.tray .clr{background:transparent;color:var(--ink);text-decoration:underline;font-weight:400;padding:8px 6px}
+dialog.cmp{width:min(1100px,calc(100% - 24px));max-height:calc(100% - 24px);border:1px solid var(--line);border-radius:18px;background:var(--ink2);color:var(--paper);padding:0}
+dialog.cmp::backdrop{background:rgba(5,6,9,.72)}
+.cmp-head{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--ink2);z-index:1}
+.cmp-head h2{font-size:24px;flex:1}
+.cmp-note{font-size:13.5px;color:var(--gold);padding:10px 18px 0}
+.cmp-scroll{overflow-x:auto;padding:12px 18px 20px}
+.cmp table{border-collapse:collapse;width:100%;min-width:640px;font-size:14px}
+.cmp th,.cmp td{border-bottom:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}
+.cmp th[scope=row]{font-family:var(--mono);font-size:12px;color:var(--lime);width:120px;font-weight:500}
+.cmp thead th{font-family:var(--serif);font-size:18px}
+
+footer{border-top:1px solid var(--line);padding:50px 0 120px;color:var(--mute);font-size:14px}
+footer h3{color:var(--paper);font-size:22px}
+footer ol{padding-left:20px}
+
+/* reduced motion */
+.rm *,.rm *::before,.rm *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+
+@media (max-width:980px){
+  .hero-grid{grid-template-columns:1fr}
+  .orbit{max-width:360px}
+  .spectrum,.ctx-grid{grid-template-columns:1fr}
+  .ctx.wide{grid-column:auto}
+  .case,.case:nth-of-type(even){grid-template-columns:1fr}
+  .case:nth-of-type(even) .case-vis{order:0}
+  .case-vis{position:relative;top:0}
+  .ideas{grid-template-columns:1fr}
+  .ladder{grid-template-columns:1fr 1fr}
+}
+@media (max-width:640px){
+  body{font-size:16px}
+  .impact{grid-template-columns:1fr}
+  .ulane{grid-template-columns:1fr}
+  .stackrow{grid-template-columns:1fr;gap:2px}
+  #motionBtn{display:none}
+  .bar-btn{padding:5px 10px;font-size:12.5px}
+  .bar .wrap{gap:8px}
+  .bar .brand b{display:none}
+  .ladder{grid-template-columns:1fr}
+  .timeline{flex-direction:column;gap:10px}
+  .timeline::before{left:6px;right:auto;top:0;bottom:0;width:2px;height:auto}
+  .tl{padding:0 0 0 26px}
+  .tl::before{top:4px}
+  .ch-head{grid-template-columns:1fr}
+  .ch-no{grid-row:auto;justify-self:start}
+}
+</style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="#top">VCW/26 <b>AI로 만든 앱 사례</b></a>
+    <nav class="toc" aria-label="장 이동">
+      <a href="#ch0">세 가지 구분</a><a href="#ch1">사례 7개</a><a href="#ch2">숫자 보기</a><a href="#ch3">도구 회사와 참고 사례</a><a href="#ch4">아이디어</a>
+    </nav>
+    <button class="bar-btn" id="motionBtn" aria-pressed="false" title="애니메이션 줄이기">움직임 줄이기</button>
+    <button class="bar-btn" id="openEvidence" aria-haspopup="dialog">출처 목록</button>
+  </div>
+  <div class="progress" id="progress"></div>
+</header>
+
+<main id="top">
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="stamp"><span>기준일 <i>2026-11-21</i></span><span>사례 <i>7</i> + 참고 <i>7</i></span><span>새 아이디어 <i>4</i></span></div>
+      <h1><em>AI로</em> 만든 앱,<br>실제로 얼마나 성공했을까?<span class="l2">2026년 11월 기준 해외 바이브코딩 사례 7개</span></h1>
+      <p class="lede">간호대학용 실습 관리 포털, 영국 패션 앱, 대학생이 만든 건강 기록 앱, 엄마가 아들과 함께 만든 철자 게임, 브라우저 비행 게임. 모두 코드를 직접 짜기보다 AI에게 원하는 기능을 설명하고 결과를 고쳐 가며 만든 앱이다. 사례마다 누가 무엇을 만들었는지, 어떤 도구를 썼는지, 매출이나 비용이 어떻게 달라졌는지 정리했다. 숫자마다 누가 발표했는지도 함께 적었다.</p>
+      <div class="ticker" aria-hidden="true"><div class="ticker-track" id="ticker"></div></div>
+    </div>
+    <div>
+      <svg class="orbit" id="orbit" viewBox="0 0 480 480" role="group" aria-label="사례 7개 위치도. 점을 누르면 해당 사례로 이동"></svg>
+      <div class="hero-key"><span style="--c:var(--lime)">2026년 사례</span><span style="--c:var(--gold)">2025년 사례</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="chapter" id="ch0">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-no">CH.0</span><h2>바이브코딩 성공 사례는 세 종류로 나뉜다</h2><p class="ch-sub">바이브코딩 성공 기사는 개발 도구 회사의 투자 소식, 그 도구로 만든 앱의 성과, 전문 개발자의 생산성 향상을 함께 다루는 경우가 많다. 이 문서는 두 번째, 도구로 만든 앱을 중심으로 본다.</p></div>
+    <div class="spectrum">
+      <div class="lane" style="--c:var(--sky)"><span class="tag">A 개발 도구 회사</span><h3>앱 제작 도구를 파는 회사</h3><p>Lovable, Replit, Base44처럼 기능을 설명하면 앱을 만들어 주는 서비스를 운영한다. 투자와 인수 소식이 가장 크게 보도되지만, 이 숫자는 회사 전체의 실적이다. 그 도구로 만든 앱 하나의 실적이 아니다.</p><p class="where">이 문서: CH.3에서 짧게 소개</p></div>
+      <div class="lane main" style="--c:var(--lime)"><span class="tag">B 이 도구로 만든 앱</span><h3>도구로 만든 앱과 서비스</h3><p>제품 책임자, 학생, 부모, 회사 직원이 AI에게 기능을 설명하고 결과를 고쳐 가며 만든 앱이다. 실제 사용자나 고객이 있다. 만든 사람이 모두 비개발자는 아니다. 개발 경험이 많은 제품 책임자도 포함된다.</p><p class="where">이 문서: CH.1 사례 7개</p></div>
+      <div class="lane" style="--c:var(--violet)"><span class="tag">C 전문 개발자의 AI 활용</span><h3>개발자가 AI에게 큰 작업을 맡김</h3><p>숙련 엔지니어가 작업 범위를 정하고 AI 에이전트에게 구현을 맡긴 뒤 결과를 검증한다. Karpathy가 처음 말한 바이브코딩, 곧 코드를 거의 보지 않고 결과만 보며 만드는 방식과는 다르다.</p><p class="where">이 문서: CH.3에 따로 정리</p></div>
+    </div>
+    <svg class="spec-axis" viewBox="0 0 1000 70" role="img" aria-label="코드를 직접 읽는 정도의 스펙트럼. 왼쪽은 코드를 거의 보지 않음, 오른쪽은 모든 변경을 검토함">
+      <defs><linearGradient id="ax" x1="0" x2="1"><stop offset="0" stop-color="#c8f53c"/><stop offset="1" stop-color="#b9a4ff"/></linearGradient></defs>
+      <rect x="20" y="30" width="960" height="6" rx="3" fill="url(#ax)"/>
+      <text x="20" y="20" fill="#a59f92" font-size="14">코드를 거의 읽지 않음, 결과 화면으로 판단</text>
+      <text x="980" y="20" fill="#a59f92" font-size="14" text-anchor="end">모든 변경을 읽고 테스트로 검증</text>
+      <text x="20" y="60" fill="#f4ede0" font-size="13">Spell Strike, fly.pieter.com</text>
+      <text x="500" y="60" fill="#f4ede0" font-size="13" text-anchor="middle">Nursa Study, Imaginary Space (추정 위치)</text>
+      <text x="980" y="60" fill="#f4ede0" font-size="13" text-anchor="end">Rakuten 개발팀</text>
+    </svg>
+    <p class="vis-cap">축 위 위치는 공개된 설명을 보고 편집자가 정한 것이며 측정값이 아니다.</p>
+  </div>
+</section>
+
+<section class="chapter" id="ch1">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-no">CH.1</span><h2>도구로 만든 앱 7개</h2><p class="ch-sub">사례마다 만든 과정, 잘된 이유, 사용한 기술, 기술 면과 사업 면에서 달라진 점을 같은 순서로 정리했다. 기술 탭에서는 출처로 확인한 구성과, 지금 다시 만든다면 쓸 만한 구성(가설)을 나눠 보여 준다. 사례를 두세 개 골라 비교할 수도 있다.</p></div>
+    <div class="filters" id="filters" role="group" aria-label="사례 필터"></div>
+    <div id="cases"></div>
+    <div class="empty" id="empty">조건에 맞는 사례가 없다. <button class="freset" data-reset>필터 초기화</button></div>
+  </div>
+</section>
+
+<section class="chapter" id="ch2">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-no">CH.2</span><h2>매출, 절감액, 투자금은 서로 다른 숫자다</h2><p class="ch-sub">ARR, 월 매출, 절감액, 투자금, 사용자 수, 학습 효과 증언은 각각 다른 것을 잰다. 그래서 하나의 순위 그래프로 줄 세우지 않고 종류별로 나눠 두었다. 숫자를 누르면 출처가 열린다.</p></div>
+    <div class="units" id="units"></div>
+    <div class="ladder">
+      <div class="rung" style="--c:var(--rose)"><div class="n">0</div><p>사례 7개의 숫자 가운데 외부 감사나 공시로 확인된 숫자</p></div>
+      <div class="rung" style="--c:var(--sky)"><div class="n" id="nVendor">0</div><p>개발 도구 회사가 발표한 숫자</p></div>
+      <div class="rung" style="--c:var(--tang)"><div class="n" id="nCreator">0</div><p>만든 사람이 직접 또는 인터뷰에서 밝힌 숫자</p></div>
+      <div class="rung" style="--c:var(--lime)"><div class="n">2</div><p>출처나 시점에 따라 숫자나 단위가 다른 경우 (Pep AI의 두 시점 월 매출, 참고 사례 ShiftNex의 ARR과 매출 표기)</p></div>
+    </div>
+    <p class="vis-cap" style="margin-top:14px">외부 확인이 없다고 숫자가 틀렸다는 뜻은 아니다. 공개 자료만으로는 확인할 수 없다는 뜻이다.</p>
+  </div>
+</section>
+
+<section class="chapter" id="ch3">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-no">CH.3</span><h2>개발 도구 회사와 참고 사례</h2><p class="ch-sub">사례 7개에 쓰인 개발 도구 회사의 실적, 숫자는 크지만 앱 하나의 성과로 보기 어려운 사례, 전문 개발자의 AI 활용 사례를 짧게 정리했다.</p></div>
+    <div class="ctx-grid" id="ctx"></div>
+  </div>
+</section>
+
+<section class="chapter" id="ch4">
+  <div class="wrap">
+    <div class="ch-head"><span class="ch-no">CH.4</span><h2>아이디어: 주말에 만들어 볼 만한 앱 4개</h2><p class="ch-sub">사례 7개에서 잘된 점을 가져와 새로 생각한 아이디어 4개다. 카드 안의 데모는 인터넷 연결 없이 이 파일 안에서 실행된다.</p></div>
+    <div class="ideas-banner" role="note">IDEAS 표시가 붙은 카드는 이 문서에서 새로 낸 아이디어다. 실제 제품이나 성공 사례가 아니며 매출도 없다. 데모에 나오는 이름과 문구도 모두 지어낸 것이다.</div>
+    <div class="ideas" id="ideas"></div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <h3>이 문서를 만든 기준</h3>
+    <ol>
+      <li>기준일은 2026-11-21이다. 각 출처의 게시일과 사건 발생일을 구분해 적었다. 게시일이 페이지에 없으면 "날짜 미표기"와 열람일을 함께 남겼다.</li>
+      <li>기술 구성은 해당 사례의 출처가 직접 밝힌 것만 "확인"으로 표시했다. 개발 도구의 일반적인 구성은 "도구 기본 구성"으로 따로 적었고 사례 근거로 쓰지 않았다. 나머지는 "미공개"로 두었다.</li>
+      <li>단위가 다른 숫자를 환산하거나 순위로 매기지 않았다. 회사 전체의 매출이나 전망치를 앱 하나의 성과로 쓰지 않았다.</li>
+      <li>이름이 같은 다른 회사가 있는 WNTD는 그 회사의 정보를 쓰지 않았다.</li>
+      <li>건강 관련 앱(Pep AI)은 사업 구조만 다룬다. 이 문서는 어떤 물질의 사용이나 용량도 권하지 않는다.</li>
+    </ol>
+    <p>작성: Claude Opus 5.5 (claude-opus-5-5), 2026-11-21. 단일 HTML 파일이며 외부 글꼴이나 스크립트 없이 오프라인으로 동작한다.</p>
+  </div>
+</footer>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drTitle" aria-hidden="true" tabindex="-1">
+  <div class="dr-head"><div style="flex:1"><h2 id="drTitle">출처 목록</h2><p id="drSub">모든 출처의 게시일, 열람일, 발표 주체</p></div><button class="x" id="drClose" aria-label="출처 목록 닫기">✕</button></div>
+  <div class="dr-filter" id="drFilter"></div>
+  <div class="dr-body" id="drBody"></div>
+</aside>
+
+<div class="tray" id="tray" role="region" aria-label="비교 목록"><span class="names" id="trayNames"></span><button class="clr" id="trayClear">비우기</button><button class="go" id="trayGo">비교하기</button></div>
+<dialog class="cmp" id="cmp" aria-labelledby="cmpTitle">
+  <div class="cmp-head"><h2 id="cmpTitle">사례 비교</h2><button class="x" id="cmpClose" aria-label="비교 닫기">✕</button></div>
+  <p class="cmp-note">단위가 다른 숫자는 환산하지 않았다. 숫자가 크다고 더 성공한 사례라는 뜻은 아니다.</p>
+  <div class="cmp-scroll" id="cmpBody"></div>
+</dialog>
+
+<script>
+(function(){
+"use strict";
+var ACC="2026-11-21";
+/* ---------- sources ---------- */
+var GR={vendor:{t:"도구 회사 발표",c:"var(--sky)"},creator:{t:"만든 사람 본인 발표",c:"var(--tang)"},media:{t:"언론 인터뷰 (본인 발언)",c:"var(--violet)"},acq:{t:"인수 회사 공식 발표",c:"var(--gold)"},site:{t:"제품 화면에서 확인",c:"var(--lime)"}};
+var SRC={
+ lv2y:{t:"Lovable, Two years of Lovable",u:"https://lovable.dev/blog/two-years-of-lovable",pub:"2026-11-18",g:"vendor"},
+ lvc:{t:"Lovable, Series C 발표",u:"https://lovable.dev/blog/series-c",pub:"2026-08-12",g:"vendor"},
+ lvb:{t:"Lovable, Series B 발표",u:"https://lovable.dev/en/blog/series-b",pub:"2025-12-18",g:"vendor"},
+ lvn:{t:"Lovable 고객 사례: Nursa",u:"https://lovable.dev/customers/nursa",pub:"날짜 미표기",g:"vendor"},
+ cll:{t:"Claude 고객 사례: Lovable",u:"https://claude.com/customers/lovable",pub:"날짜 미표기",g:"vendor"},
+ clr:{t:"Claude 고객 사례: Rakuten",u:"https://claude.com/customers/rakuten",pub:"날짜 미표기",g:"vendor"},
+ rpc:{t:"Replit 고객 사례 목록",u:"https://replit.com/customers",pub:"날짜 미표기",g:"vendor"},
+ rps:{t:"Replit 고객 사례: Spell Strike",u:"https://replit.com/customers/spell-strike",pub:"날짜 미표기",g:"vendor"},
+ kvl:{t:"Kelly Vanderbeek LinkedIn 게시물 (Spell Strike)",u:"https://www.linkedin.com/posts/kelly-vanderbeek-454187255_replit-edtech-dyslexiasupport-activity-7457919582469619712-ajMa",pub:"약 2026-05 (열람 시 '6개월 전' 표기)",g:"creator"},
+ sst:{t:"Starter Story: Pep AI 창업자 인터뷰",u:"https://www.starterstory.com/stories/pep-ai-stay-on-track-with-your-peptides",pub:"2026-03-09",g:"media"},
+ rpv:{t:"Replit 영상: How a student-built app earned $130K/month on Replit",u:"https://www.youtube.com/watch?v=-37pu3q7Zsw",pub:"2026-08-31 (코디네이터 확인, 이번 열람에서는 제목만 확인)",g:"vendor"},
+ lvl:{t:"levels.io: fly.pieter.com 회고 글",u:"https://levels.io/fly-pieter-com-vibecoded-flight-simulator",pub:"2025-02-22 (글 머리 날짜)",g:"creator"},
+ fly:{t:"fly.pieter.com 첫 화면",u:"https://fly.pieter.com",pub:"현재 화면",g:"site"},
+ wix:{t:"Wix 보도자료: Base44 인수",u:"https://www.wix.com/press-room/home/post/wix-further-expands-into-vibe-coding-with-acquisition-of-base44-a-hyper-growth-startup-that-simplif",pub:"2025-06-18",g:"acq"}
+};
+/* unit taxonomy */
+var UN={
+ arr:{t:"ARR (연간 반복매출 환산)",c:"#ff7a1a",d:"한 시점의 반복 매출을 1년치로 환산한 값. 실제로 1년 동안 번 돈이 아님"},
+ rev:{t:"월 매출",c:"#ffb070",d:"한 달 동안 들어온 매출. 시점마다 달라짐"},
+ save:{t:"절감한 비용",c:"#7cc7ff",d:"쓰지 않아도 된 돈. 매출이나 이익이 아님"},
+ fund:{t:"투자 유치",c:"#b9a4ff",d:"투자자가 넣은 돈. 매출이 아님"},
+ use:{t:"사용, 규모",c:"#c8f53c",d:"사용자, 고객, 프로젝트 수"},
+ time:{t:"제작 시간",c:"#f4ede0",d:"만드는 데 걸린 시간. 어디까지 만든 시간인지는 사례마다 다름"},
+ learn:{t:"학습 효과 (사용자 증언)",c:"#ff6b98",d:"사용자 증언이며 연구 결과가 아님"}
+};
+/* ---------- cases ---------- */
+var CASES=[
+{ id:"nursa", name:"Nursa Study", year:2026, maker:"pro", field:"헬스케어 교육", tool:"Lovable", out:["use","time"], vis:"nursa",
+  who:"Nenad Ivanovic, Nursa 제품 부사장 (미국)",
+  kicker:["2026","도구로 만든 앱","제품 책임자가 직접"],
+  title:"제품 부사장이 주말에 만든 간호대학 실습 포털, 2주 더 다듬어 유료 제품으로",
+  story:"<p>Nursa는 2019년에 설립된 미국 의료 인력 연결 회사다. 간호대학들은 학생 실습 일정과 자격 서류를 관리할 도구를 여러 번 요청해 왔다. 제품 부사장 Nenad Ivanovic는 기획 문서를 쓰는 대신 Lovable로 직접 만들기 시작했고, <strong>주말이 끝난 일요일 밤에 동작하는 MVP</strong>를 완성했다. 학생과 대학 관리자가 쓰는 포털, 실습 교대 일정표, 자격 서류 추적 화면이 들어 있었다.</p><p>그 뒤 <strong>2주 동안 기업 고객이 쓸 수 있는 수준으로</strong> 보강했다. 이렇게 나온 Nursa Study에는 현재 유료 기업 고객이 있다. 사례 페이지 제목의 \"48시간\"은 MVP까지 걸린 시간이고, 판매할 수 있는 제품이 되기까지는 2주가 더 걸렸다.</p>",
+  timeline:[["주말","동작하는 MVP"],["+2주","기업용 수준으로 보강"],["현재","유료 기업 고객"]],
+  why:["대학들이 반복해서 요청한 기능을 제품 책임자가 이미 알고 있었다.","기존 고객인 대학이 첫 사용자가 될 수 있었다.","주말에 만든 MVP로 방향을 확인한 뒤, 2주 동안 안정성을 보강했다."],
+  techFx:["기획 문서 대신 실제로 눌러 볼 수 있는 화면으로 고객과 논의","실습 일정표와 자격 서류 추적을 포털 하나에 통합","회사 핵심 플랫폼도 7개월 만에 다시 만들었다고 발표 (회사 전체 사례)"],
+  bizFx:["새 제품 출시, 유료 기업 고객 확보 (고객 수 미공개)","회사 전체: 직원 200명 이상이 Lovable 사용, SaaS 10개 해지 진행 중 (Nursa Study의 성과 아님)"],
+  metrics:[{v:"주말 + 2주",u:"time",s:"lvn",n:"MVP에서 기업용 수준까지"},{v:"유료 기업 고객",u:"use",s:"lvn",n:"고객 수 미공개"},{v:"Nursa 전사 200+ 직원",u:"use",s:"lv2y",n:"회사 전체의 Lovable 사용 범위, Nursa Study 성과 아님"}],
+  stack:{ok:["제작 도구: Lovable (사례 페이지)","기능: 학생 및 관리자 포털, 교대 일정표, 자격 추적 대시보드"],pf:["Lovable이 만드는 웹앱의 일반 구성(React 계열 프런트엔드, 연결형 백엔드)은 이 사례의 증거가 아님"],no:["프레임워크, 데이터베이스, 인증, 호스팅, 기존 Nursa 시스템과의 연동 방식"]},
+  rebuild:{nodes:["학생/관리자 웹","대학 SSO 로그인","일정 API","Postgres: 학생, 교대, 서류","만료 알림 작업"],note:"자격 서류의 만료일 데이터가 핵심이다. 만료 30일 전에 알림을 보내는 예약 작업을 두면 관리자의 확인 업무를 줄일 수 있다."},
+  caveat:"<b>범위 주의</b> 사례 페이지의 \"48시간\"은 MVP까지 걸린 시간이다. 기업 고객용 수준까지는 그 뒤 2주가 더 걸렸다. 만든 사람은 제품 기획과 설계 경력이 10년 넘는 사람이다."
+},
+{ id:"wntd", name:"WNTD", year:2026, maker:"founder", field:"패션 소비자 앱", tool:"Lovable", out:["save","fund","use"], vis:"wntd",
+  who:"Lex Deak, 연쇄 창업가 (영국)",
+  kicker:["2026","도구로 만든 앱","창업가"],
+  title:"Lovable로 만들어 매달 수만 파운드를 아낀 영국 패션 앱",
+  story:"<p>WNTD는 옷과 패션 상품을 찾아보는 영국 앱이다. 창업자 Lex Deak은 25년 넘게 여러 회사를 창업했다. Lovable의 Series C 발표에 따르면 WNTD는 Lovable로 앱을 만들면서 <strong>매달 약 2만 5천~3만 파운드</strong>를 절감했고, <strong>수십만 명의 고객</strong>이 가입했으며, <strong>300만 파운드 투자</strong>를 유치했다.</p><p>어떤 비용을 줄였는지는 발표에 나오지 않는다. 다만 패션 앱은 상품 배치와 추천 화면을 자주 바꿔 가며 고객 반응을 봐야 하는 분야라, 화면을 빨리 만들고 고칠 수 있는 도구와 잘 맞는다.</p>",
+  timeline:[["제작","Lovable로 제품 개발"],["운영","월 GBP 25~30K 절감"],["2026-08 발표","GBP 3M 투자, 수십만 고객"]],
+  why:["화면을 자주 바꿔 봐야 하는 분야에서 비용을 줄였다. 어떤 비용인지는 공개되지 않았다.","회사를 여러 번 세워 본 창업자가 직접 이끌었다.","매달 아낀 비용만큼 투자금 없이 버틸 수 있는 기간이 늘어난다."],
+  techFx:["Lovable로 앱을 만들었다는 사실만 확인됨","기술 면의 구체적인 변화는 발표에 나오지 않음"],
+  bizFx:["매달 GBP 25~30K 절감 (매출 아님)","GBP 3M 투자 유치 (매출 아님)","고객 수십만 명 가입"],
+  metrics:[{v:"월 GBP 25~30K",u:"save",s:"lvc",n:"절감액, 매출 아님"},{v:"GBP 3M",u:"fund",s:"lvc",n:"투자 라운드"},{v:"수십만 고객",u:"use",s:"lvc",n:"정확한 수 미공개"}],
+  stack:{ok:["제작 도구: Lovable (Series C 발표)"],pf:["Lovable의 일반적인 구성이며, 이 사례에서 확인한 것은 아님"],no:["프레임워크, 데이터베이스, 추천 방식, 모바일 앱 여부, 결제"]},
+  rebuild:{nodes:["모바일 웹 피드","상품 카탈로그","취향 벡터 추천","행동 이벤트 로그","실험 플래그"],note:"패션 앱에서는 추천과 화면 실험이 중요하다. 처음부터 사용자 행동 기록과 실험 설정 기능을 넣어 두면 화면을 바꿨을 때의 반응을 숫자로 비교할 수 있다."},
+  caveat:"<b>같은 이름 주의</b> 독일에 이름이 같은 다른 서비스(wntd.to)가 있다. 그 회사의 개인정보 처리방침에 나오는 기술 정보는 이 WNTD와 관계없으므로 쓰지 않았다."
+},
+{ id:"pep", name:"Pep AI", year:2026, maker:"student", field:"건강 기록 앱", tool:"Replit, Claude", out:["rev","use","time"], vis:"pep",
+  who:"Cedric Roberge, 오리건대 경영학과 학생 (미국), 공동 창업자 2명",
+  kicker:["2026","도구로 만든 앱","학생 창업","본인 발표 수치"],
+  title:"대학생이 한 달 만에 만든 건강 기록 앱, 월 매출 3만 달러를 올렸다고 밝혔다",
+  story:"<p>Pep AI는 펩타이드 사용 기록을 관리하는 모바일 앱이다. 바이알 사용 기간, 일정, 투여 부위, 부작용 메모를 기록하고 의사에게 보여 줄 PDF 보고서를 만든다. 사용자들이 메모장이나 엑셀에 따로 적던 내용을 앱 하나로 모았다.</p><p>오리건대 경영학과 학생 Cedric Roberge(22)는 Replit과 Claude로 약 한 달 만에 앱을 만들어 2026년 2월 중순 App Store에 올렸다. 2026-03-09 Starter Story 인터뷰에서 그는 출시 2주 만에 사용자 2,000명과 매출 4,000달러 이상을 기록했고, 현재 <strong>월 매출이 3만 달러</strong>라고 밝혔다. 이후 Replit은 이 앱을 <strong>\"월 13만 달러\"</strong>라는 제목의 영상으로 소개했다. 두 숫자 모두 만든 사람 쪽에서 나온 보고이며, 시점이 다르다.</p>",
+  timeline:[["약 1개월","아이디어에서 앱까지"],["2026-02 중순","App Store 출시"],["2026-03-09","월 $30K (인터뷰)"],["2026-08-31","월 $130K (Replit 영상 제목)"]],
+  why:["사용자들이 이미 손으로 하던 기록을 앱으로 옮겼다.","관심 있는 사람이 모인 Reddit, Discord에 직접 홍보했다. 인터뷰에 따르면 Reddit 글 하나로 48시간 동안 300건 넘게 다운로드됐다.","의사에게 보여 줄 보고서처럼, 돈을 낼 이유가 분명한 기능이 있다."],
+  techFx:["기록, 일정 알림, PDF 보고서 생성을 한 앱에 구현","개발 전공이 아닌 학생이 AI를 개발 도우미로 써서 출시"],
+  bizFx:["구독 매출 (본인 발표, 시점별 숫자가 다름)","창업자 2명, 직원 0명 (2026-03 기준)"],
+  metrics:[{v:"월 $30K",u:"rev",s:"sst",n:"2026-03-09 인터뷰 기준"},{v:"월 $130K",u:"rev",s:"rpv",n:"Replit 영상 제목의 주장"},{v:"2주에 2,000명",u:"use",s:"sst",n:"출시 직후 사용자"},{v:"약 1개월",u:"time",s:"sst",n:"아이디어에서 출시까지"}],
+  stack:{ok:["개발 환경: Replit (인터뷰)","AI 코딩 파트너: Claude (인터뷰)","배포: iOS App Store"],pf:["Replit의 일반적인 배포 구성이며, 이 앱에서 확인한 것은 아님"],no:["백엔드 데이터베이스, 구독 결제 처리 방식, 모바일 프레임워크 (일부 2차 블로그의 언급은 1차 확인이 안 되어 쓰지 않음)"]},
+  rebuild:{nodes:["모바일 앱","기기 내 암호화 저장","동기화 DB","구독 결제","PDF 보고서 생성"],note:"건강 기록은 민감 정보다. 기기 안에 먼저 암호화해 저장하고, 그다음 서버와 동기화하는 구조를 기본으로 두는 편이 안전하다."},
+  caveat:"<b>건강 주의</b> 이 문서는 사업 구조만 다룬다. 펩타이드 사용이나 용량을 권하지 않는다. 이런 앱은 의료 정보 규제와 앱 마켓 정책의 영향을 받는다. <b>숫자 주의</b> 월 $130K는 영상 제목에 나온 주장이며, 이번 조사에서 영상 본문은 확인하지 못했다."
+},
+{ id:"imag", name:"Imaginary Space", year:2026, maker:"agency", field:"AI 앱 제작 대행", tool:"Lovable", out:["arr","use"], vis:"imag",
+  who:"Harry McKay Roper, 창업자 (미국)",
+  kicker:["2026","앱 제작 서비스","제작 대행"],
+  title:"고객의 앱을 AI로 만들어 주는 회사, 직원 18명으로 성장",
+  story:"<p>Imaginary Space는 AI 도구로 고객사의 앱을 대신 만들어 주는 제작사다. 2026-11-18 Lovable 2주년 글에 따르면 월 5천~1만 달러 규모에서 시작해 <strong>직원 18명, ARR 120만 달러</strong> 규모가 되었고, 지금까지 <strong>300건 넘는 고객 프로젝트</strong>를 맡았다. 고객 중에는 Dude Wipes와 영국 정부도 있다.</p><p>고객은 도구 사용법을 배우지 않고 완성된 앱을 받는다. 프로젝트 하나에 걸리는 시간과 가격은 공개되지 않았다.</p>",
+  timeline:[["시작","월 $5~10K 규모"],["성장","300+ 고객 프로젝트"],["2026-11 발표","18명, ARR $1.2M"]],
+  why:["AI 도구를 직접 배우기보다 완성된 앱을 사고 싶은 고객이 있었다.","혼자 일하지 않고 18명 팀으로 일을 나눠 프로젝트 수를 늘렸다.","프로젝트가 쌓일수록 다시 쓸 템플릿과 점검 목록도 쌓인다."],
+  techFx:["여러 고객 프로젝트에 공통 구성을 다시 사용 (구체적인 방식은 미공개)","직원 18명이 고객 프로젝트 300건 이상 수행"],
+  bizFx:["ARR $1.2M, 직원 18명 (Lovable 발표)","정부 기관을 포함한 고객"],
+  metrics:[{v:"ARR $1.2M",u:"arr",s:"lv2y",n:"Lovable 발표"},{v:"18명",u:"use",s:"lv2y",n:"팀 규모"},{v:"300+ 프로젝트",u:"use",s:"lv2y",n:"누적 고객 프로젝트"}],
+  stack:{ok:["주 제작 도구: Lovable (2주년 글)"],pf:["Lovable의 일반적인 구성이며, 개별 고객 프로젝트에서 확인한 것은 아님"],no:["프로젝트별 스택, 유지보수 계약 방식, 성장에 걸린 기간"]},
+  rebuild:{nodes:["요구 인터뷰 양식","템플릿 라이브러리","AI 생성과 수정","검수 체크리스트","배포와 유지보수"],note:"제작사의 핵심 자산은 템플릿과 검수 목록이다. AI가 만든 결과를 확인하는 단계를 표준화하면 프로젝트마다 품질 차이를 줄일 수 있다."},
+  caveat:"<b>단위 주의</b> 출발점인 \"월 $5~10K\"가 매출인지는 발표에 나오지 않는다. 성장에 걸린 기간도 나오지 않는다."
+},
+{ id:"spell", name:"Spell Strike", year:2026, maker:"parent", field:"교육 게임", tool:"Replit", out:["learn","time"], vis:"spell",
+  who:"Kelly Vanderbeek, 세 아이를 홈스쿨링하는 엄마, 13살 아들 Silas와 공동 설계",
+  kicker:["2026","도구로 만든 앱","가족을 위한 앱"],
+  title:"13살 아들을 위해 엄마가 24시간 만에 만든 철자 게임",
+  story:"<p>13살 Silas는 시중 철자 연습 앱이 너무 어린아이용이라 쓰기 싫어했다. 엄마 Kelly Vanderbeek은 Replit의 24시간 앱 제작 행사에서 아들을 위한 게임을 만들었다. 게임으로 만들자는 아이디어는 Silas가 냈다.</p><p>Spell Strike는 철자 연습을 <strong>임무</strong> 형식으로 바꿨다. 경험치와 계급, 새로 열리는 테마, 대결 모드, 부모가 보는 진도 화면이 있고, 어떤 글자를 맞히고 틀렸는지 글자 칸으로 보여 준다. Replit 사례 페이지 제목은 \"3개월에 두 학년 수준 향상\"이다. 이후 저학년용 Spell Strike Junior를 만들었고, 앱 마켓 출시도 준비 중이라고 한다.</p>",
+  timeline:[["24시간","제작 행사에서 첫 버전"],["이후","테마, Junior 버전 추가"],["3개월","두 학년 수준 향상 (추천사)"]],
+  why:["사용자가 한 명뿐이어도 그 사람에게 맞는 앱을 하루 만에 만들 수 있었다.","실제 사용자인 아들이 처음부터 설계에 참여했다.","13살에게 맞는 화면과 말투가 필요했는데, 기존 앱에서는 찾지 못했다."],
+  techFx:["경험치, 계급 같은 게임 기록과 학습 기록을 연결","글자 단위로 맞은 곳과 틀린 곳을 바로 표시"],
+  bizFx:["매출 정보 없음. 이 앱의 목표는 아이의 철자 학습","후속 버전 제작, 앱 마켓 출시 준비 (계획 단계)"],
+  metrics:[{v:"24시간",u:"time",s:"kvl",n:"제작 행사에서 첫 버전"},{v:"3개월에 두 학년",u:"learn",s:"rps",n:"사용자 증언, 연구 결과 아님"}],
+  stack:{ok:["제작 도구: Replit (사례 페이지, 게시물)"],pf:["Replit의 일반적인 배포 구성이며, 이 앱에서 확인한 것은 아님"],no:["프레임워크, 데이터 저장, 음성 기능 여부"]},
+  rebuild:{nodes:["단어 목록 입력","간격 반복 스케줄러","게임 상태: XP, 계급","부모 대시보드","음성 읽기(TTS)"],note:"틀린 단어를 더 자주 다시 내는 간격 반복 기능을 넣으면 게임이 실제 학습 도구에 가까워진다."},
+  caveat:"<b>근거 주의</b> \"두 학년 향상\"은 Replit 사례 페이지에 실린 사용자 증언이다. 임상 연구나 교육 연구 결과가 아니다."
+},
+{ id:"fly", name:"fly.pieter.com", year:2025, maker:"indie", field:"브라우저 게임", tool:"Cursor, Three.js", out:["arr","time"], vis:"fly",
+  who:"Pieter Levels (@levelsio), 인디 메이커",
+  kicker:["2025년 사례","도구로 만든 앱","제작 과정 공개"],
+  title:"만드는 과정을 X에 실시간으로 올린 브라우저 비행 게임",
+  story:"<p>Pieter Levels는 2025년 2월 22일 브라우저에서 하는 비행 시뮬레이터를 만들기 시작했고, 제작 과정 대부분을 X에 실시간으로 올렸다. 게임 화면 아래에는 지금도 <strong>\"@levelsio + Cursor + ThreeJS\"</strong>라는 제작 표기와 \"100% AI로 만든 무료 MMO 비행 게임\"이라는 소개가 있다.</p><p>그는 자신의 글에서 이 게임이 <strong>17일 만에 ARR 100만 달러</strong>에 도달했다고 밝혔다. 현재 게임 화면에는 스타트업이 게임 속 광고를 살 수 있는 결제 링크와 29.99달러짜리 유료 비행기(F-16)가 있다. 만든 사람은 이 게임을 초기 바이브코딩 게임 가운데 하나로 소개한다.</p>",
+  timeline:[["2025-02-22","제작 시작, X에 실시간 공개"],["+17일","ARR $1M 도달 (본인 발표)"],["현재","광고, 유료 비행기 판매 중"]],
+  why:["만드는 과정을 X에 꾸준히 올렸고, 만든 사람에 따르면 게임이 크게 화제가 됐다.","게임은 무료로 열고, 돈은 광고주와 유료 비행기 구매자에게서 받는다.","설치나 로딩 화면 없이 브라우저에서 바로 실행되어 링크만 보내면 된다."],
+  techFx:["Three.js로 브라우저 3D 비행과 동시 접속 구현","AI 코드 편집기 Cursor로 기능 추가"],
+  bizFx:["17일 만에 ARR $1M (만든 사람 본인 발표, 당시 기준 연환산)","광고 판매, 유료 비행기 판매 (현재 화면의 F-16 판매가 $29.99는 가격이지 매출이 아님)"],
+  metrics:[{v:"17일에 ARR $1M",u:"arr",s:"lvl",n:"2025년 당시 기준 연환산, 현재 매출 아님"}],
+  stack:{ok:["Cursor, Three.js (게임 화면의 제작 표기)","광고 결제: Stripe 결제 링크 (화면 확인)"],pf:["해당 없음"],no:["멀티플레이 서버 언어와 호스팅 (2차 자료의 언급은 1차 확인 안 됨)","광고 매출과 비행기 판매 매출의 비중"]},
+  rebuild:{nodes:["Three.js 클라이언트","WebSocket 위치 서버","광고 슬롯 관리","Stripe 결제 링크","간단한 운영 대시보드"],note:"동시 접속 게임에서는 서버가 위치 정보만 주고받고 비행 계산은 각 브라우저가 맡게 하면 서버 비용을 줄일 수 있다."},
+  caveat:"<b>시점 주의</b> 2025년 사례다. ARR은 당시 한 시점의 반복 매출을 1년치로 환산한 값이며, 2026년 현재 매출이 아니다."
+},
+{ id:"pendo", name:"Pendo 행사 허브", year:2026, maker:"staff", field:"사내 도구", tool:"Lovable", out:["save","use","time"], vis:"pendo",
+  who:"Trish LaPaglia, Pendo 직원경험 부사장 (미국)",
+  kicker:["2026","사내 도구","비개발 직원"],
+  title:"행사 앱 하나를 주말에 만들었더니, 다섯 달 뒤 사내 앱이 1,400개가 됐다",
+  story:"<p>Pendo는 직원 800명이 모이는 회사 킥오프 행사를 준비하고 있었다. 일정, 장소, 공지를 한곳에서 볼 행사 앱이 필요했고, 보통은 소프트웨어를 사거나 대행사에 맡기는 일이었다. 직원경험 부사장 Trish LaPaglia는 이 앱을 <strong>주말 하루 만에</strong> 직접 만들었다. Lovable은 이 덕분에 최대 2만 5천 달러의 비용을 쓰지 않았다고 설명한다.</p><p>그 뒤 5개월 동안 Pendo에서는 <strong>직원 약 300명이 앱 1,400개 이상</strong>을 만들었다.</p>",
+  timeline:[["주말","800명 행사 허브"],["+5개월","300명이 1,400+ 앱"]],
+  why:["행사 앱은 쓰는 기간이 짧고 날짜가 정해져 있어, 완성도가 조금 부족해도 피해가 작다.","사용자가 같은 회사 동료라 의견을 바로 들을 수 있다.","첫 행사 앱이 나온 뒤 다른 직원들도 직접 앱을 만들기 시작했다."],
+  techFx:["행사 일정, 장소, 공지를 한 화면에 모은 사내 웹앱","여러 부서 직원이 업무용 작은 도구를 직접 제작"],
+  bizFx:["최대 $25K 비용 절약 (추정, 매출 아님)","사내 확산: 직원 약 300명, 앱 1,400개 이상"],
+  metrics:[{v:"최대 $25K",u:"save",s:"lv2y",n:"쓰지 않은 소프트웨어, 대행 비용 추정"},{v:"1,400+ 앱",u:"use",s:"lv2y",n:"약 300명, 5개월"},{v:"주말 하루",u:"time",s:"lv2y",n:"행사 허브 제작"}],
+  stack:{ok:["제작 도구: Lovable (2주년 글)"],pf:["Lovable의 일반적인 구성이며, 이 사례에서 확인한 것은 아님"],no:["사내 로그인 연동, 데이터 저장, 1,400개 앱의 관리 방식"]},
+  rebuild:{nodes:["세션 일정표","지도와 장소","실시간 공지","사내 SSO","행사 후 설문"],note:"행사 앱은 쓰는 기간이 정해져 있다. 행사가 끝난 뒤 데이터를 언제 보관하고 언제 지울지 미리 정해 두면 앱이 많아져도 관리하기 쉽다."},
+  caveat:"<b>단위 주의</b> $25K는 쓰지 않은 비용의 추정치다. 1,400개 앱 가운데 지금도 쓰이는 앱이 몇 개인지는 공개되지 않았다."
+}
+];
+var MAKER={pro:"제품 책임자",founder:"창업가",student:"학생",agency:"제작 대행사",parent:"부모",indie:"인디 메이커",staff:"사내 직원"};
+/* ---------- context cards ---------- */
+var CTX=[
+ {c:"var(--sky)",tag:"A 개발 도구 회사",t:"Lovable 출시 2년 실적",w:true,h:"<p>2026-11-18 발표 기준, Lovable로 만든 앱들은 <b>한 달에 10억 회 이상</b> 방문을 받는다. 누적 프로젝트는 7천만 개이고, 4월 결제 기능 출시 이후 고객들이 이 앱들로 받은 돈은 <b>2천만 달러를 넘었다</b>. 2026-08-12에는 133억 달러 기업가치로 4억 달러를 투자받았다고 발표했다.</p><p style='color:var(--mute);font-size:13.5px'>이 숫자는 Lovable로 만든 앱 전체의 합계다. 사례 7개 가운데 어느 한 앱의 성과가 아니다. 출처: <a href='https://lovable.dev/blog/two-years-of-lovable'>Two years</a>, <a href='https://lovable.dev/blog/series-c'>Series C</a></p>"},
+ {c:"var(--gold)",tag:"A 개발 도구 회사, 2025",t:"Base44와 Wix",h:"<p>Wix는 2025-06-18 Base44 인수를 발표했다. 초기 대가는 <b>약 8천만 달러</b>이고 2029년까지 성과에 따른 추가 대가가 붙는다. 초기 대가 안에 직원 유지 보너스 약 2,500만 달러가 들어 있다.</p><p style='color:var(--mute);font-size:13.5px'>발표 수치와 이후 회계 수치는 다를 수 있다. 개발 도구 회사가 인수된 사례이며, Base44 자체를 바이브코딩으로 만들었다는 뜻은 아니다. <a href='https://www.wix.com/press-room/home/post/wix-further-expands-into-vibe-coding-with-acquisition-of-base44-a-hyper-growth-startup-that-simplif'>Wix 보도자료</a></p>"},
+ {c:"var(--tang)",tag:"참고: 회사 전체 실적",t:"Viver de IA (브라질)",h:"<p>Rafael Milagre의 AI 교육 회사. 54명이 1,200곳이 넘는 고객을 맡으며 CRM, 재무 도구, 웹사이트, 영업 자동화를 Lovable로 만들었다. 2026년 매출은 2주년 글에서 <b>약 2천만 달러</b>, Series C 글에서 <b>1억 헤알</b>을 향한다고 소개됐다.</p><p style='color:var(--mute);font-size:13.5px'>회사 전체의 <b>전망치</b>이고, 두 발표의 통화 단위가 다르다. 앱 하나의 매출이 아니라서 사례 7개에 넣지 않았다.</p>"},
+ {c:"var(--tang)",tag:"참고, 2025",t:"Q Group: 48시간 만에 매출 300만 달러",h:"<p>브라질 교육 회사 Q Group은 한 달 동안 플랫폼의 프리미엄 버전을 만들어 <b>48시간 만에 300만 달러 매출</b>을 냈다고 Lovable이 2025-12-18에 발표했다.</p><p style='color:var(--mute);font-size:13.5px'>이미 고객이 많은 회사가 낸 출시 성과라는 점을 함께 봐야 한다. <a href='https://lovable.dev/en/blog/series-b'>Series B</a></p>"},
+ {c:"var(--tang)",tag:"참고, 2025",t:"5개월에 100만 달러를 낸 의료 인력 플랫폼",h:"<p>Lovable의 2025-12 발표는 ShiftNex(Allan)가 5개월 만에 ARR 100만 달러, 의료 인력 사용자 5,000명 이상에 닿았다고 소개한다. Claude의 Lovable 사례 페이지도 비개발자 창업자 'Alan'의 의료 인력 플랫폼이 5개월 만에 \"100만 달러 매출\"을 냈다고 쓴다.</p><p style='color:var(--mute);font-size:13.5px'>한쪽은 ARR, 다른 쪽은 매출이라고 적었다. 같은 사례로 보이지만 단위가 달라 사례 7개에 넣지 않았다. <a href='https://claude.com/customers/lovable'>Claude 사례</a></p>"},
+ {c:"var(--tang)",tag:"참고: 확인 자료 부족",t:"Payouts.com",h:"<p>Replit 고객 목록에는 \"수백만 달러짜리 레거시 플랫폼을 교체\"했고 기존 개발팀 없이 다시 만든 시스템이 \"한 달에 수만 건의 거래\"를 처리한다는 소개가 있다.</p><p style='color:var(--mute);font-size:13.5px'>2026-11-21에 열어 보니 상세 페이지가 404였다. 목록의 소개 문구 외에는 확인할 수 없어 짧게만 소개한다. <a href='https://replit.com/customers'>Replit 고객 목록</a></p>"},
+ {c:"var(--violet)",tag:"C 전문 개발자의 AI 활용",t:"Rakuten: AI 에이전트가 7시간 연속 작업",w:true,h:"<p>Rakuten의 ML 엔지니어 Kenta Naruse는 1,250만 줄 규모의 오픈소스 vLLM에 새 기능을 구현하는 일을 Claude Code에 맡겼다. 에이전트는 <b>한 번의 실행으로 7시간</b> 일했고, 그는 그동안 코드를 쓰지 않았다고 말한다. 회사는 신규 기능 출시 기간을 24영업일에서 5영업일로 <b>79% 줄였다</b>고 밝혔다.</p><p style='color:var(--mute);font-size:13.5px'>전문가가 과제를 정의하고 결과를 기준 구현과 비교해 검증한 작업이다. 코드를 거의 보지 않고 결과만 보며 만드는 바이브코딩과는 방식이 달라서 따로 정리했다. <a href='https://claude.com/customers/rakuten'>Claude 사례</a></p>"}
+];
+/* ---------- helpers ---------- */
+function $(s,r){return (r||document).querySelector(s)}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+function el(tag,attrs,html){var e=document.createElement(tag);if(attrs)for(var k in attrs){if(k==="class")e.className=attrs[k];else e.setAttribute(k,attrs[k]);}if(html!=null)e.innerHTML=html;return e}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]})}
+var store={get:function(k){try{return localStorage.getItem(k)}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+var mqRM=window.matchMedia?window.matchMedia("(prefers-reduced-motion: reduce)"):{matches:false};
+function reduced(){return mqRM.matches||document.documentElement.classList.contains("rm")}
+
+/* ---------- motion toggle ---------- */
+var mb=$("#motionBtn");
+function setRM(on){document.documentElement.classList.toggle("rm",on);mb.setAttribute("aria-pressed",on?"true":"false");mb.textContent=on?"움직임 켜기":"움직임 줄이기";store.set("vcw-rm",on?"1":"0")}
+setRM(store.get("vcw-rm")==="1"||mqRM.matches);
+mb.addEventListener("click",function(){setRM(!document.documentElement.classList.contains("rm"))});
+
+/* ---------- ticker ---------- */
+var tk=["간호대학 실습 관리 포털","영국 패션 앱","대학생이 만든 건강 기록 앱","직원 18명의 AI 앱 제작사","아들을 위한 철자 게임","브라우저 비행 게임","직원 800명 행사 앱","직원들이 만든 사내 앱 1,400개"];
+$("#ticker").innerHTML=tk.concat(tk).map(function(t){return "<span>"+t+"</span>"}).join("");
+
+/* ---------- orbit ---------- */
+(function(){
+  var svg=$("#orbit"),NS="http://www.w3.org/2000/svg",h='';
+  h+='<circle class="ring" cx="240" cy="240" r="200"/><circle class="ring" cx="240" cy="240" r="130"/>';
+  h+='<circle cx="240" cy="240" r="58" fill="#181c27" stroke="#2b3245"/><text x="240" y="234" text-anchor="middle" fill="#f4ede0" font-size="15" font-family="serif">AI로</text><text x="240" y="256" text-anchor="middle" fill="#a59f92" font-size="12">만든 앱</text>';
+  h+='<g class="spin">';
+  CASES.forEach(function(c,i){
+    var r=i%2?130:200,a=(i/CASES.length)*Math.PI*2-Math.PI/2,x=240+r*Math.cos(a),y=240+r*Math.sin(a);
+    var col=c.year===2026?"#c8f53c":"#f2c94c";
+    h+='<g class="node" tabindex="0" role="link" data-go="'+c.id+'" aria-label="'+esc(c.name)+' 사례로 이동"><circle cx="'+x+'" cy="'+y+'" r="22" fill="'+col+'" opacity=".12"/><circle class="dot" cx="'+x+'" cy="'+y+'" r="9" fill="'+col+'"/>'+
+      '<g class="counter" style="transform-origin:'+x+'px '+y+'px"><text x="'+x+'" y="'+(y+36)+'" text-anchor="middle">'+esc(c.name)+'</text></g></g>';
+  });
+  h+='</g>';
+  svg.innerHTML=h;
+  function go(id){var t=document.getElementById("case-"+id);if(t){if(t.classList.contains("hide"))resetFilters();t.scrollIntoView({behavior:reduced()?"auto":"smooth",block:"start"});}}
+  $$(".node",svg).forEach(function(n){n.addEventListener("click",function(){go(n.dataset.go)});n.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();go(n.dataset.go)}})});
+})();
+
+/* ---------- case visuals (inline SVG) ---------- */
+var V={
+ nursa:function(){var s='<svg viewBox="0 0 400 300" role="img" aria-label="일정표와 자격 서류 상태를 보여 주는 포털 화면 예시"><rect x="10" y="10" width="380" height="280" rx="16" fill="#0b0d12" stroke="#2b3245"/><rect x="10" y="10" width="380" height="34" rx="16" fill="#181c27"/><circle cx="30" cy="27" r="5" fill="#ff6b98"/><circle cx="46" cy="27" r="5" fill="#f2c94c"/><circle cx="62" cy="27" r="5" fill="#c8f53c"/><text x="200" y="31" fill="#a59f92" font-size="12" text-anchor="middle">실습 교대 일정</text>';
+   var d=["월","화","수","목","금","토","일"];for(var i=0;i<7;i++){s+='<text x="'+(40+i*48)+'" y="66" fill="#7a7468" font-size="11" text-anchor="middle">'+d[i]+'</text>';for(var j=0;j<3;j++){var on=((i*3+j)*7)%5<2;s+='<rect class="pulse" x="'+(22+i*48)+'" y="'+(76+j*40)+'" width="38" height="30" rx="6" fill="'+(on?"#c8f53c":"#222838")+'" opacity="'+(on?.85:1)+'"/>';}}
+   s+='<text x="24" y="218" fill="#f4ede0" font-size="12">자격 서류</text>';var b=[["CPR",.9,"#c8f53c"],["예방접종",.55,"#f2c94c"],["신원조회",.2,"#ff6b98"]];b.forEach(function(x,k){s+='<text x="24" y="'+(240+k*18)+'" fill="#a59f92" font-size="11">'+x[0]+'</text><rect x="96" y="'+(231+k*18)+'" width="270" height="8" rx="4" fill="#222838"/><rect x="96" y="'+(231+k*18)+'" width="'+(270*x[1])+'" height="8" rx="4" fill="'+x[2]+'"/>';});
+   return s+'</svg>'},
+ wntd:function(){var s='<svg viewBox="0 0 400 300" role="img" aria-label="옷 카드가 넘겨지는 패션 발견 피드 예시"><defs><linearGradient id="wg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7a1a"/><stop offset="1" stop-color="#ff6b98"/></linearGradient></defs><rect x="130" y="10" width="140" height="280" rx="24" fill="#0b0d12" stroke="#2b3245"/>';
+   s+='<g class="swipe"><rect x="146" y="40" width="108" height="150" rx="14" fill="url(#wg)" opacity=".9"/><path d="M175 80 l25 -14 l25 14 l-8 10 v60 h-34 v-60z" fill="#0b0d12" opacity=".55"/></g>';
+   s+='<rect x="156" y="200" width="88" height="8" rx="4" fill="#f4ede0" opacity=".8"/><rect x="156" y="214" width="56" height="6" rx="3" fill="#a59f92"/><circle cx="170" cy="252" r="16" fill="#181c27" stroke="#ff6b98"/><text x="170" y="257" text-anchor="middle" fill="#ff6b98" font-size="14">✕</text><circle cx="230" cy="252" r="16" fill="#181c27" stroke="#c8f53c"/><text x="230" y="257" text-anchor="middle" fill="#c8f53c" font-size="14">♥</text>';
+   s+='<g opacity=".5"><rect x="30" y="70" width="80" height="110" rx="12" fill="#181c27" stroke="#2b3245" transform="rotate(-8 70 125)"/><rect x="290" y="70" width="80" height="110" rx="12" fill="#181c27" stroke="#2b3245" transform="rotate(8 330 125)"/></g><text x="70" y="220" fill="#7cc7ff" font-size="12" text-anchor="middle">실험 A</text><text x="330" y="220" fill="#7cc7ff" font-size="12" text-anchor="middle">실험 B</text></svg>';return s},
+ pep:function(){var s='<svg viewBox="0 0 400 300" role="img" aria-label="기록 일지와 보고서 내보내기 화면 예시. 용량 정보는 표시하지 않음"><rect x="10" y="10" width="380" height="280" rx="16" fill="#0b0d12" stroke="#2b3245"/><text x="28" y="40" fill="#f4ede0" font-size="13">기록 일지</text><text x="372" y="40" fill="#7a7468" font-size="11" text-anchor="end">예시 화면</text>';
+   for(var i=0;i<14;i++){var x=30+i*24,h=20+((i*37)%50);s+='<rect x="'+x+'" y="'+(150-h)+'" width="14" height="'+h+'" rx="4" fill="'+(i%4===3?"#ff7a1a":"#7cc7ff")+'" opacity=".8"/>';}
+   s+='<line x1="24" y1="152" x2="376" y2="152" stroke="#2b3245"/>';var rows=["일정 확인","메모: 컨디션","부작용 기록"];rows.forEach(function(r,k){s+='<rect x="28" y="'+(168+k*30)+'" width="230" height="22" rx="6" fill="#181c27"/><circle cx="42" cy="'+(179+k*30)+'" r="5" fill="#c8f53c"/><text x="56" y="'+(183+k*30)+'" fill="#d9d1c2" font-size="11">'+r+'</text>';});
+   s+='<rect x="276" y="168" width="96" height="82" rx="10" fill="#181c27" stroke="#ff7a1a"/><text x="324" y="200" text-anchor="middle" fill="#ff7a1a" font-size="12">PDF</text><text x="324" y="220" text-anchor="middle" fill="#a59f92" font-size="10">의사용 보고서</text></svg>';return s},
+ imag:function(){var s='<svg viewBox="0 0 400 300" role="img" aria-label="300개 이상의 고객 프로젝트를 점으로 표현한 격자. 실제 프로젝트 배치가 아닌 상징 그림"><rect x="10" y="10" width="380" height="280" rx="16" fill="#0b0d12" stroke="#2b3245"/>';
+   var n=0;for(var r=0;r<15;r++)for(var c=0;c<21;c++){n++;if(n>306)break;var col=n%23===0?"#ff7a1a":(n%7===0?"#c8f53c":"#2b3245");s+='<rect class="pop" style="animation-delay:'+(n*6)+'ms" x="'+(26+c*17)+'" y="'+(26+r*15)+'" width="12" height="10" rx="2" fill="'+col+'"/>';}
+   s+='<rect x="140" y="250" width="120" height="28" rx="14" fill="#181c27" stroke="#2b3245"/><text x="200" y="268" text-anchor="middle" fill="#f4ede0" font-size="12">300+ 프로젝트</text></svg>';return s},
+ spell:function(){var w="MISSION",ok=[1,1,1,0,1,1,0],s='<svg viewBox="0 0 400 300" role="img" aria-label="맞힌 글자와 틀린 글자를 색으로 보여 주는 철자 타일과 경험치 막대 예시"><rect x="10" y="10" width="380" height="280" rx="16" fill="#0b0d12" stroke="#2b3245"/><text x="28" y="44" fill="#f2c94c" font-size="12">계급: 견습 요원</text><text x="372" y="44" fill="#a59f92" font-size="12" text-anchor="end">XP 340</text><rect x="28" y="56" width="344" height="8" rx="4" fill="#222838"/><rect class="grow" x="28" y="56" width="230" height="8" rx="4" fill="#f2c94c"/>';
+   for(var i=0;i<w.length;i++){var x=34+i*48;s+='<rect x="'+x+'" y="110" width="40" height="52" rx="8" fill="'+(ok[i]?"#c8f53c":"#ff6b98")+'" opacity=".9"/><text x="'+(x+20)+'" y="145" text-anchor="middle" fill="#0b0d12" font-size="24" font-weight="700" font-family="serif">'+w[i]+'</text>';}
+   s+='<text x="200" y="200" text-anchor="middle" fill="#d9d1c2" font-size="13">틀린 두 글자만 다시 출제</text><rect x="120" y="224" width="160" height="38" rx="19" fill="#ff7a1a"/><text x="200" y="248" text-anchor="middle" fill="#1a0d02" font-size="14" font-weight="700">다음 임무</text></svg>';return s},
+ fly:function(){var s='<svg viewBox="0 0 400 300" role="img" aria-label="광고 비행선 옆을 나는 비행기가 있는 저녁 하늘 그림"><defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0f1830"/><stop offset=".7" stop-color="#3b2a44"/><stop offset="1" stop-color="#ff7a1a"/></linearGradient></defs><rect x="10" y="10" width="380" height="280" rx="16" fill="url(#sk)"/>';
+   for(var i=0;i<26;i++)s+='<circle cx="'+(20+(i*53)%360)+'" cy="'+(20+(i*29)%120)+'" r="1.2" fill="#f4ede0" opacity=".6"/>';
+   s+='<path d="M10 250 L70 215 L120 240 L190 200 L260 236 L320 210 L390 240 L390 290 L10 290Z" fill="#0b0d12"/>';
+   s+='<g class="blimp"><ellipse cx="290" cy="90" rx="62" ry="22" fill="#d9d1c2"/><rect x="250" y="80" width="80" height="20" rx="4" fill="#ff7a1a"/><text x="290" y="95" text-anchor="middle" fill="#1a0d02" font-size="11" font-weight="700">YOUR AD</text><rect x="280" y="110" width="20" height="8" rx="2" fill="#7a7468"/></g>';
+   s+='<g class="plane"><path d="M110 160 l60 -8 l10 -14 l6 0 l-4 14 l26 -3 l6 -8 l5 0 l-3 9 l-3 10 l-34 -1 l4 12 l-6 0 l-11 -12 l-56 -6z" fill="#c8f53c"/></g></svg>';return s},
+ pendo:function(){var s='<svg viewBox="0 0 400 300" role="img" aria-label="행사 일정 화면과 사내에서 늘어난 앱 아이콘 그림"><rect x="10" y="10" width="380" height="280" rx="16" fill="#0b0d12" stroke="#2b3245"/><text x="28" y="42" fill="#f4ede0" font-size="13">킥오프 일정</text>';
+   var it=[["09:00","기조 세션"],["11:00","부서별 분과"],["14:00","제품 데모"],["18:00","저녁 행사"]];it.forEach(function(x,k){s+='<text x="28" y="'+(72+k*28)+'" fill="#c8f53c" font-size="11" font-family="monospace">'+x[0]+'</text><rect x="74" y="'+(60+k*28)+'" width="150" height="18" rx="5" fill="#181c27"/><text x="82" y="'+(73+k*28)+'" fill="#d9d1c2" font-size="11">'+x[1]+'</text>';});
+   for(var i=0;i<48;i++){var c=i%8,r=Math.floor(i/8);s+='<rect class="pop" style="animation-delay:'+(i*25)+'ms" x="'+(248+c*17)+'" y="'+(58+r*17)+'" width="12" height="12" rx="3" fill="'+["#7cc7ff","#c8f53c","#ff7a1a","#b9a4ff"][i%4]+'" opacity=".85"/>';}
+   s+='<text x="316" y="182" text-anchor="middle" fill="#a59f92" font-size="11">상징: 늘어나는 사내 앱</text><rect x="28" y="206" width="344" height="60" rx="10" fill="#181c27"/><text x="44" y="232" fill="#ff7a1a" font-size="12">공지</text><text x="44" y="252" fill="#d9d1c2" font-size="12">버스는 08:30 정문에서 출발</text></svg>';return s}
+};
+/* animations for visuals */
+var vcss=document.createElement("style");vcss.textContent=".pop{animation:pop .6s both}@keyframes pop{from{opacity:0;transform:scale(.3)}}.plane{animation:fl 5s ease-in-out infinite}@keyframes fl{50%{transform:translate(30px,-14px)}}.blimp{animation:bl 7s ease-in-out infinite}@keyframes bl{50%{transform:translateX(-14px)}}.swipe{transform-origin:200px 115px;animation:sw 4s ease-in-out infinite}@keyframes sw{40%{transform:rotate(0)}55%{transform:translateX(30px) rotate(8deg);opacity:.2}70%{transform:none;opacity:1}}.grow{animation:gr 3s ease-out both}@keyframes gr{from{width:0}}";document.head.appendChild(vcss);
+
+/* architecture diagram */
+function arch(nodes){var w=560,bw=96,gap=(w-nodes.length*bw)/(nodes.length-1),s='<svg class="arch" viewBox="0 0 '+w+' 92" role="img" aria-label="가설 구조: '+esc(nodes.join(", 다음 "))+'"><defs><marker id="ar" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L8 4L0 8z" fill="#f2c94c"/></marker></defs>';
+  nodes.forEach(function(n,i){var x=i*(bw+gap);s+='<rect x="'+x+'" y="18" width="'+bw+'" height="56" rx="10" fill="#181c27" stroke="'+(i===0?"#c8f53c":"#2b3245")+'"/>';
+    var parts=n.split(": ");if(parts.length>1){s+='<text x="'+(x+bw/2)+'" y="42" text-anchor="middle">'+esc(parts[0])+'</text><text x="'+(x+bw/2)+'" y="60" text-anchor="middle" fill="#a59f92" style="fill:#a59f92;font-size:10.5px">'+esc(parts[1].length>14?parts[1].slice(0,13)+"…":parts[1])+'</text>';}
+    else{var a=n.length>8?[n.slice(0,Math.ceil(n.length/2)),n.slice(Math.ceil(n.length/2))]:[n];if(n.indexOf(" ")>0&&n.length>8){var sp=n.indexOf(" ",Math.floor(n.length/2)-3);if(sp<0)sp=n.indexOf(" ");a=[n.slice(0,sp),n.slice(sp+1)];}
+      a.forEach(function(t,k){s+='<text x="'+(x+bw/2)+'" y="'+(a.length>1?40+k*17:51)+'" text-anchor="middle">'+esc(t)+'</text>';});}
+    if(i<nodes.length-1)s+='<line x1="'+(x+bw+2)+'" y1="46" x2="'+(x+bw+gap-3)+'" y2="46" stroke="#f2c94c" stroke-width="1.5" marker-end="url(#ar)"/>';});
+  return s+'</svg>'}
+
+/* ---------- render cases ---------- */
+var EXTRA={nursa:["lv2y"],spell:["rpc"]};CASES.forEach(function(c){c.extra=EXTRA[c.id]||[]});
+var casesEl=$("#cases");
+CASES.forEach(function(c){
+  var a=el("article",{"class":"case",id:"case-"+c.id,"data-id":c.id,"aria-labelledby":"t-"+c.id});
+  var kick=c.kicker.map(function(k,i){var cls=i===0?(c.year===2026?"pill y26":"pill y25"):(k==="본인 발표 수치"?"pill warn":"pill");return '<span class="'+cls+'">'+esc(k)+'</span>'}).join("");
+  var tl=c.timeline.map(function(t){return '<div class="tl"><b>'+esc(t[0])+'</b>'+esc(t[1])+'</div>'}).join("");
+  var mets=c.metrics.map(function(m){var u=UN[m.u];return '<button class="metric" style="--u:'+u.c+'" data-src="'+m.s+'" data-case="'+c.id+'" aria-label="'+esc(m.v+", "+u.t+", "+GR[SRC[m.s].g].t+". 출처 열기")+'"><span class="u">'+esc(u.t)+'</span><span class="v">'+esc(m.v)+'</span><span class="r">'+esc(m.n)+' / '+esc(GR[SRC[m.s].g].t)+'</span></button>'}).join("");
+  function rows(list,cls,lab){return list.map(function(x){return '<div class="stackrow"><span class="k '+cls+'">'+lab+'</span><span>'+esc(x)+'</span></div>'}).join("")}
+  var tabsId="tb-"+c.id;
+  a.innerHTML='<div class="case-vis"><div class="vis-frame">'+V[c.vis]()+'</div><p class="vis-cap">이해를 돕기 위해 그린 그림이며 실제 앱 화면이 아니다.</p></div>'+
+   '<div class="case-body"><div class="kicker">'+kick+'<span class="pill">'+esc(c.field)+'</span></div>'+
+   '<h3 id="t-'+c.id+'">'+esc(c.title)+'<span class="who">'+esc(c.name)+' / '+esc(c.who)+'</span></h3>'+
+   '<div class="story">'+c.story+'</div><div class="timeline" aria-label="타임라인">'+tl+'</div>'+
+   '<div class="why"><h4>잘된 이유</h4><ul>'+c.why.map(function(w){return "<li>"+esc(w)+"</li>"}).join("")+'</ul></div>'+
+   '<div class="impact"><div><h4>기술 면에서 달라진 점</h4><ul>'+c.techFx.map(function(w){return "<li>"+esc(w)+"</li>"}).join("")+'</ul></div><div><h4>사업 면에서 달라진 점</h4><ul>'+c.bizFx.map(function(w){return "<li>"+esc(w)+"</li>"}).join("")+'</ul></div></div>'+
+   '<h4>주요 숫자 (누르면 출처 표시)</h4><div class="metrics">'+mets+'</div>'+
+   '<div class="tabs"><div class="tablist" role="tablist" aria-label="'+esc(c.name)+' 기술 스택">'+
+     '<button class="tab" role="tab" id="'+tabsId+'-a" aria-controls="'+tabsId+'-pa" aria-selected="true" tabindex="0">출처로 확인한 기술</button>'+
+     '<button class="tab" role="tab" id="'+tabsId+'-b" aria-controls="'+tabsId+'-pb" aria-selected="false" tabindex="-1">지금 다시 만든다면 (가설)</button></div>'+
+     '<div class="panel" role="tabpanel" id="'+tabsId+'-pa" aria-labelledby="'+tabsId+'-a">'+rows(c.stack.ok,"ok","확인")+rows(c.stack.pf,"pf","도구 기본 구성")+rows(c.stack.no,"no","미공개")+'</div>'+
+     '<div class="panel" role="tabpanel" id="'+tabsId+'-pb" aria-labelledby="'+tabsId+'-b" hidden><div class="hypo">가설: 이 사례의 실제 구성이 아님</div>'+arch(c.rebuild.nodes)+'<p style="font-size:14.5px;color:var(--paper2);margin:0">'+esc(c.rebuild.note)+'</p></div></div>'+
+   '<div class="caveat">'+c.caveat+'</div>'+
+   '<div class="case-actions"><button class="btn" data-cmp="'+c.id+'" aria-pressed="false">비교에 추가</button><button class="btn primary" data-ev="'+c.id+'">출처 '+uniqSrc(c).length+'건 보기</button></div></div>';
+  casesEl.appendChild(a);
+});
+function uniqSrc(c){var o=[];c.metrics.forEach(function(m){if(o.indexOf(m.s)<0)o.push(m.s)});(c.extra||[]).forEach(function(s){if(o.indexOf(s)<0)o.push(s)});return o}
+
+/* tabs keyboard */
+$$(".tablist").forEach(function(tl){var tabs=$$(".tab",tl);
+  function sel(t){tabs.forEach(function(x){var on=x===t;x.setAttribute("aria-selected",on);x.tabIndex=on?0:-1;document.getElementById(x.getAttribute("aria-controls")).hidden=!on});}
+  tabs.forEach(function(t,i){t.addEventListener("click",function(){sel(t)});t.addEventListener("keydown",function(e){var j=null;if(e.key==="ArrowRight")j=(i+1)%tabs.length;if(e.key==="ArrowLeft")j=(i-1+tabs.length)%tabs.length;if(j!==null){e.preventDefault();sel(tabs[j]);tabs[j].focus()}})});
+});
+
+/* ---------- filters ---------- */
+var FG=[
+ {k:"year",lab:"시기",opts:[["2026","2026년 사례"],["2025","2025년 사례"]]},
+ {k:"out",lab:"성과 종류",opts:[["arr","ARR"],["rev","월 매출"],["save","절감"],["fund","투자"],["use","사용, 규모"],["learn","학습"]]},
+ {k:"maker",lab:"만든 사람",opts:Object.keys(MAKER).map(function(k){return [k,MAKER[k]]})}
+];
+var F={year:[],out:[],maker:[]};
+var fEl=$("#filters");
+FG.forEach(function(g){var d=el("div",{"class":"fgroup",role:"group","aria-label":g.lab});d.appendChild(el("span",null,g.lab));
+  g.opts.forEach(function(o){var b=el("button",{"class":"chip","aria-pressed":"false","data-k":g.k,"data-v":o[0]},esc(o[1]));d.appendChild(b)});fEl.appendChild(d)});
+fEl.appendChild(el("span",{"class":"fcount",id:"fcount","aria-live":"polite"}));
+fEl.appendChild(el("button",{"class":"freset","data-reset":""},"초기화"));
+function applyF(){var n=0;CASES.forEach(function(c){var ok=(!F.year.length||F.year.indexOf(String(c.year))>=0)&&(!F.out.length||c.out.some(function(o){return F.out.indexOf(o)>=0}))&&(!F.maker.length||F.maker.indexOf(c.maker)>=0);document.getElementById("case-"+c.id).classList.toggle("hide",!ok);if(ok)n++});
+  $("#fcount").textContent=CASES.length+"개 중 "+n+"개";$("#empty").style.display=n?"none":"block"}
+function resetFilters(){F={year:[],out:[],maker:[]};$$(".chip",fEl).forEach(function(b){b.setAttribute("aria-pressed","false")});applyF()}
+fEl.addEventListener("click",function(e){var b=e.target.closest(".chip");if(!b)return;var k=b.dataset.k,v=b.dataset.v,i=F[k].indexOf(v);if(i<0)F[k].push(v);else F[k].splice(i,1);b.setAttribute("aria-pressed",i<0?"true":"false");applyF()});
+document.addEventListener("click",function(e){if(e.target.closest("[data-reset]"))resetFilters()});
+applyF();
+
+/* ---------- units chapter ---------- */
+var uEl=$("#units"),cntV=0,cntC=0;
+Object.keys(UN).forEach(function(k){var u=UN[k],items=[];CASES.forEach(function(c){c.metrics.forEach(function(m){if(m.u===k)items.push({c:c,m:m})})});if(!items.length)return;
+  var d=el("div",{"class":"ulane",style:"--u:"+u.c});
+  d.innerHTML='<div class="uh">'+esc(u.t)+'<small>'+esc(u.d)+'</small></div><div class="ms">'+items.map(function(it){return '<button class="mini" style="--u:'+u.c+'" data-src="'+it.m.s+'" data-case="'+it.c.id+'"><b>'+esc(it.m.v)+'</b><span>'+esc(it.c.name)+' / '+esc(GR[SRC[it.m.s].g].t)+'</span></button>'}).join("")+'</div>';uEl.appendChild(d)});
+CASES.forEach(function(c){c.metrics.forEach(function(m){var g=SRC[m.s].g;if(g==="vendor")cntV++;else if(g==="creator"||g==="media")cntC++})});
+$("#nVendor").textContent=cntV;$("#nCreator").textContent=cntC;
+
+/* ---------- context ---------- */
+var cx=$("#ctx");CTX.forEach(function(x){var d=el("div",{"class":"ctx"+(x.w?" wide":""),style:"--c:"+x.c});d.innerHTML='<span class="tag">'+esc(x.tag)+'</span><h3>'+esc(x.t)+'</h3>'+x.h;cx.appendChild(d)});
+
+/* ---------- evidence drawer ---------- */
+var dr=$("#drawer"),scrim=$("#scrim"),lastFocus=null,drCase="all";
+function srcUses(id){var u=[];CASES.forEach(function(c){c.metrics.forEach(function(m){if(m.s===id)u.push(c.name+": "+m.v+" ("+UN[m.u].t+")")})});return u}
+function srcCases(id){return CASES.filter(function(c){return uniqSrc(c).indexOf(id)>=0}).map(function(c){return c.id})}
+function renderDr(highlight){
+  var f=$("#drFilter");f.innerHTML="";var opts=[["all","전체"]].concat(CASES.map(function(c){return [c.id,c.name]}));
+  opts.forEach(function(o){var b=el("button",{"class":"chip","aria-pressed":drCase===o[0]?"true":"false"},esc(o[1]));b.addEventListener("click",function(){drCase=o[0];renderDr()});f.appendChild(b)});
+  var body=$("#drBody");body.innerHTML="";
+  var legend='<p style="font-size:13px;color:var(--mute)">발표 주체: '+Object.keys(GR).map(function(g){return '<span class="grade" style="--c:'+GR[g].c+';background:'+GR[g].c+'">'+GR[g].t+'</span>'}).join(" ")+'. 사례 7개의 숫자 중 외부에서 따로 확인된 것은 없다. 모든 링크 열람일 '+ACC+'.</p>';
+  body.insertAdjacentHTML("beforeend",legend);
+  Object.keys(SRC).forEach(function(id){var s=SRC[id],cs=srcCases(id);if(drCase!=="all"&&cs.indexOf(drCase)<0)return;
+    var uses=srcUses(id);var d=el("div",{"class":"src"+(highlight===id?" flash":""),id:"src-"+id});
+    d.innerHTML='<div class="t"><a href="'+s.u+'" target="_blank" rel="noopener">'+esc(s.t)+'</a></div><div class="meta"><span class="grade" style="background:'+GR[s.g].c+'">'+GR[s.g].t+'</span><span>게시 '+esc(s.pub)+'</span><span>열람 '+ACC+'</span></div><div style="font-family:var(--mono);font-size:11px;color:var(--dim);word-break:break-all">'+esc(s.u)+'</div>'+(uses.length?'<ul class="uses">'+uses.map(function(x){return "<li>"+esc(x)+"</li>"}).join("")+'</ul>':'<p style="font-size:13px;color:var(--mute);margin:6px 0 0">참고 사례나 기술 확인에 사용</p>');
+    body.appendChild(d)});
+  if(highlight){var h=document.getElementById("src-"+highlight);if(h)h.scrollIntoView({block:"center"})}
+}
+function openDr(caseId,hl){lastFocus=document.activeElement;drCase=caseId||"all";renderDr(hl);dr.classList.add("on");scrim.classList.add("on");dr.setAttribute("aria-hidden","false");$("#drSub").textContent=drCase==="all"?"모든 출처의 게시일, 열람일, 발표 주체":CASES.filter(function(c){return c.id===drCase})[0].name+" 관련 출처";setTimeout(function(){$("#drClose").focus()},30)}
+function closeDr(){if(!dr.classList.contains("on"))return;dr.classList.remove("on");scrim.classList.remove("on");dr.setAttribute("aria-hidden","true");if(lastFocus&&lastFocus.focus)lastFocus.focus()}
+$("#openEvidence").addEventListener("click",function(){openDr("all")});
+$("#drClose").addEventListener("click",closeDr);scrim.addEventListener("click",closeDr);
+document.addEventListener("click",function(e){var m=e.target.closest("[data-src]");if(m){openDr(m.dataset.case,m.dataset.src);return}var v=e.target.closest("[data-ev]");if(v)openDr(v.dataset.ev)});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&dr.classList.contains("on")){e.preventDefault();closeDr()}
+  if(e.key==="Tab"&&dr.classList.contains("on")){var f=$$("a,button",dr).filter(function(x){return x.offsetParent!==null});if(!f.length)return;var first=f[0],last=f[f.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}}});
+
+/* ---------- compare ---------- */
+var pick=[],tray=$("#tray"),cmp=$("#cmp");
+function updTray(){tray.classList.toggle("on",pick.length>0);$("#trayNames").textContent=pick.length+"/3: "+pick.map(function(id){return CASES.filter(function(c){return c.id===id})[0].name}).join(", ");$("#trayGo").disabled=pick.length<2;$("#trayGo").style.opacity=pick.length<2?.5:1;
+  $$("[data-cmp]").forEach(function(b){var on=pick.indexOf(b.dataset.cmp)>=0;b.setAttribute("aria-pressed",on);b.textContent=on?"비교에서 빼기":"비교에 추가"})}
+document.addEventListener("click",function(e){var b=e.target.closest("[data-cmp]");if(!b)return;var id=b.dataset.cmp,i=pick.indexOf(id);if(i>=0)pick.splice(i,1);else{if(pick.length>=3)pick.shift();pick.push(id)}updTray()});
+$("#trayClear").addEventListener("click",function(){pick=[];updTray()});
+$("#trayGo").addEventListener("click",function(){if(pick.length<2)return;var cs=pick.map(function(id){return CASES.filter(function(c){return c.id===id})[0]});
+  var R=[["시기",function(c){return c.year===2026?"2026년 사례":"2025년 사례"}],["만든 사람",function(c){return esc(c.who)}],["무엇",function(c){return esc(c.field)}],["도구",function(c){return esc(c.tool)}],
+   ["핵심 숫자",function(c){return c.metrics.map(function(m){return '<div style="margin-bottom:6px"><span class="mono" style="color:'+UN[m.u].c+';font-size:11px">'+esc(UN[m.u].t)+'</span><br>'+esc(m.v)+' <span style="color:var(--mute);font-size:12px">('+esc(GR[SRC[m.s].g].t)+')</span></div>'}).join("")}],
+   ["잘된 이유",function(c){return esc(c.why[0])}],["확인한 기술",function(c){return esc(c.stack.ok.join(", "))}],["미공개",function(c){return esc(c.stack.no.join(", "))}]];
+  var h='<table><thead><tr><td></td>'+cs.map(function(c){return '<th scope="col">'+esc(c.name)+'</th>'}).join("")+'</tr></thead><tbody>'+R.map(function(r){return '<tr><th scope="row">'+r[0]+'</th>'+cs.map(function(c){return "<td>"+r[1](c)+"</td>"}).join("")+'</tr>'}).join("")+'</tbody></table>';
+  $("#cmpBody").innerHTML=h;if(cmp.showModal)cmp.showModal();else cmp.setAttribute("open","");$("#cmpClose").focus()});
+$("#cmpClose").addEventListener("click",function(){cmp.close?cmp.close():cmp.removeAttribute("open")});
+cmp.addEventListener("click",function(e){if(e.target===cmp)cmp.close()});
+
+/* ---------- toc + progress ---------- */
+var secs=["ch0","ch1","ch2","ch3","ch4"].map(function(id){return document.getElementById(id)}),links=$$(".toc a");
+function onScroll(){var y=window.scrollY,h=document.documentElement.scrollHeight-innerHeight;$("#progress").style.width=(h>0?y/h*100:0)+"%";var cur=-1;secs.forEach(function(s,i){if(s.getBoundingClientRect().top<160)cur=i});links.forEach(function(l,i){l.classList.toggle("on",i===cur)})}
+addEventListener("scroll",onScroll,{passive:true});onScroll();
+
+/* ---------- IDEAS ---------- */
+var IDEAS=[
+ {id:"raid",t:"받아쓰기 레이드",from:"참고한 사례: Spell Strike (임무 형식, 틀린 글자만 다시 출제)",
+  body:"받아쓰기를 보스와 싸우는 게임으로 바꾼다. 단어가 잠깐 보였다가 흐려지면 기억해서 입력한다. 맞히면 보스 체력이 줄고, 틀린 단어는 다음 판에 다시 나온다.",
+  prompt:"초등 3학년 받아쓰기 단어 20개로 보스전 게임을 만들어 줘.\n단어는 1.5초 보였다가 흐려진다. 정답이면 보스 HP -10.\n틀린 단어는 목록 끝에 다시 넣어. 부모 화면에 자주 틀리는 글자를 보여 줘.",
+  stack:"가설 구성: 단일 HTML, 기기 저장, 음성 읽기는 브라우저 SpeechSynthesis"},
+ {id:"slot",t:"사내 도구 슬롯머신",from:"참고한 사례: Pendo (쓰는 기간이 정해진 작은 사내 앱)",
+  body:"무엇을 만들지 정하지 못한 직원에게 부서, 반복 업무, 앱 형태를 무작위로 골라 준다. 결과는 AI 도구에 바로 붙여 넣을 수 있는 첫 요청문으로 나온다.",
+  prompt:"",stack:"가설 구성: 사내 SSO 뒤의 정적 웹앱, 과제 기록은 시트 한 장"},
+ {id:"tone",t:"가족 단톡방 톤 조절기",from:"참고한 사례: Pep AI (사람들이 이미 하던 일을 앱으로 옮김)",
+  body:"가족에게 보내는 짧은 메시지의 말투를 슬라이더로 부드럽게 바꾼다. 실제 서비스라면 언어 모델이 문장을 바꾸겠지만, 데모는 미리 써 둔 문장으로 동작만 보여 준다. 날짜, 숫자, 급한 정도는 바꾸지 않는다.",
+  prompt:"메시지 입력창과 다정함 슬라이더 0~4를 만들어 줘.\n단계마다 같은 뜻을 유지하고 말투만 바꿔. 원문의 날짜, 숫자, 기한, 급함은 절대 바꾸지 마.\n보내기 전 비교 화면을 보여 줘.",
+  stack:"가설 구성: 모바일 웹, LLM API 한 번 호출, 원문 숫자 보존 검사"},
+ {id:"sky",t:"동네 스폰서 하늘",from:"참고한 사례: fly.pieter.com (게임은 무료, 하늘 광고는 유료)",
+  body:"종이비행기를 조종해 동네 하늘을 나는 작은 게임이다. 하늘에 뜬 비행선 광고 자리를 동네 가게가 한 주 단위로 산다. 화면의 가게 이름은 모두 지어낸 것이다.",
+  prompt:"Three.js로 종이비행기가 동네 위를 나는 브라우저 게임을 만들어 줘.\n하늘에 광고 비행선 3대. 비행선 문구는 관리자 페이지에서 바꾼다.\n로딩 화면 없이 바로 시작해.",
+  stack:"가설 구성: Three.js 또는 Canvas, 광고 슬롯 JSON, 결제 링크"}
+];
+var iEl=$("#ideas");
+IDEAS.forEach(function(x){var d=el("article",{"class":"idea",id:"idea-"+x.id});
+  d.innerHTML='<span class="stampi">IDEAS</span><h3>'+esc(x.t)+'</h3><div class="from">'+esc(x.from)+'</div><p style="font-size:15.5px;color:var(--paper2)">'+esc(x.body)+'</p><div class="demo" id="demo-'+x.id+'"></div>'+(x.prompt?'<div class="prompt">'+esc(x.prompt)+'</div>':'')+'<div class="stackh">'+esc(x.stack)+'</div>';iEl.appendChild(d)});
+
+/* raid demo */
+(function(){var W=["깍두기","햇볕","넓적다리","닭볶음","읽기","앉았다","값어치","몫"],q=W.slice(),hp=100,cur=null,box=$("#demo-raid");
+  box.innerHTML='<div class="raid-top"><span class="boss" id="boss" aria-hidden="true">👾</span><div class="hp" role="progressbar" aria-label="보스 체력" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><i id="hpbar"></i></div><span class="mono" id="hpn" style="font-size:12px">HP 100</span></div><div class="word" id="rword" aria-live="polite">시작을 누르세요</div><div class="raid-in"><input id="rin" aria-label="기억한 단어 입력" placeholder="기억한 단어" autocomplete="off" disabled><button class="btn primary" id="rgo">시작</button></div><div class="raid-msg" id="rmsg" aria-live="polite"></div>';
+  var word=$("#rword"),inp=$("#rin"),go=$("#rgo"),msg=$("#rmsg");
+  function next(){if(hp<=0){word.classList.remove("blur");word.textContent="보스 격파!";inp.disabled=true;go.textContent="다시";cur=null;return}cur=q.shift();go.textContent="확인";word.classList.remove("blur");word.textContent=cur;inp.value="";inp.disabled=false;inp.focus();setTimeout(function(){if(word.textContent===cur)word.classList.add("blur")},reduced()?2500:1500)}
+  function check(){if(!cur){hp=100;q=W.slice();upd();msg.textContent="";next();return}var v=inp.value.trim();if(!v)return;
+    if(v===cur){hp=Math.max(0,hp-25);msg.textContent="명중! "+cur;var b=$("#boss");b.classList.add("hit");setTimeout(function(){b.classList.remove("hit")},200)}else{q.push(cur);msg.textContent="아깝다. 정답은 '"+cur+"'. 이 단어는 다시 나온다."}upd();next()}
+  function upd(){$("#hpbar").style.width=hp+"%";$("#hpn").textContent="HP "+hp;$(".hp",box).setAttribute("aria-valuenow",hp)}
+  go.addEventListener("click",check);inp.addEventListener("keydown",function(e){if(e.key==="Enter")check()});
+})();
+/* slot demo */
+(function(){var A=["인사팀","영업팀","재무팀","고객지원","행사 담당","연구실"],B=["매주 같은 엑셀 취합","신입 안내 질문 응답","회의실 예약 충돌","견적서 숫자 대조","행사 참석자 체크인","장비 대여 기록"],C=["체크리스트 앱","대시보드 한 장","질문 챗 화면","QR 체크인","알림 봇","달력 보기"];
+  var box=$("#demo-slot");box.innerHTML='<div class="reels"><div class="reel" id="r0"><span>부서</span></div><div class="reel" id="r1"><span>반복 업무</span></div><div class="reel" id="r2"><span>형태</span></div></div><div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn primary" id="spin">당기기</button><button class="btn" id="copyp" disabled>요청문 복사</button></div><div class="prompt" id="sprompt" aria-live="polite">당기기를 누르면 주말에 만들 앱이 나온다.</div>';
+  var res=null;function pickR(a){return a[Math.floor(Math.random()*a.length)]}
+  $("#spin").addEventListener("click",function(){var r=[pickR(A),pickR(B),pickR(C)],els=[$("#r0"),$("#r1"),$("#r2")];
+    if(reduced()){els.forEach(function(e,i){e.innerHTML="<span>"+r[i]+"</span>"});done(r);return}
+    els.forEach(function(e,i){e.classList.add("spin");var src=[A,B,C][i],t=setInterval(function(){e.innerHTML="<span>"+pickR(src)+"</span>"},70);setTimeout(function(){clearInterval(t);e.classList.remove("spin");e.innerHTML="<span>"+r[i]+"</span>";if(i===2)done(r)},500+i*350)})});
+  function done(r){res=r[0]+"의 '"+r[1]+"' 문제를 푸는 "+r[2]+"을(를) 만들어 줘.\n사용자는 "+r[0]+" 직원 10명. 로그인은 사내 계정만.\n첫 화면에서 오늘 할 일 하나만 보이게 하고, 금요일에 쓰임새를 돌아볼 기록 칸을 둬.";$("#sprompt").textContent=res;$("#copyp").disabled=false}
+  $("#copyp").addEventListener("click",function(){if(!res)return;var b=this;function ok(){b.textContent="복사됨";setTimeout(function(){b.textContent="요청문 복사"},1200)}
+    try{navigator.clipboard.writeText(res).then(ok,function(){b.textContent="직접 선택해 복사"})}catch(e){b.textContent="직접 선택해 복사"}});
+})();
+/* tone demo */
+(function(){var M={
+  a:{o:"내일 7시까지 집에 와라. 할머니 생신이다.",k:["내일","7시까지","집에"],s:["내일 7시까지 집에 와라. 할머니 생신이다.","내일 7시까지 꼭 집에 와 줘. 할머니 생신이야.","내일 할머니 생신이라 7시까지 꼭 집에 와 줘.","내일 할머니 생신이야! 7시까지 꼭 집에 와 줘, 기다릴게.","내일 할머니 생신이에요. 할머니가 기다리시니까 7시까지 꼭 집에 와 줘. 고마워!"]},
+  b:{o:"택배 3개 왔다. 빨리 가져가.",k:["3개","빨리"],s:["택배 3개 왔다. 빨리 가져가.","택배 3개 왔어. 빨리 가져가 줘.","택배 3개 와 있어. 최대한 빨리 가져가 줘.","택배 3개 도착했어! 미안하지만 빨리 가져가 줘.","택배 3개가 와 있어. 자리를 차지하고 있으니 빨리 가져가 주면 고마워!"]}};
+  var box=$("#demo-tone");box.className="demo tone";box.innerHTML='<label for="tsel">보낼 메시지</label><br><select id="tsel"><option value="a">할머니 생신 공지</option><option value="b">택배 알림</option></select><div class="bubble" id="tin"></div><label for="trg">다정함 <span id="tlv">2</span> / 4</label><input type="range" id="trg" min="0" max="4" value="2"><div class="bubble out" id="tout" aria-live="polite"></div><p style="font-size:12.5px;color:var(--mute);margin:4px 0 0">의미 보존 검사: <span id="tchk"></span></p>';
+  function upd(){var m=M[$("#tsel").value],l=+$("#trg").value,out=m.s[l];$("#tin").textContent=m.o;$("#tout").textContent=out;$("#tlv").textContent=l;var ok=m.k.every(function(n){return out.indexOf(n)>=0});$("#tchk").textContent=ok?"기한과 숫자, 급함 표현("+m.k.join(", ")+") 그대로 있음":"뜻이 바뀜: 기한이나 숫자 누락";$("#tchk").style.color=ok?"var(--lime)":"var(--rose)"}
+  $("#tsel").addEventListener("change",upd);$("#trg").addEventListener("input",upd);upd();
+})();
+/* sky demo */
+(function(){var box=$("#demo-sky");box.className="demo sky";box.innerHTML='<canvas id="skyc" width="640" height="300" aria-label="종이비행기가 가상 가게 비행선 사이를 나는 데모. 마우스, 터치, 위아래 방향키로 조종" role="img" tabindex="0"></canvas><div class="row"><span id="skys">비행선 통과: 0</span><span>조종: 마우스, 터치, ↑ ↓</span><button class="btn" id="skyp">일시정지</button></div>';
+  var c=$("#skyc"),x=c.getContext("2d"),W=640,H=300,py=150,ty=150,t=0,score=0,run=true,shops=["가상 떡집","가상 철물점","가상 꽃집","가상 분식"],bl=[];
+  for(var i=0;i<3;i++)bl.push({x:260+i*230,y:60+((i*97)%170),s:shops[i],hit:false});
+  function mv(e){var r=c.getBoundingClientRect(),cy=(e.touches?e.touches[0].clientY:e.clientY)-r.top;ty=Math.max(20,Math.min(H-20,cy/r.height*H))}
+  c.addEventListener("mousemove",mv);c.addEventListener("touchmove",function(e){mv(e);e.preventDefault()},{passive:false});
+  c.addEventListener("keydown",function(e){if(e.key==="ArrowUp"){ty=Math.max(20,ty-25);e.preventDefault()}if(e.key==="ArrowDown"){ty=Math.min(H-20,ty+25);e.preventDefault()}});
+  $("#skyp").addEventListener("click",function(){run=!run;this.textContent=run?"일시정지":"재생";if(run)loop()});
+  function draw(){x.clearRect(0,0,W,H);var g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"#0f1830");g.addColorStop(.75,"#3b2a44");g.addColorStop(1,"#6a3a2a");x.fillStyle=g;x.fillRect(0,0,W,H);
+    x.fillStyle="#0b0d12";x.beginPath();x.moveTo(0,H);for(var k=0;k<=16;k++){var bx=k*40-(t*0.6%40);x.lineTo(bx,H-30-((k*37)%5)*9);x.lineTo(bx+20,H-30-((k*37)%5)*9)}x.lineTo(W,H);x.fill();
+    bl.forEach(function(b){x.fillStyle=b.hit?"#c8f53c":"#d9d1c2";x.beginPath();x.ellipse(b.x,b.y,52,18,0,0,Math.PI*2);x.fill();x.fillStyle="#ff7a1a";x.fillRect(b.x-36,b.y-8,72,16);x.fillStyle="#1a0d02";x.font="bold 12px sans-serif";x.textAlign="center";x.fillText(b.s,b.x,b.y+4)});
+    x.save();x.translate(110,py);x.rotate((ty-py)*0.01);x.fillStyle="#f4ede0";x.beginPath();x.moveTo(22,0);x.lineTo(-16,-12);x.lineTo(-8,0);x.lineTo(-16,12);x.closePath();x.fill();x.restore()}
+  function step(){t++;c.dataset.t=t;py+=(ty-py)*0.12;bl.forEach(function(b){b.x-=2.2;if(!b.hit&&Math.abs(b.x-110)<40&&Math.abs(b.y-py)<22){b.hit=true;score++;$("#skys").textContent="비행선 통과: "+score}if(b.x<-70){b.x=W+70;b.y=40+Math.random()*(H-110);b.hit=false;b.s=shops[Math.floor(Math.random()*shops.length)]}})}
+  var looping=false,vis=true;
+  function loop(){if(looping)return;looping=true;(function f(){if(!run||!vis||reduced()){looping=false;draw();return}step();draw();requestAnimationFrame(f)})()}
+  draw();var io=("IntersectionObserver" in window)?new IntersectionObserver(function(en){en.forEach(function(e){vis=e.isIntersecting;if(vis&&run)loop();})}):null;if(io)io.observe(c);else loop();
+  c.addEventListener("keydown",function(){if(reduced())draw()});c.addEventListener("mousemove",function(){if(reduced()){py=ty;draw()}});
+})();
+})();
+</script>
+<noscript><p style="padding:20px;color:#f4ede0;background:#181c27">이 문서의 사례 목록과 출처 목록은 JavaScript로 그려진다. 브라우저에서 JavaScript를 켜 주세요.</p></noscript>
+</body>
+</html>
