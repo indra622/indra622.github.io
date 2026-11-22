@@ -112,7 +112,8 @@ class SiteRegressionTest < Minitest::Test
 
     assert_equal ['OpenClaw Contributor', 'Local Second Brain', 'Docling 문서 기여',
                   'TimesFM 3 성능 비교', 'TCP_eval', 'Qwen Hybrid Interpretability',
-                  'Simplenote·Threads → Naver Blog Drafts', 'System One·Jev 모델 스터디'],
+                  'Simplenote·Threads → Naver Blog Drafts', 'System One·Jev 모델 스터디',
+                  '업무별 AI 모델 벤치마크 탐색', 'Discord 음성 에이전트 실험'],
                  work['projects'].map { |item| item['title'] }
 
     public_repos = %w[
@@ -120,6 +121,7 @@ class SiteRegressionTest < Minitest::Test
       https://github.com/indra622/local-second-brain
       https://github.com/docling-project/docling/pull/5212
       https://github.com/indra622/timesfm3-test
+      https://indra622.github.io/studies/model-benchmarks-2026-11-v01/
       https://github.com/indra622/simplenote-to-naver-drafts
     ]
     work['projects'].each do |item|
