@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI BUILD DAY 안내</title>
+<meta name="description" content="AI개발파트 AI BUILD DAY 안내 카드. 2026년 11월 25일 수요일, 09:00 개인 작업 시작, 14:00 결과 공유.">
+<style>
+:root{
+  --bg:#f6f2ea;--card:#ffffff;--cream:#fffaf0;--line:#e6dfd2;
+  --navy:#14213d;--navy2:#34405a;--mute:#5d6678;
+  --blue:#2457d6;--blueBg:#eaf0ff;--orange:#f26b1d;--orangeBg:#fff0e6;
+  --sans:"Pretendard","Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic","맑은 고딕","Segoe UI",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono","Menlo","D2Coding","Consolas",monospace;
+  --cw:min(calc(100vw - 32px),430px);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--navy);font-family:var(--sans);word-break:keep-all;overflow-wrap:anywhere;overflow-x:hidden}
+a{color:var(--blue)}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:6px}
+button{font:inherit;cursor:pointer;color:inherit}
+.page{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:14px 0 28px}
+.top{width:var(--cw);display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.top b{font-size:14px;font-weight:800;letter-spacing:-.01em}
+.top span{font-size:12.5px;color:var(--mute)}
+.track{width:var(--cw);display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;gap:0;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;border-radius:22px}
+.track::-webkit-scrollbar{display:none}
+.card{flex:0 0 100%;scroll-snap-align:start;scroll-snap-stop:always;min-height:calc(var(--cw) * 1.25);background:var(--card);border:1px solid var(--line);border-radius:22px;padding:26px 24px 22px;display:flex;flex-direction:column;position:relative;overflow:visible}
+.card.cream{background:var(--cream)}
+.card.navy{background:var(--navy);color:#fff;border-color:var(--navy)}
+.no{font-family:var(--mono);font-size:12px;color:var(--mute);letter-spacing:.04em}
+.navy .no{color:#aab4cc}
+.kick{display:inline-block;font-size:12.5px;font-weight:800;color:var(--blue);background:var(--blueBg);border-radius:6px;padding:3px 9px;margin:12px 0 10px;align-self:flex-start}
+.kick.o{color:#b5470a;background:var(--orangeBg)}
+h1{font-size:clamp(34px,10.5vw,46px);line-height:1.08;font-weight:900;letter-spacing:-.045em;margin:6px 0 10px}
+h2{font-size:clamp(25px,7.6vw,32px);line-height:1.22;font-weight:850;letter-spacing:-.04em;margin:0 0 12px}
+h2 em,h1 em{font-style:normal;color:var(--orange)}
+.navy h1 em{color:#ffb27f}
+p{font-size:clamp(15px,4.3vw,17px);line-height:1.62;margin:0 0 10px;color:var(--navy2)}
+.navy p{color:#dfe5f2}
+.small{font-size:13.5px;color:var(--mute);line-height:1.55}
+.navy .small{color:#aab4cc}
+ul.chk{list-style:none;margin:4px 0 8px;padding:0}
+ul.chk li{position:relative;padding-left:28px;font-size:clamp(15px,4.3vw,17px);line-height:1.5;margin-bottom:9px;color:var(--navy2)}
+ul.chk li::before{content:"";position:absolute;left:0;top:3px;width:18px;height:18px;border-radius:50%;background:var(--blueBg);box-shadow:inset 0 0 0 2px var(--blue)}
+ul.chk li::after{content:"";position:absolute;left:6px;top:7px;width:5px;height:8px;border:solid var(--blue);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.art{margin-top:auto;display:flex;justify-content:center;padding-top:6px}
+.art svg{width:100%;max-width:300px;height:auto;display:block}
+.facts{display:grid;gap:8px;margin:auto 0 0}
+.fact{display:flex;gap:12px;align-items:baseline;border-top:1px solid rgba(255,255,255,.18);padding-top:8px}
+.fact b{font-size:12.5px;color:#ffb27f;min-width:52px;font-weight:800}
+.fact span{font-size:15px;color:#fff;line-height:1.45}
+.cover .fact{border-top-color:var(--line)}
+.cover .fact b{color:#b5470a}
+.cover .fact span{color:var(--navy)}
+.time{font-family:var(--mono);font-weight:800;font-size:clamp(46px,15vw,62px);letter-spacing:-.04em;color:var(--blue);line-height:1;margin:8px 0 10px}
+.time.o{color:var(--orange)}
+.four{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 10px}
+.four div{border:1.5px solid var(--line);border-radius:12px;padding:10px 11px;background:#fff}
+.four b{display:block;font-size:12px;color:var(--orange);font-weight:800;margin-bottom:2px}
+.four span{font-size:14.5px;font-weight:700;line-height:1.35;color:var(--navy)}
+.scale{display:flex;align-items:center;gap:10px;margin:8px 0 12px}
+.scale .pill{flex:1;text-align:center;border-radius:999px;padding:8px 6px;font-size:14px;font-weight:800}
+.scale .lo{background:#f0ede6;color:var(--mute)}
+.scale .hi{background:var(--orange);color:#fff}
+textarea.tpl{width:100%;flex:1;min-height:250px;resize:vertical;border:1.5px solid var(--line);border-radius:12px;padding:12px;font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--navy);background:#fffdf8}
+.copyrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+.btn{border:none;border-radius:10px;background:var(--blue);color:#fff;font-weight:800;font-size:15px;padding:10px 16px}
+.btn.ghost{background:#fff;color:var(--navy);border:1.5px solid var(--line)}
+.msg{font-size:13.5px;color:#1f7a4d;min-height:20px}
+.ext{display:block;margin:6px 0 10px;border:1.5px solid var(--blue);border-radius:14px;padding:14px 16px;text-decoration:none;background:var(--blueBg)}
+.ext b{display:block;font-size:16px;color:var(--navy);margin-bottom:2px}
+.ext span{font-size:13px;color:var(--blue);word-break:break-all}
+.note{border-left:4px solid var(--orange);padding:8px 12px;background:var(--orangeBg);border-radius:0 10px 10px 0;font-size:15px;line-height:1.55;color:var(--navy);margin:4px 0 12px}
+.recap{display:flex;gap:8px;margin-top:auto}
+.recap div{flex:1;border-radius:12px;background:var(--navy);color:#fff;padding:10px 12px}
+.recap b{display:block;font-family:var(--mono);font-size:20px}
+.recap span{font-size:13px;color:#dfe5f2}
+.ctrl{width:var(--cw);display:none;align-items:center;gap:8px;margin-top:12px}
+.js .ctrl{display:flex}
+.nav{width:42px;height:42px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-size:18px;display:flex;align-items:center;justify-content:center}
+.nav[disabled]{opacity:.35;cursor:default}
+.dots{flex:1;display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
+.dot{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--line);background:#fff;font-size:11.5px;font-family:var(--mono);color:var(--mute);padding:0}
+.dot[aria-current="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+.count{width:var(--cw);display:none;justify-content:space-between;align-items:center;margin-top:8px;font-size:13px;color:var(--mute)}
+.js .count{display:flex}
+.count button{border:none;background:none;color:var(--blue);text-decoration:underline;font-size:13px;padding:4px}
+.hint{width:var(--cw);font-size:13px;color:var(--mute);margin-top:10px;text-align:center}
+.js .hint{display:none}
+/* all-cards reading mode */
+.list .track{flex-direction:column;overflow:visible;scroll-snap-type:none;gap:14px}
+.list .ctrl{display:none}
+@media (min-width:900px){
+  :root{--cw:420px}
+  .page{padding-top:36px}
+}
+@media (prefers-reduced-motion:reduce){.track{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+.rm .track{scroll-behavior:auto}
+</style>
+</head>
+<body>
+<div class="page" id="page">
+  <div class="top"><b>AI BUILD DAY</b><span>2026.11.25 (수)</span></div>
+
+  <div class="track" id="track" role="region" aria-roledescription="카드 넘기기" aria-label="AI BUILD DAY 안내 카드 8장" tabindex="0">
+
+    <article class="card cream cover" id="card1" aria-label="1 / 8: 행사 안내">
+      <div class="no">01 / 08</div>
+      <span class="kick o">AI개발파트</span>
+      <h1>AI BUILD<br><em>DAY</em></h1>
+      <p>AI와 함께 각자 하나씩 만들어 보는 하루입니다.</p>
+      <div class="art" aria-hidden="true">
+        <svg viewBox="0 0 300 120"><rect x="70" y="18" width="160" height="92" rx="10" fill="#fff" stroke="#14213d" stroke-width="3"/><rect x="82" y="30" width="136" height="58" rx="4" fill="#eaf0ff"/><path d="M96 48 l10 8 -10 8" stroke="#2457d6" stroke-width="3" fill="none" stroke-linecap="round"/><line x1="114" y1="66" x2="140" y2="66" stroke="#2457d6" stroke-width="3" stroke-linecap="round"/><path d="M56 110 h188" stroke="#14213d" stroke-width="3" stroke-linecap="round"/><path d="M250 26 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4z" fill="#f26b1d"/><path d="M36 50 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3z" fill="#2457d6"/></svg>
+      </div>
+      <div class="facts">
+        <div class="fact"><b>날짜</b><span>2026년 11월 25일 수요일</span></div>
+        <div class="fact"><b>형식</b><span>AI를 활용한 개인 해커톤</span></div>
+        <div class="fact"><b>대상</b><span>장기계약영업유닛</span></div>
+        <div class="fact"><b>진행</b><span>김수진 프로</span></div>
+      </div>
+    </article>
+
+    <article class="card" id="card2" aria-label="2 / 8: 09:00 바로 시작">
+      <div class="no">02 / 08</div>
+      <span class="kick">시작</span>
+      <div class="time">09:00</div>
+      <h2>금융캠퍼스 강의실에 모여<br><em>바로 시작</em>합니다</h2>
+      <p>따로 여는 강의나 진행 순서는 없습니다. 도착하면 각자 자리에서 자기 해커톤을 시작하면 됩니다.</p>
+      <div class="art" aria-hidden="true">
+        <svg viewBox="0 0 300 120"><circle cx="70" cy="60" r="42" fill="#eaf0ff" stroke="#2457d6" stroke-width="3"/><line x1="70" y1="60" x2="70" y2="30" stroke="#2457d6" stroke-width="4" stroke-linecap="round"/><line x1="70" y1="60" x2="48" y2="60" stroke="#2457d6" stroke-width="4" stroke-linecap="round"/><path d="M130 60 h70" stroke="#f26b1d" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 12"/><path d="M196 48 l14 12 -14 12" stroke="#f26b1d" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="222" y="34" width="56" height="44" rx="6" fill="none" stroke="#14213d" stroke-width="3"/><path d="M214 88 h72" stroke="#14213d" stroke-width="3" stroke-linecap="round"/></svg>
+      </div>
+    </article>
+
+    <article class="card cream" id="card3" aria-label="3 / 8: 각자 자기 방식으로">
+      <div class="no">03 / 08</div>
+      <span class="kick">진행 방식</span>
+      <h2>혼자, <em>내 방식대로</em></h2>
+      <ul class="chk">
+        <li>개인 작업입니다. 팀을 짜지 않습니다.</li>
+        <li>도구는 정해져 있지 않습니다. 평소 쓰던 AI 도구를 그대로 써도 됩니다.</li>
+        <li>특정 방식(예: Ralph 루프)이나 새 설치를 요구하지 않습니다.</li>
+        <li>미리 준비해 온 작업을 이어서 해도 됩니다. 처음부터 시작하지 않아도 됩니다.</li>
+      </ul>
+      <div class="art" aria-hidden="true">
+        <svg viewBox="0 0 300 90"><circle cx="30" cy="45" r="10" fill="#14213d"/><path d="M40 45 C90 45 90 15 140 15 M40 45 H140 M40 45 C90 45 90 75 140 75" stroke="#2457d6" stroke-width="3" fill="none"/><circle cx="150" cy="15" r="8" fill="#f26b1d"/><circle cx="150" cy="45" r="8" fill="#2457d6"/><circle cx="150" cy="75" r="8" fill="#14213d"/><path d="M160 15 h90 M160 45 h120 M160 75 h70" stroke="#e6dfd2" stroke-width="10" stroke-linecap="round"/></svg>
+      </div>
+    </article>
+
+    <article class="card" id="card4" aria-label="4 / 8: 어떻게 만들었는지가 중심">
+      <div class="no">04 / 08</div>
+      <span class="kick o">이번 행사의 초점</span>
+      <h2>무엇을 만들었는지보다<br><em>어떻게 만들었는지</em></h2>
+      <p>주제가 얼마나 새로운지, 결과물이 얼마나 완성됐는지보다 AI와 어떻게 개발했는지에 훨씬 큰 무게를 둡니다.</p>
+      <div class="scale" aria-label="비중 비교: 주제의 새로움과 완성도보다 개발 방식">
+        <div class="pill lo">주제, 완성도</div><div class="pill hi">개발 방식</div>
+      </div>
+      <p class="small">결과 공유 때는 만든 것과 함께, 그것을 AI와 어떻게 만들었는지를 이야기해 주세요.</p>
+      <div class="art" aria-hidden="true">
+        <svg viewBox="0 0 300 90"><rect x="10" y="30" width="54" height="30" rx="6" fill="#eaf0ff"/><rect x="88" y="30" width="54" height="30" rx="6" fill="#eaf0ff"/><rect x="166" y="30" width="54" height="30" rx="6" fill="#eaf0ff"/><path d="M64 45 h22 M142 45 h22" stroke="#2457d6" stroke-width="3"/><circle cx="118" cy="45" r="38" fill="none" stroke="#f26b1d" stroke-width="4"/><line x1="146" y1="72" x2="170" y2="88" stroke="#f26b1d" stroke-width="6" stroke-linecap="round"/><rect x="244" y="22" width="46" height="46" rx="8" fill="#f0ede6"/><path d="M256 46 l7 7 14 -16" stroke="#9aa1ad" stroke-width="3" fill="none"/></svg>
+      </div>
+    </article>
+
+    <article class="card cream" id="card5" aria-label="5 / 8: 작업하면서 남겨 두면 좋은 것">
+      <div class="no">05 / 08</div>
+      <span class="kick">작업하는 동안</span>
+      <h2>나중에 보여 줄 수 있게<br><em>남겨 두기</em></h2>
+      <ul class="chk">
+        <li>AI에게 실제로 보낸 지시 문장. 잘 된 것과 안 된 것 모두</li>
+        <li>쓴 도구와 어디에 썼는지</li>
+        <li>막혔을 때 지시를 어떻게 바꿨는지 한두 가지 예</li>
+      </ul>
+      <p class="small">필수는 아닙니다. 지시 문장을 메모 파일에 그대로 붙여 두기만 해도 14:00에 설명하기 훨씬 쉽습니다.</p>
+      <div class="art" aria-hidden="true">
+        <svg viewBox="0 0 300 100"><rect x="90" y="8" width="120" height="88" rx="8" fill="#fff" stroke="#14213d" stroke-width="3"/><rect x="128" y="2" width="44" height="14" rx="4" fill="#f26b1d"/><path d="M106 34 h88 M106 52 h70 M106 70 h80" stroke="#2457d6" stroke-width="4" stroke-linecap="round"/><path d="M226 74 l30 -30 8 8 -30 30 -12 4z" fill="#f26b1d"/></svg>
+      </div>
+    </article>
+
+    <article class="card" id="card6" aria-label="6 / 8: 14:00 결과 공유">
+      <div class="no">06 / 08</div>
+      <span class="kick o">결과 공유</span>
+      <div class="time o">14:00</div>
+      <h2>결과 공유 시간은<br>한 번 있습니다</h2>
+      <div class="four">
+        <div><b>1</b><span>구현한 것</span></div>
+        <div><b>2</b><span>AI에게 실제로 한 지시</span></div>
+        <div><b>3</b><span>쓴 도구</span></div>
+        <div><b>4</b><span>개발 방식</span></div>
+      </div>
+      <p class="small">이 네 가지를 보여 주세요. 특히 AI에게 어떻게 지시했는지, 어떤 도구를 썼는지를 분명하게 보여 주면 좋습니다.</p>
+      <div class="art" aria-hidden="true">
+        <svg viewBox="0 0 300 80"><rect x="60" y="6" width="180" height="56" rx="8" fill="#eaf0ff" stroke="#2457d6" stroke-width="3"/><path d="M80 44 l26 -18 22 12 30 -22" stroke="#f26b1d" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/><line x1="150" y1="62" x2="150" y2="78" stroke="#14213d" stroke-width="3"/><circle cx="30" cy="52" r="10" fill="#14213d"/><circle cx="270" cy="52" r="10" fill="#14213d"/></svg>
+      </div>
+    </article>
+
+    <article class="card cream" id="card7" aria-label="7 / 8: 공유용 템플릿">
+      <div class="no">07 / 08</div>
+      <span class="kick">공유 템플릿</span>
+      <h2>공유할 내용,<br>이렇게 정리해 보세요</h2>
+      <label for="tpl" class="small" style="margin-bottom:6px;display:block">쓰고 싶을 때만 쓰는 선택 양식입니다. 여기서 바로 고쳐 써도 되고, 복사해서 메모 앱에 붙여도 됩니다. 입력한 내용은 어디에도 저장되거나 전송되지 않습니다.</label>
+      <textarea class="tpl" id="tpl" spellcheck="false">[AI BUILD DAY 결과 공유]
+이름:
+만든 것 (한 줄):
+보여 줄 화면이나 동작:
+
+AI에게 한 지시 (실제 문장 1~2개):
+1)
+2)
+
+쓴 도구:
+진행 방식 (예: 명세 먼저, 테스트 먼저, 고치면서 반복):
+잘 된 점 / 막힌 점:</textarea>
+      <div class="copyrow"><button class="btn" id="copyBtn" type="button">템플릿 복사</button><span class="msg" id="copyMsg" role="status"></span></div>
+    </article>
+
+    <article class="card" id="card8" aria-label="8 / 8: 참고 자료와 요약">
+      <div class="no">08 / 08</div>
+      <span class="kick">참고 자료 (선택)</span>
+      <h2>시작이 막막하다면</h2>
+      <a class="ext" href="https://indra622.github.io/vibe-workshop/handbook-v01.html" target="_blank" rel="noopener" aria-label="AI 에이전트에게 일을 맡기는 법 핸드북, 새 창에서 열림">
+        <b>AI 에이전트에게 일을 맡기는 법 ↗</b>
+        <span>indra622.github.io/vibe-workshop/handbook-v01.html</span>
+      </a>
+      <div class="note">예제와 시작 방법을 참고하는 자료입니다. 이번 행사는 09:00에 바로 개인 작업을 시작합니다.</div>
+      <p class="small">읽지 않고 와도 됩니다.</p>
+      <div class="recap">
+        <div><b>09:00</b><span>금융캠퍼스 강의실, 바로 개인 작업</span></div>
+        <div><b>14:00</b><span>결과 공유: 구현, 지시, 도구, 방식</span></div>
+      </div>
+    </article>
+  </div>
+
+  <div class="hint">옆으로 넘겨서 카드 8장을 볼 수 있습니다.</div>
+  <nav class="ctrl" aria-label="카드 이동">
+    <button class="nav" id="prev" aria-label="이전 카드" type="button">‹</button>
+    <div class="dots" id="dots"></div>
+    <button class="nav" id="next" aria-label="다음 카드" type="button">›</button>
+  </nav>
+  <div class="count"><span id="counter" aria-live="polite">1 / 8</span><button id="listBtn" type="button" aria-pressed="false">모든 카드 펼쳐 보기</button></div>
+</div>
+
+<script>
+(function(){
+"use strict";
+document.documentElement.classList.add("js");
+var track=document.getElementById("track"),cards=[].slice.call(track.querySelectorAll(".card")),N=cards.length,cur=0;
+var mq=window.matchMedia?matchMedia("(prefers-reduced-motion: reduce)"):{matches:false};
+if(mq.matches)document.documentElement.classList.add("rm");
+var dots=document.getElementById("dots");
+cards.forEach(function(c,i){var b=document.createElement("button");b.className="dot";b.type="button";b.textContent=i+1;b.setAttribute("aria-label",(i+1)+"번 카드로 이동");b.addEventListener("click",function(){go(i)});dots.appendChild(b)});
+var dotEls=[].slice.call(dots.children);
+function setUI(i){cur=i;dotEls.forEach(function(d,k){d.setAttribute("aria-current",k===i?"true":"false")});
+  document.getElementById("counter").textContent=(i+1)+" / "+N;document.getElementById("prev").disabled=i===0;document.getElementById("next").disabled=i===N-1;
+  track.dataset.cur=i;var h="#card"+(i+1);if(location.hash!==h){try{history.replaceState(null,"",h)}catch(e){}}}
+function go(i,instant){i=Math.max(0,Math.min(N-1,i));setUI(i);
+  if(document.documentElement.classList.contains("listmode")){cards[i].scrollIntoView({block:"start",behavior:"auto"});return}
+  track.scrollTo({left:i*track.clientWidth,behavior:(instant||mq.matches)?"auto":"smooth"})}
+var t=null;track.addEventListener("scroll",function(){if(t)clearTimeout(t);t=setTimeout(function(){var w=track.clientWidth,i=Math.round(track.scrollLeft/w);if(i!==cur)setUI(Math.max(0,Math.min(N-1,i)))},90)},{passive:true});
+document.getElementById("prev").addEventListener("click",function(){go(cur-1)});
+document.getElementById("next").addEventListener("click",function(){go(cur+1)});
+document.addEventListener("keydown",function(e){var tg=e.target;if(tg&&(tg.tagName==="TEXTAREA"||tg.tagName==="INPUT"||tg.isContentEditable))return;if(e.altKey||e.ctrlKey||e.metaKey)return;
+  if(e.key==="ArrowRight"){e.preventDefault();go(cur+1)}else if(e.key==="ArrowLeft"){e.preventDefault();go(cur-1)}else if(e.key==="Home"){e.preventDefault();go(0)}else if(e.key==="End"){e.preventDefault();go(N-1)}});
+function fromHash(){var m=/^#card(\d+)$/.exec(location.hash);return m?Math.max(0,Math.min(N-1,+m[1]-1)):0}
+addEventListener("hashchange",function(){go(fromHash(),true)});
+addEventListener("resize",function(){go(cur,true)});
+go(fromHash(),true);
+/* all-cards reading mode */
+var lb=document.getElementById("listBtn");
+lb.addEventListener("click",function(){var on=!document.documentElement.classList.contains("listmode");document.documentElement.classList.toggle("listmode",on);document.getElementById("page").classList.toggle("list",on);lb.setAttribute("aria-pressed",on?"true":"false");lb.textContent=on?"한 장씩 넘겨 보기":"모든 카드 펼쳐 보기";if(!on)go(cur,true)});
+/* copy */
+var ta=document.getElementById("tpl"),msg=document.getElementById("copyMsg");
+function fallback(){ta.focus();ta.select();var ok=false;try{ok=document.execCommand("copy")}catch(e){}return ok}
+document.getElementById("copyBtn").addEventListener("click",function(){var txt=ta.value;
+  function done(){msg.textContent="복사했습니다."}
+  function fail(){if(fallback())done();else{ta.focus();ta.select();msg.textContent="자동 복사가 막혀 있습니다. 선택된 글을 직접 복사해 주세요."}}
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(txt).then(done,fail)}else fail()});
+})();
+</script>
+</body>
+</html>
